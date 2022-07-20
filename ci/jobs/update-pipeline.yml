@@ -1,8 +1,8 @@
 jobs:
   - name: update-pipeline
     plan:
-      - get: dataworks-repo-template-terraform
-        resource: dataworks-repo-template-terraform-update-pipeline
+      - get: dataworks-aws-ch
+        resource: dataworks-aws-ch-update-pipeline
         trigger: true
       - task: aviator
         config:
@@ -21,12 +21,12 @@ jobs:
                 /usr/bin/aviator -f aviator.yml
                 mv aviator_pipeline.yml ../pipeline
                 mv ci/vars.yml ../pipeline
-            dir: dataworks-repo-template-terraform
+            dir: dataworks-aws-ch
           inputs:
-            - name: dataworks-repo-template-terraform
+            - name: dataworks-aws-ch
           outputs:
             - name: pipeline
-      - set_pipeline: dataworks-repo-template-terraform
+      - set_pipeline: dataworks-aws-ch
         file: pipeline/aviator_pipeline.yml
         var_files:
           - pipeline/vars.yml

@@ -1,26 +1,26 @@
 resources:
-  - name: dataworks-repo-template-terraform-pr
+  - name: dataworks-aws-ch-pr
     type: pull-request
     source:
-      repository: dwp/dataworks-repo-template-terraform
+      repository: dwp/dataworks-aws-ch
       access_token: ((dataworks-secrets.concourse_github_pat))
     webhook_token: ((dataworks.concourse_github_webhook_token))
     check_every: 720h
 
-  - name: dataworks-repo-template-terraform
+  - name: dataworks-aws-ch
     type: git
     source:
       branch: master
-      uri: https://github.com/dwp/dataworks-repo-template-terraform.git
+      uri: https://github.com/dwp/dataworks-aws-ch.git
       access_token: ((dataworks-secrets.concourse_github_pat))
     webhook_token: ((dataworks.concourse_github_webhook_token))
     check_every: 720h
 
-  - name: dataworks-repo-template-terraform-update-pipeline
+  - name: dataworks-aws-ch-update-pipeline
     type: git
     source:
       branch: master
-      uri: https://github.com/dwp/dataworks-repo-template-terraform.git
+      uri: https://github.com/dwp/dataworks-aws-ch.git
       paths:
         - ci/*
         - aviator.yml
