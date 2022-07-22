@@ -32,18 +32,9 @@ variable "local_e2e_log_group_name" {
   description = "cw log group name for e2e tests"
 }
 
-variable "local_modules" {
-  type        = list(any)
-  description = "module names as they appear in the step scripts"
-}
-
 variable "local_metrics_namespace" {
   type        = string
   description = "namespace for ch metrics"
-}
-
-variable "var_steps_args" {
-  description = "additional arguments to submit steps"
 }
 
 variable "local_environment" {

@@ -30,11 +30,6 @@ resource "aws_s3_bucket_object" "emr_setup_sh" {
   })
 }
 
-resource "aws_s3_bucket_object" "ssm_script" {
-  bucket  = var.data_config_bucket_id
-  key     = "${var.local_ch_s3_prefix}/start_ssm.sh"
-  content = file("bootstrap_actions/start_ssm.sh")
-}
 
 resource "aws_s3_bucket_object" "installer_sh" {
   bucket = var.data_config_bucket_id
@@ -72,16 +67,4 @@ resource "aws_s3_bucket_object" "download_steps_code" {
       s3_bucket_prefix = var.local_ch_s3_prefix
     }
   )
-}
-
-resource "aws_s3_bucket_object" "metrics_pom" {
-  bucket  = var.data_config_bucket_id
-  key     = "${var.local_ch_s3_prefix}/metrics/pom.xml"
-  content = file("bootstrap_actions/metrics_config/pom.xml")
-}
-
-resource "aws_s3_bucket_object" "prometheus_config" {
-  bucket  = var.data_config_bucket_id
-  key     = "${var.local_ch_s3_prefix}/metrics/prometheus_config.yml"
-  content = file("bootstrap_actions/metrics_config/prometheus_config.yml")
 }

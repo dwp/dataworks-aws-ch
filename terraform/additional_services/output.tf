@@ -14,6 +14,6 @@ output "emr_security_conf_id" {
   value = aws_emr_security_configuration.ebs_emrfs_em.id
 }
 
-output "ch_adg_ebs_cmk" {
+output "ch_ebs_cmk" {
   value = aws_kms_key.ch_ebs_cmk
 }

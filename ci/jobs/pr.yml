@@ -4,10 +4,15 @@ jobs:
       - get: dataworks-aws-ch-pr
         trigger: true
         version: every
+      - get: al2-emr-ami
+      - get: emr-launcher-release
       - put: dataworks-aws-ch-pr
         params:
           path: dataworks-aws-ch-pr
           status: pending
+      - .: (( inject meta.plan.unit-tests))
+        input_mapping:
+          dataworks-aws-ch: dataworks-aws-ch-pr
       - .: (( inject meta.plan.terraform-bootstrap ))
         input_mapping:
           dataworks-aws-ch: dataworks-aws-ch-pr

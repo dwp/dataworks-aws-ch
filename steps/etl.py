@@ -369,7 +369,7 @@ def runtime_args():
 
 
 def all_args():
-    args = config("/opt/emr/steps/utils/conf.tpl")
+    args = config("/opt/emr/steps/conf.tpl")
     r_args = runtime_args()
     if r_args.e2e:
         args['args']['log_path'] = args['args']['e2e_log_path']

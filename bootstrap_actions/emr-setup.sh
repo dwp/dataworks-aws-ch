@@ -2,10 +2,10 @@
 echo "Creating shared directory"
 sudo mkdir -p /opt/shared
 sudo mkdir -p /opt/emr
-sudo mkdir -p /var/log/kickstart_adg
+sudo mkdir -p /var/log/ch
 sudo chown hadoop:hadoop /opt/emr
 sudo chown hadoop:hadoop /opt/shared
-sudo chown hadoop:hadoop /var/log/kickstart_adg
+sudo chown hadoop:hadoop /var/log/ch
 echo "${VERSION}" > /opt/emr/version
 echo "${LOG_LEVEL}" > /opt/emr/log_level
 echo "${ENVIRONMENT_NAME}" > /opt/emr/environment
@@ -20,13 +20,12 @@ chmod u+x /opt/shared/common_logging.sh
 chmod u+x /opt/emr/logging.sh
 chmod u+x /opt/emr/cloudwatch.sh
 
-
 (
 # Import the logging functions
 source /opt/emr/logging.sh
 
 function log_wrapper_message() {
-    log_adg_message "$${1}" "emr-setup.sh" "$${PID}" "$${@:2}" "Running as: ,$USER"
+    log_ch_message "$${1}" "emr-setup.sh" "$${PID}" "$${@:2}" "Running as: ,$USER"
 }
 
 log_wrapper_message "Setting up the Proxy"
@@ -90,7 +89,7 @@ log_wrapper_message "Retrieving the ACM Certificate details"
     --truststore-password "$TRUSTSTORE_PASSWORD" \
     --truststore-aliases "${truststore_aliases}" \
     --truststore-certs "${truststore_certs}" \
-    --jks-only true >> /var/log/kickstart_adg/acm-cert-retriever.log 2>&1
+    --jks-only true >> /var/log/ch/acm-cert-retriever.log 2>&1
 
 
 sudo -E /bin/acm-cert-retriever \
@@ -98,7 +97,7 @@ sudo -E /bin/acm-cert-retriever \
     --acm-key-passphrase "$ACM_KEY_PASSWORD" \
     --private-key-alias "${private_key_alias}" \
     --truststore-aliases "${truststore_aliases}" \
-    --truststore-certs "${truststore_certs}"  >> /var/log/kickstart_adg/acm-cert-retriever.log 2>&1
+    --truststore-certs "${truststore_certs}"  >> /var/log/ch/acm-cert-retriever.log 2>&1
 
 cd /etc/pki/ca-trust/source/anchors/
 sudo touch analytical_ca.pem
@@ -139,4 +138,4 @@ if [ "${os_version}" == "Amazon Linux release 2 (Karoo)" ]; then
   sudo systemctl start amazon-ssm-agent
 fi
 
-) >> /var/log/kickstart_adg/nohup.log 2>&1
+) >> /var/log/ch/nohup.log 2>&1

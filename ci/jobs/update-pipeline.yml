@@ -20,7 +20,6 @@ jobs:
                 sed -i 's/fly/nofly/' aviator.yml
                 /usr/bin/aviator -f aviator.yml
                 mv aviator_pipeline.yml ../pipeline
-                mv ci/vars.yml ../pipeline
             dir: dataworks-aws-ch
           inputs:
             - name: dataworks-aws-ch
@@ -28,5 +27,3 @@ jobs:
             - name: pipeline
       - set_pipeline: dataworks-aws-ch
         file: pipeline/aviator_pipeline.yml
-        var_files:
-          - pipeline/vars.yml

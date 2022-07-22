@@ -1,5 +1,5 @@
-output "kickstart_adg_common_sg" {
+output "ch_common_sg" {
   value = {
-    id = module.kickstart_security_groups.kickstart_adg_common_sg
+    id = module.ch_security_groups.ch_common_sg
   }
 }

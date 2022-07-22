@@ -1,15 +1,29 @@
 jobs:
   - name: qa
     max_in_flight: 1
+    serial_groups: [qa-applies]
     plan:
       - get: dataworks-aws-ch
         trigger: true
-        passed:
-          - development
+      - get: al2-emr-ami
+        trigger: true
+      - get: emr-launcher-release
+        trigger: true
+      - get: dataworks-behavioural-framework
+        trigger: false
+      - put: meta
+        resource: meta-qa
+      - .: (( inject meta.plan.unit-tests))
       - .: (( inject meta.plan.terraform-bootstrap ))
       - .: (( inject meta.plan.terraform-apply ))
         params:
           TF_WORKSPACE: 'qa'
+          AWS_ACC: ((aws_account.qa))
       - .: (( inject meta.plan.terraform-plan ))
         params:
           TF_WORKSPACE: 'qa'
+      - .: (( inject meta.plan.run-e2e-tests ))
+        config:
+          params:
+            AWS_ACC: ((aws_account.qa))
+            AWS_ROLE_ARN: arn:aws:iam::((aws_account.qa)):role/ci

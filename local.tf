@@ -62,7 +62,7 @@ locals {
         LocalDiskEncryptionConfiguration = {
           EnableEbsEncryption       = true
           EncryptionKeyProviderType = "AwsKms"
-          AwsKmsKey                 = module.kickstart_additional_services.kickstart_adg_ebs_cmk.arn
+          AwsKmsKey                 = module.ch_additional_services.ch_ebs_cmk.arn
         }
       }
     }

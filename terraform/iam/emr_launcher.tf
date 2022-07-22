@@ -6,7 +6,7 @@ resource "aws_iam_role" "ch_emr_launcher_lambda_role" {
 
 data "aws_iam_policy_document" "ch_emr_launcher_assume_policy" {
   statement {
-    sid     = "KickstartADGEMRLauncherLambdaAssumeRolePolicy"
+    sid     = "chEMRLauncherLambdaAssumeRolePolicy"
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
 

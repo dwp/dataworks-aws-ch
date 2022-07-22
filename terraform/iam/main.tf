@@ -1,37 +1,8 @@
-resource "aws_iam_policy" "ch_cross_acct_policy" {
-
-  name        = "ch_cross_acc_assume_role"
-  description = "This policy gives access to ch_s3_readonly role to assume cross account role. Please note this policy can only be used by ch_s3_readonly role to gain access, as other account has only trusted ch_s3_readonly role to establish the connectivity from dataworks"
-  policy      = data.aws_iam_policy_document.ch_cross_acc_policy.json
-}
-
 resource "aws_iam_role" "dw_ksr_s3_readonly" {
   name               = "ch_s3_readonly"
   description        = "This is an IAM role which assumes role from UC side to gain temporary read access on S3 bucket for ch data"
   assume_role_policy = data.aws_iam_policy_document.dw_ksr_assume_role.json
   tags               = var.local_common_tags
-}
-
-resource "aws_iam_role_policy_attachment" "ch_cross_acct_attachment" {
-  role       = aws_iam_role.dw_ksr_s3_readonly.name
-  policy_arn = aws_iam_policy.ch_cross_acct_policy.arn
-}
-
-data "aws_iam_policy_document" "ch_cross_acc_policy" {
-  statement {
-    sid     = "chCrossAccountAssumeRole"
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-    resources = flatten([
-      #change the value whether to run in where to run the code
-      var.local_environment == "development" || var.local_environment == "qa" || var.local_environment == "preprod" || var.local_environment == "production" ?
-      flatten([
-        format("arn:aws:iam::%s:role/%s", var.local_source_acc_nos[var.local_vacancies_environment_mapping[var.local_environment]], var.local_vacancies_assume_iam_role[var.local_environment]),
-        format("arn:aws:iam::%s:role/%s", var.local_applications_source_acc_nos[var.local_applications_environment_mapping[var.local_environment]], var.local_application_assume_iam_role[var.local_environment]),
-      ]) :
-      [format("arn:aws:iam::%s:role/%s", var.local_source_acc_nos[var.local_vacancies_environment_mapping[var.local_environment]], var.local_vacancies_assume_iam_role[var.local_environment]), ]
-    ])
-  }
 }
 
 
@@ -48,7 +19,7 @@ data "aws_iam_policy_document" "ch_acm" {
 }
 
 resource "aws_iam_policy" "ch_acm" {
-  name        = "ACMExportchDatasetGeneratorCert"
+  name        = "ACMExportchCert"
   description = "Allow export of Dataset Generator certificate"
   policy      = data.aws_iam_policy_document.ch_acm.json
 }
@@ -66,7 +37,7 @@ data "aws_iam_policy_document" "ec2_assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "ch_dataset_generator_write_data" {
+data "aws_iam_policy_document" "ch_write_data" {
   statement {
     effect = "Allow"
 
@@ -119,42 +90,7 @@ resource "aws_iam_policy" "ch_write_data" {
   policy      = data.aws_iam_policy_document.ch_write_data.json
 }
 
-data "aws_iam_policy_document" "ch_secretsmanager" {
-  statement {
-    effect = "Allow"
 
-    actions = [
-      "secretsmanager:GetSecretValue",
-    ]
-
-    resources = [
-      var.ch_secret.arn,
-    ]
-  }
-}
-
-data "aws_iam_policy_document" "ch_assume_role_policy" {
-  statement {
-    sid       = "ChCrossAccountAssumeRole"
-    effect    = "Allow"
-    actions   = ["sts:AssumeRole"]
-    resources = ["arn:aws:iam::*:role/ch_s3_readonly"]
-  }
-
-}
-
-resource "aws_iam_policy" "ch_assume_role_policy" {
-
-  name        = "ch_assume_role"
-  description = "This policy gives access to assume role on ch_s3_readonly role."
-  policy      = data.aws_iam_policy_document.ch_assume_role_policy.json
-}
-
-resource "aws_iam_policy" "ch_secretsmanager" {
-  name        = "ChSecretsManager"
-  description = "Allow reading of ch config values"
-  policy      = data.aws_iam_policy_document.ch_secretsmanager.json
-}
 
 resource "aws_iam_role" "ch" {
   name               = "ch"
@@ -167,10 +103,6 @@ resource "aws_iam_instance_profile" "ch" {
   role = aws_iam_role.ch.id
 }
 
-resource "aws_iam_role_policy_attachment" "ch_assume_role_attachment" {
-  role       = aws_iam_role.ch_emr_service.name
-  policy_arn = aws_iam_policy.ch_assume_role_policy.arn
-}
 
 resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
   role       = aws_iam_role.ch.name
@@ -195,11 +127,6 @@ resource "aws_iam_role_policy_attachment" "ch_write_data" {
 resource "aws_iam_role_policy_attachment" "ch_acm" {
   role       = aws_iam_role.ch.name
   policy_arn = aws_iam_policy.ch_acm.arn
-}
-
-resource "aws_iam_role_policy_attachment" "emr_ch_secretsmanager" {
-  role       = aws_iam_role.ch.name
-  policy_arn = aws_iam_policy.ch_secretsmanager.arn
 }
 
 data "aws_iam_policy_document" "ch_write_logs" {

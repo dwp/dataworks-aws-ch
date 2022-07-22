@@ -3,7 +3,7 @@
 source /opt/emr/logging.sh
 
 function log_wrapper_message() {
-    log_adg_message "$${1}" "installer.sh" "$${PID}" "$${@:2}" "Running as: ,$USER"
+    log_ch_message "$${1}" "installer.sh" "$${PID}" "$${@:2}" "Running as: ,$USER"
 }
 
 log_wrapper_message "Setting up the HTTP, NO_PROXY & HTTPS Proxy"
@@ -22,12 +22,12 @@ if [ ! -x $PIP ]; then
   PIP=/usr/bin/pip-3.6
 fi
 
-sudo -E $PIP install boto3==1.23.1 >> /var/log/kickstart_adg/install-boto3.log 2>&1
-sudo -E $PIP install requests >> /var/log/kickstart_adg/install-requests.log 2>&1
-sudo yum install -y python3-devel >> /var/log/kickstart_adg/install-pycrypto.log 2>&1
-sudo -E $PIP install pycrypto >> /var/log/kickstart_adg/install-pycrypto.log 2>&1
-sudo yum remove -y python3-devel >> /var/log/kickstart_adg/install-pycrypto.log 2>&1
+sudo -E $PIP install boto3==1.23.1 >> /var/log/ch/install-boto3.log 2>&1
+sudo -E $PIP install requests >> /var/log/ch/install-requests.log 2>&1
+sudo yum install -y python3-devel >> /var/log/ch/install-pycrypto.log 2>&1
+sudo -E $PIP install pycrypto >> /var/log/ch/install-pycrypto.log 2>&1
+sudo yum remove -y python3-devel >> /var/log/ch/install-pycrypto.log 2>&1
 
 log_wrapper_message "Completed the installer.sh step of the EMR Cluster"
 
-) >> /var/log/kickstart_adg/nohup.log 2>&1
+) >> /var/log/ch/nohup.log 2>&1
