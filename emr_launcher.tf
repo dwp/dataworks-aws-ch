@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "ch_emr_launcher" {
   filename      = "${var.emr_launcher_zip["base_path"]}/emr-launcher-${var.emr_launcher_zip["version"]}.zip"
   function_name = "ch_emr_launcher"
-  role          = var.ch_emr_launcher_lambda_role_arn
+  role          = aws_iam_role.ch_emr_launcher_lambda_role.arn
   handler       = "emr_launcher/handler.handler"
   runtime       = "python3.7"
   source_code_hash = filebase64sha256(
@@ -15,7 +15,7 @@ resource "aws_lambda_function" "ch_emr_launcher" {
   timeout = 60
   environment {
     variables = {
-      EMR_LAUNCHER_CONFIG_S3_BUCKET = var.data_config_bucket.id
+      EMR_LAUNCHER_CONFIG_S3_BUCKET = local.config_bucket
       EMR_LAUNCHER_CONFIG_S3_FOLDER = "emr/ch"
       EMR_LAUNCHER_LOG_LEVEL        = "debug"
     }

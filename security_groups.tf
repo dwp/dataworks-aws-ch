@@ -2,36 +2,32 @@ provider "aws" {
   alias = "aws"
 }
 
-provider "aws" {
-  alias = "crypto"
-}
-
 resource "aws_security_group" "ch_master" {
   name                   = "ch Master"
   description            = "Contains rules for ch master nodes; most rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
-  vpc_id                 = var.data_internal_compute_vpc_id
+  vpc_id                 = local.internal_compute_vpc_id
 }
 
 resource "aws_security_group" "ch_slave" {
   name                   = "ch Slave"
   description            = "Contains rules for ch slave nodes; most rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
-  vpc_id                 = var.data_internal_compute_vpc_id
+  vpc_id                 = local.internal_compute_vpc_id
 }
 
 resource "aws_security_group" "ch_common" {
   name                   = "ch Common"
   description            = "Contains rules for both ch master and slave nodes"
   revoke_rules_on_delete = true
-  vpc_id                 = var.data_internal_compute_vpc_id
+  vpc_id                 = local.internal_compute_vpc_id
 }
 
 resource "aws_security_group" "ch_emr_service" {
   name                   = "ch ADG EMR Service"
   description            = "Contains rules for ch EMR service when managing the ch cluster; rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
-  vpc_id                 = var.data_internal_compute_vpc_id
+  vpc_id                 = local.internal_compute_vpc_id
 }
 
 resource "aws_security_group_rule" "egress_https_to_vpc_endpoints" {
@@ -41,14 +37,14 @@ resource "aws_security_group_rule" "egress_https_to_vpc_endpoints" {
   security_group_id        = aws_security_group.ch_common.id
   to_port                  = 443
   type                     = "egress"
-  source_security_group_id = var.data_vpc_interface_sg_id
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.interface_vpce_sg_id
 }
 
 resource "aws_security_group_rule" "ingress_https_vpc_endpoints_from_emr" {
   description              = "Allow HTTPS traffic from ch"
   from_port                = 443
   protocol                 = "tcp"
-  security_group_id        = var.data_vpc_interface_sg_id
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.interface_vpce_sg_id
   to_port                  = 443
   type                     = "ingress"
   source_security_group_id = aws_security_group.ch_common.id
@@ -60,7 +56,7 @@ resource "aws_security_group_rule" "egress_https_s3_endpoint" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  prefix_list_ids   = [var.data_vpc_prefix_list_ids.s3]
+  prefix_list_ids   = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.prefix_list_ids.s3]
   security_group_id = aws_security_group.ch_common.id
 }
 
@@ -70,7 +66,7 @@ resource "aws_security_group_rule" "egress_http_s3_endpoint" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  prefix_list_ids   = [var.data_vpc_prefix_list_ids.s3]
+  prefix_list_ids   = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.prefix_list_ids.s3]
   security_group_id = aws_security_group.ch_common.id
 }
 
@@ -80,7 +76,7 @@ resource "aws_security_group_rule" "egress_https_dynamodb_endpoint" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  prefix_list_ids   = [var.data_vpc_prefix_list_ids.dynamodb]
+  prefix_list_ids   = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.prefix_list_ids.dynamodb]
   security_group_id = aws_security_group.ch_common.id
 }
 
@@ -90,7 +86,7 @@ resource "aws_security_group_rule" "egress_internet_proxy" {
   from_port                = 3128
   to_port                  = 3128
   protocol                 = "tcp"
-  source_security_group_id = var.data_internet_proxy_sg
+  source_security_group_id = local.proxy_sg
   security_group_id        = aws_security_group.ch_common.id
 }
 
@@ -101,7 +97,7 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
   to_port                  = 3128
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = var.data_internet_proxy_sg
+  security_group_id        = local.proxy_sg
 }
 
 resource "aws_security_group_rule" "egress_to_dks" {
@@ -110,7 +106,7 @@ resource "aws_security_group_rule" "egress_to_dks" {
   from_port         = 8443
   to_port           = 8443
   protocol          = "tcp"
-  cidr_blocks       = var.data_cidr_blocks
+  cidr_blocks       = data.terraform_remote_state.crypto.outputs.dks_subnet.cidr_blocks
   security_group_id = aws_security_group.ch_common.id
 }
 
@@ -121,8 +117,8 @@ resource "aws_security_group_rule" "ingress_to_dks" {
   protocol          = "tcp"
   from_port         = 8443
   to_port           = 8443
-  cidr_blocks       = var.data_ch_cidr_blocks
-  security_group_id = var.data_dks_sg_id[var.local_environment]
+  cidr_blocks       = data.terraform_remote_state.crypto.outputs.dks_subnet.cidr_blocks
+  security_group_id = data.terraform_remote_state.crypto.outputs.dks_sg_id[local.environment]
 }
 
 # https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-man-sec-groups.html#emr-sg-elasticmapreduce-sa-private
@@ -216,7 +212,7 @@ resource "aws_security_group_rule" "ch_to_hive_metastore_v2" {
   to_port                  = 3306
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = var.data_metastore_v2_sg_id
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
 }
 
 resource "aws_security_group_rule" "hive_metastore_v2_from_ch" {
@@ -226,5 +222,5 @@ resource "aws_security_group_rule" "hive_metastore_v2_from_ch" {
   to_port                  = 3306
   protocol                 = "tcp"
   security_group_id        = aws_security_group.ch_common.id
-  source_security_group_id = var.data_metastore_v2_sg_id
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
 }

@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "emr_assume_role" {
 resource "aws_iam_role" "ch_emr_service" {
   name               = "ch_emr_service_role"
   assume_role_policy = data.aws_iam_policy_document.emr_assume_role.json
-  tags               = var.local_common_tags
+  tags               = local.common_repo_tags
 }
 
 resource "aws_iam_role_policy_attachment" "emr_attachment" {

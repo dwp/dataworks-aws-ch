@@ -2,7 +2,7 @@ resource "aws_iam_role" "dw_ksr_s3_readonly" {
   name               = "ch_s3_readonly"
   description        = "This is an IAM role which assumes role from UC side to gain temporary read access on S3 bucket for ch data"
   assume_role_policy = data.aws_iam_policy_document.dw_ksr_assume_role.json
-  tags               = var.local_common_tags
+  tags               = local.common_repo_tags
 }
 
 
@@ -95,7 +95,7 @@ resource "aws_iam_policy" "ch_write_data" {
 resource "aws_iam_role" "ch" {
   name               = "ch"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
-  tags               = var.local_common_tags
+  tags               = local.common_repo_tags
 }
 
 resource "aws_iam_instance_profile" "ch" {
@@ -153,7 +153,7 @@ data "aws_iam_policy_document" "ch_write_logs" {
     ]
 
     resources = [
-      "${var.data_logstore_bucket_arn}/${var.local_s3_log_prefix}",
+      "${var.data_logstore_bucket_arn}/${local.s3_log_prefix}",
     ]
   }
 }
@@ -255,7 +255,7 @@ data "aws_iam_policy_document" "ch_read_artefacts" {
     ]
 
     resources = [
-      var.data_artefact_bucket.cmk_arn,
+      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.cmk_arn,
     ]
   }
 }
@@ -274,13 +274,11 @@ resource "aws_iam_role_policy_attachment" "ch_read_artefacts" {
 data "aws_iam_policy_document" "ch_write_dynamodb" {
   statement {
     effect = "Allow"
-
     actions = [
       "dynamodb:*",
     ]
-
     resources = [
-      "arn:aws:dynamodb:${var.var_region}:${var.local_account[var.local_environment]}:table/${var.data_audit_table_name}"
+      "arn:aws:dynamodb:${var.region}:${local.account[local.environment]}:table/${local.audit_table.name}"
     ]
   }
 }
@@ -306,7 +304,7 @@ data "aws_iam_policy_document" "ch_metadata_change" {
     ]
 
     resources = [
-      "arn:aws:ec2:${var.var_region}:${var.local_account[var.local_environment]}:instance/*",
+      "arn:aws:ec2:${var.region}:${local.account[local.environment]}:instance/*",
     ]
   }
 }
@@ -343,9 +341,7 @@ data "aws_iam_policy_document" "ch_sns_topic_policy_for_alert" {
 
     effect = "Allow"
 
-    resources = [
-      var.data_sns_monitoring_topic_arn
-    ]
+    resources = [local.monitoring_topic_arn]
   }
 }
 
@@ -363,7 +359,6 @@ data "aws_iam_policy_document" "dw_ksr_assume_role" {
       identifiers = ["ec2.amazonaws.com"]
       type        = "Service"
     }
-
     actions = ["sts:AssumeRole"]
   }
 }
@@ -379,6 +374,6 @@ data "aws_iam_policy_document" "ch_publish_for_trigger" {
       identifiers = ["events.amazonaws.com"]
       type        = "Service"
     }
-    resources = [var.ch_trigger_topic_arn]
+    resources = []
   }
 }

@@ -1,7 +1,6 @@
-
 resource "aws_acm_certificate" "ch" {
-  certificate_authority_arn = var.root_certificate_authority_arn
-  domain_name               = "ch.${var.local_env_prefix[var.local_environment]}${var.local_dataworks_domain_name}"
+  certificate_authority_arn = data.terraform_remote_state.aws_certificate_authority.outputs.root_ca.arn
+  domain_name               = "ch.${local.env_prefix[local.environment]}${local.dataworks_domain_name}"
 
   options {
     certificate_transparency_logging_preference = "ENABLED"
@@ -10,16 +9,14 @@ resource "aws_acm_certificate" "ch" {
 
 resource "aws_emr_security_configuration" "ebs_emrfs_em" {
   name          = "ch_ebs_emrfs"
-  configuration = jsonencode(var.local_ebs_emrfs_em)
+  configuration = jsonencode(local.ebs_emrfs_em)
 }
-
-
 
 resource "aws_sns_topic" "trigger_ch_sns" {
   name = "trigger_ch_process"
 
   tags = merge(
-    var.local_common_tags,
+    local.common_repo_tags,
     {
       "Name" = "trigger_ch_sns"
     },
@@ -28,7 +25,7 @@ resource "aws_sns_topic" "trigger_ch_sns" {
 
 resource "aws_sns_topic_policy" "default" {
   arn    = aws_sns_topic.trigger_ch_sns.arn
-  policy = var.ch_publish_for_trigger_policy
+  policy = data.aws_iam_policy_document.ch_publish_for_trigger.json
 }
 
 //data "aws_secretsmanager_secret_version" "terraform_secrets" {

@@ -1,10 +1,22 @@
+data "aws_iam_role" "ci" {
+  name = "ci"
+}
+
+data "aws_iam_role" "administrator" {
+  name = "administrator"
+}
+
+data "aws_iam_role" "aws_config" {
+  name = "aws_config"
+}
+
 data "aws_iam_policy_document" "ch_ebs_cmk" {
   statement {
     sid    = "EnableIAMPermissionsCI"
     effect = "Allow"
 
     principals {
-      identifiers = [var.data_ci_role_arn]
+      identifiers = [data.aws_iam_role.ci.arn]
       type        = "AWS"
     }
 
@@ -30,7 +42,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
     effect = "Allow"
 
     principals {
-      identifiers = [var.data_administrator_role_arn]
+      identifiers = [data.aws_iam_role.administrator.arn]
       type        = "AWS"
     }
 
@@ -57,7 +69,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
 
     principals {
       type        = "AWS"
-      identifiers = [var.data_ci_role_arn]
+      identifiers = [data.aws_iam_role.ci.arn]
     }
 
     actions = [
@@ -75,7 +87,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
 
     principals {
       type        = "AWS"
-      identifiers = [var.data_aws_config_role_arn]
+      identifiers = [data.aws_iam_role.aws_config.arn]
     }
 
     actions = [
@@ -114,7 +126,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
 
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.ch_service.arn, aws_iam_role.ch.arn]
+      identifiers = [aws_iam_role.ch_emr_service.arn, aws_iam_role.ch.arn]
     }
 
     actions = ["kms:CreateGrant"]
@@ -142,7 +154,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
       "kms:DescribeKey",
     ]
 
-    resources = [var.ch_ebs_kms_key_arn]
+    resources = [aws_kms_key.ch_ebs_cmk]
   }
 
   statement {
@@ -150,7 +162,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
 
     actions = ["kms:CreateGrant"]
 
-    resources = [var.ch_ebs_kms_key_arn]
+    resources = [aws_kms_key.ch_ebs_cmk]
     condition {
       test     = "Bool"
       variable = "kms:GrantIsForAWSResource"

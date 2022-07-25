@@ -1,25 +1,26 @@
 locals {
-  emr_cluster_name       = "ch"
-  master_instance_type   = "m5.2xlarge"
-  master_instance_count  = 1
-  core_instance_type     = "m5.2xlarge"
-  core_instance_count    = 1
-  task_instance_type     = "m5.2xlarge"
-  task_instance_count    = 0
-  dks_port               = 8443
-  env_certificate_bucket = "dw-${local.environment}-public-certificates"
-  dks_endpoint           = data.terraform_remote_state.crypto.outputs.dks_endpoint[local.environment]
-
+  emr_cluster_name        = "ch"
+  master_instance_type    = "m5.2xlarge"
+  master_instance_count   = 1
+  core_instance_type      = "m5.2xlarge"
+  core_instance_count     = 1
+  task_instance_type      = "m5.2xlarge"
+  task_instance_count     = 0
+  dks_port                = 8443
+  env_certificate_bucket  = "dw-${local.environment}-public-certificates"
+  dks_endpoint            = data.terraform_remote_state.crypto.outputs.dks_endpoint[local.environment]
+  internal_compute_vpc_id = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+  monitoring_topic_arn = data.terraform_remote_state.security-tools.outputs.sns_topic_london_monitoring.arn
   crypto_workspace = {
     management-dev = "management-dev"
     management     = "management"
   }
-
+  audit_table = data.terraform_remote_state.internal_compute.outputs.data_pipeline_metadata_dynamo
   management_workspace = {
     management-dev = "default"
     management     = "management"
   }
-
+  steps = ["etl"]
   management_account = {
     development = "management-dev"
     qa          = "management-dev"
@@ -27,7 +28,6 @@ locals {
     preprod     = "management"
     production  = "management"
   }
-
   root_dns_name = {
     development = "dev.dataworks.dwp.gov.uk"
     qa          = "qa.dataworks.dwp.gov.uk"
@@ -35,7 +35,6 @@ locals {
     preprod     = "pre.dataworks.dwp.gov.uk"
     production  = "dataworks.dwp.gov.uk"
   }
-
   ch_log_level = {
     development = "DEBUG"
     qa          = "DEBUG"
@@ -83,16 +82,21 @@ locals {
     preprod     = "CONTINUE"
     production  = "CONTINUE"
   }
-
+  rds_cluster               = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster
   cw_agent_namespace        = "/app/ch"
   cw_agent_log_group_name   = "/app/ch"
   bootstrap_log_group_name  = "/app/ch/bootstrap_actions"
   steps_log_group_name      = "/app/ch/step_logs"
   yarn_spark_log_group_name = "/app/ch/yarn-spark_logs"
   e2e_log_group_name        = "/app/ch/e2e_logs"
-
-  s3_log_prefix = "emr/ch"
-
+  ch_writer                 = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer
+  s3_log_prefix             = "emr/ch"
+  stage_bucket              = data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.id
+  config_bucket             = data.terraform_remote_state.common.outputs.config_bucket.id
+  full_proxy                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url
+  proxy_host                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
+  proxy_port                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
+  proxy_sg                  = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
   env_prefix = {
     development = "dev."
     qa          = "qa."
@@ -110,7 +114,8 @@ locals {
   }
   metrics_namespace = "app/ch/"
   ch_s3_prefix      = "component/ch"
-
+  publish_bucket    = data.terraform_remote_state.common.outputs.published_bucket.id
+  logstore_bucket   = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
   # See https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/
   spark_num_cores_per_node         = var.emr_num_cores_per_core_instance[local.environment] - 1
   spark_num_nodes                  = local.core_instance_count + local.task_instance_count + local.master_instance_count

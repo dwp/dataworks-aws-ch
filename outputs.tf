@@ -1,5 +1,5 @@
 output "ch_common_sg" {
   value = {
-    id = module.ch_security_groups.ch_common_sg
+    id = aws_security_group.ch_common.id
   }
 }

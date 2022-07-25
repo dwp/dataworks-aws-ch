@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
       "s3:GetObject",
     ]
     resources = [
-      format("arn:aws:s3:::%s/emr/ch/*", var.data_config_bucket_id)
+      format("arn:aws:s3:::%s/emr/ch/*", local.config_bucket)
     ]
   }
   statement {
@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
       "kms:Decrypt",
     ]
     resources = [
-      var.data_config_bucket_cmk_arn
+      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn
     ]
   }
 }
@@ -50,8 +50,6 @@ data "aws_iam_policy_document" "ch_emr_launcher_runjobflow_policy" {
     ]
   }
 }
-
-
 
 data "aws_iam_policy_document" "ch_emr_launcher_pass_role_document" {
   statement {
