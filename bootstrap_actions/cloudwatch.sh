@@ -91,18 +91,6 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/status_metrics.log",
-            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
-            "log_stream_name": "{instance_id}-status_metrics.log",
-            "timezone": "UTC"
-          },
-          {
-            "file_path": "/var/log/ch/generate-analytical-dataset.log",
-            "log_group_name": "$${cwa_steps_loggrp_name}",
-            "log_stream_name": "{instance_id}-generate-analytical-dataset.log",
-            "timezone": "UTC"
-          },
-          {
             "file_path": "/var/log/ch/e2e-tests.log",
             "log_group_name": "$${cwa_tests_loggrp_name}",
             "log_stream_name": "e2e-tests.log",

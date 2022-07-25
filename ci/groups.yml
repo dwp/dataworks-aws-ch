@@ -9,9 +9,6 @@ groups:
   - name: pull-request
     jobs:
       - dataworks-aws-ch-pr
-  - name: generate-test-data
-    jobs:
-      - generate-test-data-dev
   - name: update-pipeline
     jobs:
       - update-pipeline

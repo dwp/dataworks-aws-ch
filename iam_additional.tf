@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "ch_acm" {
 
 resource "aws_iam_policy" "ch_acm" {
   name        = "ACMExportchCert"
-  description = "Allow export of Dataset Generator certificate"
+  description = "Allow export of ch certificate"
   policy      = data.aws_iam_policy_document.ch_acm.json
 }
 
