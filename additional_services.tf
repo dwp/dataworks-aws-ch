@@ -28,6 +28,21 @@ resource "aws_sns_topic_policy" "default" {
   policy = data.aws_iam_policy_document.ch_publish_for_trigger.json
 }
 
+data "aws_iam_policy_document" "ch_publish_for_trigger" {
+  statement {
+    sid     = "TriggerchSNS"
+    actions = ["SNS:Publish"]
+    effect  = "Allow"
+
+    principals {
+      identifiers = ["events.amazonaws.com"]
+      type        = "Service"
+    }
+    resources = [aws_sns_topic.trigger_ch_sns.arn]
+  }
+}
+
+
 //data "aws_secretsmanager_secret_version" "terraform_secrets" {
 //  provider  = aws.management_dns
 //  secret_id = "/concourse/dataworks/terraform"

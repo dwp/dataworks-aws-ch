@@ -1,16 +1,5 @@
-data "aws_iam_role" "ci" {
-  name = "ci"
-}
 
-data "aws_iam_role" "administrator" {
-  name = "administrator"
-}
-
-data "aws_iam_role" "aws_config" {
-  name = "aws_config"
-}
-
-data "aws_iam_policy_document" "ch_ebs_cmk" {
+data "aws_iam_policy_document" "ch_ebs_cmk_s" {
   statement {
     sid    = "EnableIAMPermissionsCI"
     effect = "Allow"
@@ -89,20 +78,17 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
       type        = "AWS"
       identifiers = [data.aws_iam_role.aws_config.arn]
     }
-
     actions = [
       "kms:Describe*",
       "kms:Get*",
       "kms:List*"
     ]
-
     resources = ["*"]
   }
 
   statement {
     sid    = "EnableIAMPermissionsAnalyticDatasetGen"
     effect = "Allow"
-
     principals {
       type        = "AWS"
       identifiers = [aws_iam_role.ch_emr_service.arn, aws_iam_role.ch.arn]
@@ -115,31 +101,24 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
       "kms:GenerateDataKey*",
       "kms:DescribeKey"
     ]
-
     resources = ["*"]
-
   }
 
   statement {
     sid    = "AllowADGServiceGrant"
     effect = "Allow"
-
     principals {
       type        = "AWS"
       identifiers = [aws_iam_role.ch_emr_service.arn, aws_iam_role.ch.arn]
     }
-
-    actions = ["kms:CreateGrant"]
-
+    actions   = ["kms:CreateGrant"]
     resources = ["*"]
-
     condition {
       test     = "Bool"
       variable = "kms:GrantIsForAWSResource"
       values   = ["true"]
     }
   }
-
 }
 
 data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
@@ -153,16 +132,13 @@ data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
       "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
-
-    resources = [aws_kms_key.ch_ebs_cmk]
+    resources = [aws_kms_key.ch_ebs_cmk.arn]
   }
 
   statement {
-    effect = "Allow"
-
-    actions = ["kms:CreateGrant"]
-
-    resources = [aws_kms_key.ch_ebs_cmk]
+    effect    = "Allow"
+    actions   = ["kms:CreateGrant"]
+    resources = [aws_kms_key.ch_ebs_cmk.arn]
     condition {
       test     = "Bool"
       variable = "kms:GrantIsForAWSResource"

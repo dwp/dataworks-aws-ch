@@ -1,5 +1,5 @@
 resource "aws_s3_bucket_object" "cluster" {
-  bucket = local.config_bucket
+  bucket = local.publish_bucket.id
   key    = "emr/ch/cluster.yaml"
   content = templatefile("cluster_config/cluster.yaml.tpl",
     {
@@ -15,14 +15,14 @@ resource "aws_s3_bucket_object" "cluster" {
 }
 
 resource "aws_s3_bucket_object" "instances" {
-  bucket = local.config_bucket
+  bucket = local.publish_bucket.id
   key    = "emr/ch/instances.yaml"
   content = templatefile("cluster_config/instances.yaml.tpl",
     {
       keep_cluster_alive  = local.keep_cluster_alive[local.environment]
       add_master_sg       = aws_security_group.ch_common.id
       add_slave_sg        = aws_security_group.ch_common
-      subnet_ids          = data.terraform_remote_state.internal_compute.outputs.kickstart_adg_subnet.ids
+      subnet_ids          = data.terraform_remote_state.internal_compute.outputs.ch_subnet.ids
       master_sg           = aws_security_group.ch_master.id
       slave_sg            = aws_security_group.ch_slave.id
       service_access_sg   = aws_security_group.ch_emr_service.id
@@ -33,18 +33,18 @@ resource "aws_s3_bucket_object" "instances" {
 }
 
 resource "aws_s3_bucket_object" "steps" {
-  bucket = local.config_bucket
+  bucket = local.publish_bucket.id
   key    = "emr/ch/steps.yaml"
   content = templatefile("cluster_config/steps.yaml.tpl",
     {
-      s3_config_bucket  = local.config_bucket
+      s3_config_bucket  = local.publish_bucket.id
       action_on_failure = local.step_fail_action[local.environment]
     }
   )
 }
 
 resource "aws_s3_bucket_object" "configurations" {
-  bucket = local.config_bucket
+  bucket = local.publish_bucket.id
   key    = "emr/ch/configurations.yaml"
   content = templatefile("cluster_config/configurations.yaml.tpl",
     {

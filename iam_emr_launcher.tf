@@ -23,9 +23,7 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
     actions = [
       "s3:GetObject",
     ]
-    resources = [
-      format("arn:aws:s3:::%s/emr/ch/*", local.config_bucket)
-    ]
+    resources = [local.config_bucket.arn]
   }
   statement {
     effect = "Allow"

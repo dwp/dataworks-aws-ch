@@ -133,8 +133,7 @@ log_wrapper_message "Completed the emr-setup.sh step of the EMR Cluster"
 # again for unknown reasons.
 
 os_version=$(cat /etc/system-release)
-
-if [ "${os_version}" == "Amazon Linux release 2 (Karoo)" ]; then
+if [ "$${os_version}" == "Amazon Linux release 2 (Karoo)" ]; then
   sudo systemctl start amazon-ssm-agent
 fi
 

@@ -6,7 +6,6 @@ data "aws_iam_policy_document" "emr_assume_role" {
       type        = "Service"
       identifiers = ["elasticmapreduce.amazonaws.com"]
     }
-
     actions = ["sts:AssumeRole"]
   }
 }
@@ -14,7 +13,12 @@ data "aws_iam_policy_document" "emr_assume_role" {
 resource "aws_iam_role" "ch_emr_service" {
   name               = "ch_emr_service_role"
   assume_role_policy = data.aws_iam_policy_document.emr_assume_role.json
-  tags               = local.common_repo_tags
+    tags              = merge(
+    local.common_repo_tags,
+    {
+      Name                  = "ch_service_emr"
+    }
+  )
 }
 
 resource "aws_iam_role_policy_attachment" "emr_attachment" {

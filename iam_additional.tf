@@ -1,9 +1,3 @@
-resource "aws_iam_role" "dw_ksr_s3_readonly" {
-  name               = "ch_s3_readonly"
-  description        = "This is an IAM role which assumes role from UC side to gain temporary read access on S3 bucket for ch data"
-  assume_role_policy = data.aws_iam_policy_document.dw_ksr_assume_role.json
-  tags               = local.common_repo_tags
-}
 
 
 data "aws_iam_policy_document" "ch_acm" {
@@ -14,7 +8,7 @@ data "aws_iam_policy_document" "ch_acm" {
       "acm:ExportCertificate",
     ]
 
-    resources = [var.ch_acm_certificate_arn]
+    resources = [aws_acm_certificate.ch.arn]
   }
 }
 
@@ -47,7 +41,7 @@ data "aws_iam_policy_document" "ch_write_data" {
     ]
 
     resources = [
-      var.data_published_bucket_arn
+      local.publish_bucket.arn
     ]
   }
 
@@ -62,8 +56,8 @@ data "aws_iam_policy_document" "ch_write_data" {
     ]
 
     resources = [
-      "${var.data_published_bucket_arn}/data/uc_ch/*",
-      "${var.data_published_bucket_arn}/ch/*",
+      "${local.publish_bucket.arn}/data/uc_ch/*",
+      "${local.publish_bucket.arn}/ch/*",
     ]
   }
 
@@ -79,7 +73,7 @@ data "aws_iam_policy_document" "ch_write_data" {
     ]
 
     resources = [
-      var.data_published_bucket_cmk
+      data.terraform_remote_state.common.outputs.published_bucket_cmk.arn
     ]
   }
 }
@@ -95,7 +89,12 @@ resource "aws_iam_policy" "ch_write_data" {
 resource "aws_iam_role" "ch" {
   name               = "ch"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
-  tags               = local.common_repo_tags
+    tags              = merge(
+    local.common_repo_tags,
+    {
+      Name                  = "ch_role"
+    }
+  )
 }
 
 resource "aws_iam_instance_profile" "ch" {
@@ -139,7 +138,7 @@ data "aws_iam_policy_document" "ch_write_logs" {
     ]
 
     resources = [
-      var.data_logstore_bucket_arn,
+      data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn,
     ]
   }
 
@@ -153,7 +152,7 @@ data "aws_iam_policy_document" "ch_write_logs" {
     ]
 
     resources = [
-      "${var.data_logstore_bucket_arn}/${local.s3_log_prefix}",
+      "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix}",
     ]
   }
 }
@@ -179,7 +178,7 @@ data "aws_iam_policy_document" "ch_read_config" {
     ]
 
     resources = [
-      var.data_config_bucket_arn,
+      data.terraform_remote_state.common.outputs.config_bucket.arn,
     ]
   }
 
@@ -191,7 +190,7 @@ data "aws_iam_policy_document" "ch_read_config" {
     ]
 
     resources = [
-      "${var.data_config_bucket_arn}/*",
+      "${data.terraform_remote_state.common.outputs.config_bucket.arn}/*",
     ]
   }
 
@@ -204,7 +203,7 @@ data "aws_iam_policy_document" "ch_read_config" {
     ]
 
     resources = [
-      var.data_config_bucket_cmk_arn,
+      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn,
     ]
   }
 }
@@ -230,7 +229,7 @@ data "aws_iam_policy_document" "ch_read_artefacts" {
     ]
 
     resources = [
-      var.data_artefact_bucket.arn,
+      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn,
     ]
   }
 
@@ -242,7 +241,7 @@ data "aws_iam_policy_document" "ch_read_artefacts" {
     ]
 
     resources = [
-      "${var.data_artefact_bucket.arn}/*",
+      "${data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn}/*",
     ]
   }
 
@@ -342,38 +341,5 @@ data "aws_iam_policy_document" "ch_sns_topic_policy_for_alert" {
     effect = "Allow"
 
     resources = [local.monitoring_topic_arn]
-  }
-}
-
-data "aws_iam_policy_document" "dw_ksr_assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type = "AWS"
-      identifiers = [aws_iam_role.ch.arn,
-      aws_iam_role.ch_emr_service.arn]
-    }
-
-    principals {
-      identifiers = ["ec2.amazonaws.com"]
-      type        = "Service"
-    }
-    actions = ["sts:AssumeRole"]
-  }
-}
-
-
-data "aws_iam_policy_document" "ch_publish_for_trigger" {
-  statement {
-    sid     = "TriggerChSNS"
-    actions = ["SNS:Publish"]
-    effect  = "Allow"
-
-    principals {
-      identifiers = ["events.amazonaws.com"]
-      type        = "Service"
-    }
-    resources = []
   }
 }
