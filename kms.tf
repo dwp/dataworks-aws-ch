@@ -67,22 +67,6 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
     ]
     resources = ["*"]
   }
-  statement {
-    sid    = "EnableIAMPermissionsRestrictedAdmin"
-    effect = "Allow"
-
-    principals {
-      type        = "AWS"
-      identifiers = [data.aws_iam_role.restricted.arn]
-    }
-
-    actions = [
-      "kms:Describe*",
-      "kms:List*",
-      "kms:Get*"
-    ]
-    resources = ["*"]
-  }
 
   statement {
     sid    = "EnableAWSConfigManagerScanForSecurityHub"
