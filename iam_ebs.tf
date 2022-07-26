@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
     resources = ["*"]
   }
 
-    statement {
+  statement {
     sid    = "EnableIAMPermissionsRestricted"
     effect = "Allow"
 

@@ -1,5 +1,5 @@
 resource "aws_s3_bucket_object" "cluster" {
-  bucket = local.publish_bucket.id
+  bucket = local.config_bucket.id
   key    = "emr/ch/cluster.yaml"
   content = templatefile("cluster_config/cluster.yaml.tpl",
     {
@@ -15,7 +15,7 @@ resource "aws_s3_bucket_object" "cluster" {
 }
 
 resource "aws_s3_bucket_object" "instances" {
-  bucket = local.publish_bucket.id
+  bucket = local.config_bucket.id
   key    = "emr/ch/instances.yaml"
   content = templatefile("cluster_config/instances.yaml.tpl",
     {
@@ -37,7 +37,7 @@ resource "aws_s3_bucket_object" "instances" {
 }
 
 resource "aws_s3_bucket_object" "steps" {
-  bucket = local.publish_bucket.id
+  bucket = local.config_bucket.id
   key    = "emr/ch/steps.yaml"
   content = templatefile("cluster_config/steps.yaml.tpl",
     {
@@ -48,7 +48,7 @@ resource "aws_s3_bucket_object" "steps" {
 }
 
 resource "aws_s3_bucket_object" "configurations" {
-  bucket = local.publish_bucket.id
+  bucket = local.config_bucket.id
   key    = "emr/ch/configurations.yaml"
   content = templatefile("cluster_config/configurations.yaml.tpl",
     {
