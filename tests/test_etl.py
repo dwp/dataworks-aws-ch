@@ -2,10 +2,7 @@ from deepdiff import DeepDiff
 import os
 from configparser import ConfigParser
 from moto import mock_dynamodb2
-try:
-    from steps.etl import *
-except:
-    from etl import *
+from steps.etl import *
 import ast
 from pyspark.sql import SparkSession
 import pytest

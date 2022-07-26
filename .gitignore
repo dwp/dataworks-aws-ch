@@ -6,6 +6,9 @@
 **/*.tfstate*
 **/*.terraform.lock.hcl
 **/.terraform.lock.hcl
-
+metastore_db
+spark-warehouse
+tests/files/data
 terraform.tf
 aviator_pipeline.yml
+derby.log
