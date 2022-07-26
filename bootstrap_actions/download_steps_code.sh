@@ -8,7 +8,6 @@ function log_wrapper_message() {
 
 URL="s3://${s3_bucket_id}/${s3_bucket_prefix}"
 Download_DIR=/opt/emr/steps
-ZIP_DIR=/opt/emr/steps/utils
 
 echo "Download latest spark codes"
 log_wrapper_message "Downloading latest spark codes"
