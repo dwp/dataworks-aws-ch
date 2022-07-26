@@ -113,6 +113,8 @@ def test_filter_keys():
 
     inp = [os.path.join(args['args']['s3_prefix'], j) for j in k]
     expected = inp[-2:]
+
+
     diff = DeepDiff(filter_keys(inp[0], inp, args['args']['filename']), (expected, expected[-1]),
                     ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"

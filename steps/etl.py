@@ -124,7 +124,8 @@ def filter_keys(filename, keys, filename_prefix):
     try:
         new_keys = []
         keys_filename = [file_regex_extract(key, filename_prefix) for key in keys]
-        keys_sort = keys_filename.sort()
+        keys_filename.sort()
+        keys_sort = keys_filename
         idx = keys_sort.index(file_regex_extract(filename, filename_prefix))+1
         for i in keys_sort[idx:]:
             for j in keys:
