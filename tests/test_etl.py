@@ -59,7 +59,7 @@ def s3_fixture():
 @pytest.yield_fixture(scope="function")
 def dynamo_fixture():
     mock_dynamodb2().start()
-    dynamodb = boto3.resource("dynamodb")
+    dynamodb = boto3.resource("dynamodb",region_name="eu-west-2")
     dynamodb.create_table(
         KeySchema=[
             {"AttributeName": args['audit-table']['hash_key'], "KeyType": "HASH"},
