@@ -6,7 +6,7 @@ Applications:
 CustomAmiId: "${ami_id}"
 EbsRootVolumeSize: 100
 LogUri: "s3://${s3_log_bucket}/${s3_log_prefix}"
-Name: "ch-adg"
+Name: "ch"
 ReleaseLabel: "emr-${emr_release}"
 SecurityConfiguration: "${security_configuration}"
 ScaleDownBehavior: "TERMINATE_AT_TASK_COMPLETION"
@@ -27,6 +27,6 @@ Tags:
 - Key: "Environment"
   Value: "development"
 - Key: "Application"
-  Value: "dataworks-aws-ch-adg"
+  Value: "ch"
 - Key: "Name"
   Value: "dataworks-aws-ch"

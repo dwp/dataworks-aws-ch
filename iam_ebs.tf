@@ -132,7 +132,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
   }
 
   statement {
-    sid    = "AllowADGServiceGrant"
+    sid    = "AllowCHServiceGrant"
     effect = "Allow"
     principals {
       type        = "AWS"

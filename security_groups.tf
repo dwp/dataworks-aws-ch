@@ -24,7 +24,7 @@ resource "aws_security_group" "ch_common" {
 }
 
 resource "aws_security_group" "ch_emr_service" {
-  name                   = "ch ADG EMR Service"
+  name                   = "ch EMR Service"
   description            = "Contains rules for ch EMR service when managing the ch cluster; rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
   vpc_id                 = local.internal_compute_vpc_id
