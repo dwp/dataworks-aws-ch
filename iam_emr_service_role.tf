@@ -13,10 +13,10 @@ data "aws_iam_policy_document" "emr_assume_role" {
 resource "aws_iam_role" "ch_emr_service" {
   name               = "ch_emr_service_role"
   assume_role_policy = data.aws_iam_policy_document.emr_assume_role.json
-    tags              = merge(
+  tags = merge(
     local.common_repo_tags,
     {
-      Name                  = "ch_service_emr"
+      Name = "ch_service_emr"
     }
   )
 }

@@ -75,6 +75,14 @@ locals {
     production  = false
   }
 
+  use_capacity_reservation = {
+    development = false
+    qa          = false
+    integration = false
+    preprod     = false
+    production  = true
+  }
+
   step_fail_action = {
     development = "CONTINUE"
     qa          = "CONTINUE"

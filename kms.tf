@@ -9,8 +9,7 @@ resource "aws_kms_key" "ch_ebs_cmk" {
   tags = merge(
     local.common_repo_tags,
     {
-      Name                  = "ch_ebs_cmk"
-      ProtectsSensitiveData = "True"
+      Name = "ch_ebs_cmk"
     }
   )
 }
@@ -59,6 +58,22 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
     principals {
       type        = "AWS"
       identifiers = [data.aws_iam_role.administrator.arn]
+    }
+
+    actions = [
+      "kms:Describe*",
+      "kms:List*",
+      "kms:Get*"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    sid    = "EnableIAMPermissionsRestrictedAdmin"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_iam_role.restricted.arn]
     }
 
     actions = [

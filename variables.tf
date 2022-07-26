@@ -28,6 +28,7 @@ variable "emr_release" {
 
 variable "emr_ami_id" {
   description = "AMI ID to use for the EMR nodes"
+  default     = "ami-0743442f852e29cc6"
 }
 
 variable "emr_instance_type" {
