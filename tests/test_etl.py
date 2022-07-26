@@ -38,7 +38,6 @@ def spark_fixture():
             .enableHiveSupport()
             .getOrCreate()
     )
-    spark.sql("create database if not exists test_db")
     yield spark
 
 
@@ -59,7 +58,7 @@ def s3_fixture():
 @pytest.yield_fixture(scope="function")
 def dynamo_fixture():
     mock_dynamodb2().start()
-    dynamodb = boto3.resource("dynamodb",region_name="eu-west-2")
+    dynamodb = boto3.resource("dynamodb", region_name="eu-west-2")
     dynamodb.create_table(
         KeySchema=[
             {"AttributeName": args['audit-table']['hash_key'], "KeyType": "HASH"},
@@ -164,7 +163,7 @@ def test_parquet_writer(spark_fixture):
     kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"]}
     df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     writer_parquet(df, args['args']['destination_prefix'], args['args']['partitioning_column'])
-    assert os.listdir(f"{args['args']['destination_prefix']}") == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
+    assert os.listdir(f"./{args['args']['destination_prefix']}") == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
 
 
 def test_total_size(s3_fixture):

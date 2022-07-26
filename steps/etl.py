@@ -149,10 +149,10 @@ def union_all(df_list):
         sys.exit(-1)
 
 
-def tag_objects(s3_client, bucket, prefix: str, dates: list, db, tbl):
+def tag_objects(s3_client, bucket, prefix: str, dates: list, db, tbl, col):
     try:
         for date in dates:
-            dt_path = os.path.join(prefix, f"date_uploaded={date}/")
+            dt_path = os.path.join(prefix, f"{col}={date}/")
             logger.info(f"S3 Prefix {dt_path}")
             for key in s3_client.list_objects(Bucket=bucket, Prefix=dt_path)["Contents"]:
                 filename = key["Key"]
@@ -400,6 +400,6 @@ if __name__ == "__main__":
     tbl = args['args']['table_name']
     recreate_hive_table(spark_df, destination, db, tbl, spark, args['args']['partitioning_column'])
     dates = list(kbd.keys())
-    tag_objects(s3_client, args['args']['publish_bucket'], args['args']['destination_prefix'], dates, db, tbl)
+    tag_objects(s3_client, args['args']['publish_bucket'], args['args']['destination_prefix'], dates, db, tbl, args['args']['partitioning_column'])
     cum_size = total_size(s3_client, args['args']['publish_bucket'], args['args']['destination_prefix'])
     file_latest_dynamo_add(file_regex_extract(new_file_latest_import, args['args']['filename']), cum_size)
