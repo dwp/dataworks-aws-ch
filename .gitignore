@@ -12,3 +12,4 @@ tests/files/data
 terraform.tf
 aviator_pipeline.yml
 derby.log
+workspaces.tf
