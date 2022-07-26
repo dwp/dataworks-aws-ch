@@ -159,14 +159,6 @@ def test_create_spark_dfs(spark_fixture):
     assert len(df.columns) == len(ast.literal_eval(args['args']['cols']))+1, "united df columns are more or less than expected"
 
 
-def test_parquet_writer(spark_fixture):
-    spark = spark_fixture
-    kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"]}
-    df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
-    writer_parquet(df, args['args']['destination_prefix'], args['args']['partitioning_column'])
-    assert os.listdir(os.path.join(os.getcwd(),args['args']['destination_prefix'])) == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
-
-
 def test_total_size(s3_fixture):
     s3_client = s3_fixture
     ts = total_size(s3_client, args['args']['publish_bucket'], args['args']['s3_prefix'])
