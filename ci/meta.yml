@@ -103,7 +103,7 @@ meta:
             - -exc
             - |
               pip install --upgrade pip
-              pip3 install deepdiff pandas
+              pip3 install deepdiff
               pytest -vs tests
         inputs:
           - name: dataworks-aws-ch

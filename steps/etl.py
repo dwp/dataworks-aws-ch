@@ -4,7 +4,6 @@ from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
 from pyspark.sql.types import StructField, StringType
 import argparse
-import pandas as pd
 import ast
 import logging
 import os
@@ -125,7 +124,7 @@ def filter_keys(filename, keys, filename_prefix):
     try:
         new_keys = []
         keys_filename = [file_regex_extract(key, filename_prefix) for key in keys]
-        keys_sort = list(pd.Series(keys_filename).sort_values(ascending=True))
+        keys_sort = keys_filename.sort()
         idx = keys_sort.index(file_regex_extract(filename, filename_prefix))+1
         for i in keys_sort[idx:]:
             for j in keys:

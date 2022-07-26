@@ -23,7 +23,6 @@ if [ ! -x $PIP ]; then
 fi
 
 sudo -E $PIP install boto3==1.23.1 >> /var/log/ch/install-boto3.log 2>&1
-sudo -E $PIP install pandas >> /var/log/ch/install-pandas.log 2>&1
 sudo -E $PIP install requests >> /var/log/ch/install-requests.log 2>&1
 sudo yum install -y python3-devel >> /var/log/ch/install-pycrypto.log 2>&1
 sudo -E $PIP install pycrypto >> /var/log/ch/install-pycrypto.log 2>&1
