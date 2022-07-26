@@ -36,6 +36,7 @@ def spark_fixture():
             .appName("ch-test")
             .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
             .enableHiveSupport()
+            .config("spark.local.dir", os.getcwd())
             .getOrCreate()
     )
     yield spark
@@ -189,7 +190,7 @@ def test_tag_objects():
         s3_client.put_object(
             Bucket=bucket, Body=b"some content", Key=i
         )
-    tag_objects(s3_client, bucket, prefix, dates, db, tbl)
+    tag_objects(s3_client, bucket, prefix, dates, db, tbl, args['args']['partitioning_column'])
 
     for k in keys:
         response = s3_client.get_object_tagging(
