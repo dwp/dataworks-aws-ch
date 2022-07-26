@@ -6,7 +6,7 @@ data_product_name : CH
 hash_id : ch-companies
 [args]
 environment : development
-destination_prefix : tests/files
+destination_prefix : tests/files/output
 region : eu-west-2
 db_name: test_db
 table_name : test
