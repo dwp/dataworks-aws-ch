@@ -4,7 +4,7 @@ resource "aws_kms_key" "ch_ebs_cmk" {
   deletion_window_in_days = 7
   is_enabled              = true
   enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.ch_ebs_cmk.json
+  policy                  = data.aws_iam_policy_document.ch_ebs_cmk_s.json
 
   tags = merge(
     local.common_repo_tags,

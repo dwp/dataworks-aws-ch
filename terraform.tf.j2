@@ -162,6 +162,10 @@ data "aws_iam_role" "aws_config" {
   name = "aws_config"
 }
 
+data "aws_iam_role" "restricted" {
+  name = "RestrictedAdmin"
+}
+
 module "dataworks_common" {
   source                = "{{terraform.dataworks_common_module_name}}"
   version               = "{{terraform.dataworks_common_module_version}}"
