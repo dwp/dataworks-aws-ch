@@ -36,7 +36,7 @@ def spark_fixture():
             .appName("ch-test")
             .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
             .enableHiveSupport()
-            .config("spark.local.dir", os.getcwd())
+            .config("spark.local.dir", "spark-test")
             .getOrCreate()
     )
     yield spark
