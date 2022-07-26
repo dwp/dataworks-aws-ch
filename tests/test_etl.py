@@ -164,7 +164,7 @@ def test_parquet_writer(spark_fixture):
     kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"]}
     df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     writer_parquet(df, args['args']['destination_prefix'], args['args']['partitioning_column'])
-    assert os.listdir(args['args']['destination_prefix']) == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
+    assert os.listdir(os.path.join(os.getcwd(),args['args']['destination_prefix'])) == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
 
 
 def test_total_size(s3_fixture):
@@ -181,8 +181,8 @@ def test_tag_objects():
     dates_dont_include = ['2018-01-01', '2019-03-01']
     db = 'test_db'
     tbl = 'test_tbl'
-    keys = [os.path.join(prefix, "date_uploaded="+i, "afile.csv") for i in dates+dates_dont_include]
-    keys_expected = [os.path.join(prefix, "date_uploaded="+i, "afile.csv") for i in dates]
+    keys = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.csv") for i in dates+dates_dont_include]
+    keys_expected = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.csv") for i in dates]
     s3_client = boto3.client("s3")
     s3_client.create_bucket(Bucket=bucket,
                             CreateBucketConfiguration={"LocationConstraint": 'eu-west-2'})
