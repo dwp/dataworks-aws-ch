@@ -164,7 +164,7 @@ def test_parquet_writer(spark_fixture):
     kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"]}
     df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     writer_parquet(df, args['args']['destination_prefix'], args['args']['partitioning_column'])
-    assert os.listdir("tests/files") == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
+    assert os.listdir(args['args']['destination_prefix']) == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
 
 
 def test_total_size(s3_fixture):
