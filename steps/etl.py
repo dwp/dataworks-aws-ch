@@ -90,6 +90,9 @@ def csv_files_only(keys: list, filenames_prefix: str):
     filenames_regex = f".*{filenames_prefix}-.*\.csv"
     try:
         matches = [key for key in keys if re.match(filenames_regex, key)]
+        if len(matches) == 0:
+            logger.warning("no csv files. exiting...")
+            sys.exit(0)
         return matches
     except Exception as ex:
         logger.error(f"failed to extract s3 keys with regex due to {ex}")
@@ -124,6 +127,8 @@ def filter_keys(filename, keys, filename_prefix):
     try:
         new_keys = []
         keys_filename = [file_regex_extract(key, filename_prefix) for key in keys]
+        if filename not in keys_filename:
+            keys_filename.append(filename)
         keys_filename.sort()
         keys_sort = keys_filename
         idx = keys_sort.index(file_regex_extract(filename, filename_prefix))+1
@@ -219,7 +224,7 @@ def create_spark_dfs(sp, kbd: dict, schema, partitioning_column):
     return res
 
 
-def s3_keys(s3_client, bucket_id, prefix: str, ) -> list:
+def s3_keys(s3_client, bucket_id, prefix: str) -> list:
     logger.info(f"looking for s3 objects with prefix {prefix}")
     try:
         keys = []
@@ -227,9 +232,14 @@ def s3_keys(s3_client, bucket_id, prefix: str, ) -> list:
         pages = paginator.paginate(Bucket=bucket_id, Prefix=prefix)
         for page in pages:
             if "Contents" in page:
-                keys = [obj["Key"] for obj in page["Contents"]]
+                keys = keys + [obj["Key"] for obj in page["Contents"]]
+
+        if len(keys) == 0:
+            logger.info(f"no keys found under set prefix {prefix}")
+            exit(0)
         logger.info(f"found {len(keys)} under set prefix {prefix}")
         logger.info(f"key under set prefix {prefix}: {keys}")
+
         return keys
     except Exception as ex:
         logger.error(f"failed to list keys in bucket due to {ex}")
@@ -369,7 +379,7 @@ def runtime_args():
 
 
 def all_args():
-    args = config("/opt/emr/steps/conf.tpl")
+    args = config("/opt/emr/conf.tpl")
     r_args = runtime_args()
     if r_args.e2e:
         args['args']['log_path'] = args['args']['e2e_log_path']
@@ -383,7 +393,7 @@ if __name__ == "__main__":
     table = dynamo_table(args['args']['region'])
     s3_client = get_s3_client()
     spark = spark_session()
-    all_keys = s3_keys(s3_client, args['args']['publish_bucket'], args['args']['s3_prefix'])
+    all_keys = s3_keys(s3_client, args['args']['stage_bucket'], args['args']['s3_prefix'])
     logger.warning(f"all_keys {all_keys}")
     keys = csv_files_only(all_keys, args['args']['filename'])
     logger.warning(f"keys {keys}")

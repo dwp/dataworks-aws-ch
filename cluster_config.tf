@@ -1,6 +1,6 @@
 resource "aws_s3_bucket_object" "cluster" {
   bucket = local.config_bucket.id
-  key    = "emr/ch/cluster.yaml"
+  key    = "emr/dataworks-aws-ch/cluster.yaml"
   content = templatefile("cluster_config/cluster.yaml.tpl",
     {
       s3_log_bucket          = local.logstore_bucket.id
@@ -16,7 +16,7 @@ resource "aws_s3_bucket_object" "cluster" {
 
 resource "aws_s3_bucket_object" "instances" {
   bucket = local.config_bucket.id
-  key    = "emr/ch/instances.yaml"
+  key    = "emr/dataworks-aws-ch/instances.yaml"
   content = templatefile("cluster_config/instances.yaml.tpl",
     {
       keep_cluster_alive = local.keep_cluster_alive[local.environment]
@@ -38,7 +38,7 @@ resource "aws_s3_bucket_object" "instances" {
 
 resource "aws_s3_bucket_object" "steps" {
   bucket = local.config_bucket.id
-  key    = "emr/ch/steps.yaml"
+  key    = "emr/dataworks-aws-ch/steps.yaml"
   content = templatefile("cluster_config/steps.yaml.tpl",
     {
       s3_config_bucket  = local.config_bucket.id
@@ -49,7 +49,7 @@ resource "aws_s3_bucket_object" "steps" {
 
 resource "aws_s3_bucket_object" "configurations" {
   bucket = local.config_bucket.id
-  key    = "emr/ch/configurations.yaml"
+  key    = "emr/dataworks-aws-ch/configurations.yaml"
   content = templatefile("cluster_config/configurations.yaml.tpl",
     {
       environment                   = local.environment

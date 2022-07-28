@@ -57,7 +57,7 @@ data "aws_iam_policy_document" "ch_write_data" {
 
     resources = [
       "${local.publish_bucket.arn}/data/uc_ch/*",
-      "${local.publish_bucket.arn}/ch/*",
+      "${local.publish_bucket.arn}/dataworks-aws-ch/*",
     ]
   }
 
@@ -168,14 +168,15 @@ resource "aws_iam_role_policy_attachment" "ch_write_logs" {
   policy_arn = aws_iam_policy.ch_write_logs.arn
 }
 
-data "aws_iam_policy_document" "ch_read_config" {
+data "aws_iam_policy_document" "ch_read_bucket" {
 
   statement {
     effect = "Allow"
     actions = [
       "s3:GetObject",
     ]
-    resources = [format("arn:aws:s3:::%s/emr/ch/*", local.config_bucket.id)]
+    resources = [format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", local.config_bucket.id),
+                 format("arn:aws:s3:::%s/data-ingress/companies/*", local.stage_bucket.id)]
   }
 
   statement {
@@ -187,19 +188,20 @@ data "aws_iam_policy_document" "ch_read_config" {
 
     resources = [
       data.terraform_remote_state.common.outputs.config_bucket_cmk.arn,
+      data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
     ]
   }
 }
 
-resource "aws_iam_policy" "ch_read_config" {
-  name        = "chReadConfig"
+resource "aws_iam_policy" "ch_read_bucket" {
+  name        = "ReadBkt"
   description = "Allow reading of ch config files"
-  policy      = data.aws_iam_policy_document.ch_read_config.json
+  policy      = data.aws_iam_policy_document.ch_read_bucket.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_read_config" {
+resource "aws_iam_role_policy_attachment" "ch_read_bucket" {
   role       = aws_iam_role.ch.name
-  policy_arn = aws_iam_policy.ch_read_config.arn
+  policy_arn = aws_iam_policy.ch_read_bucket.arn
 }
 
 data "aws_iam_policy_document" "ch_read_artefacts" {

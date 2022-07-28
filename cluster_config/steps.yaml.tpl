@@ -2,19 +2,16 @@
 BootstrapActions:
 - Name: "start_ssm"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/ch/start_ssm.sh"
-- Name: "metadata"
-  ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/kickstart-analytical-dataset-generation/metadata.sh"
+    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/start_ssm.sh"
 - Name: "emr-setup"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/ch/emr-setup.sh"
+    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/emr-setup.sh"
 - Name: "installer"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/ch/installer.sh"
+    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/installer.sh"
 - Name: "download_steps_code"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/ch/download_steps_code.sh"
+    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/download_steps_code.sh"
 Steps:
 - Name: "submit-job-payment"
   HadoopJarStep:

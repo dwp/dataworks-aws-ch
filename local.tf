@@ -122,14 +122,14 @@ locals {
   }
 
   rds_cluster               = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster
-  cw_agent_namespace        = "/app/ch"
-  cw_agent_log_group_name   = "/app/ch"
-  bootstrap_log_group_name  = "/app/ch/bootstrap_actions"
-  steps_log_group_name      = "/app/ch/step_logs"
-  yarn_spark_log_group_name = "/app/ch/yarn-spark_logs"
-  e2e_log_group_name        = "/app/ch/e2e_logs"
+  cw_agent_namespace        = "/app/dataworks-aws-ch"
+  cw_agent_log_group_name   = "/app/dataworks-aws-ch"
+  bootstrap_log_group_name  = "/app/dataworks-aws-ch/bootstrap_actions"
+  steps_log_group_name      = "/app/dataworks-aws-ch/step_logs"
+  yarn_spark_log_group_name = "/app/dataworks-aws-ch/yarn-spark_logs"
+  e2e_log_group_name        = "/app/dataworks-aws-ch/e2e_logs"
   ch_writer                 = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer
-  s3_log_prefix             = "emr/ch"
+  s3_log_prefix             = "emr/dataworks-aws-ch"
   stage_bucket              = data.terraform_remote_state.common.outputs.data_ingress_stage_bucket
   config_bucket             = data.terraform_remote_state.common.outputs.config_bucket
   full_proxy                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url
@@ -151,8 +151,8 @@ locals {
     preprod     = "0.0.1"
     production  = "0.0.1"
   }
-  metrics_namespace = "app/ch/"
-  ch_s3_prefix      = "component/ch"
+  metrics_namespace = "app/dataworks-aws-ch/"
+  ch_s3_prefix      = "component/dataworks-aws-ch"
   publish_bucket    = data.terraform_remote_state.common.outputs.published_bucket
   logstore_bucket   = data.terraform_remote_state.security-tools.outputs.logstore_bucket
   # See https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/
