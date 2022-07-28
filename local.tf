@@ -90,6 +90,37 @@ locals {
     preprod     = "CONTINUE"
     production  = "CONTINUE"
   }
+  hive_compaction_threads = {
+    development = "1"
+    qa          = "1"
+    integration = "1"
+    preprod     = "12"
+    production  = "12" # vCPU in the instance / 8
+  }
+
+  hive_tez_sessions_per_queue = {
+    development = "10"
+    qa          = "10"
+    integration = "10"
+    preprod     = "35"
+    production  = "35"
+  }
+  hive_max_reducers = {
+    development = "1099"
+    qa          = "1099"
+    integration = "1099"
+    preprod     = "2000"
+    production  = "2000"
+  }
+
+  tez_am_resource_memory_mb = {
+    development = "1024"
+    qa          = "1024"
+    integration = "1024"
+    preprod     = "1024"
+    production  = "1024"
+  }
+
   rds_cluster               = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster
   cw_agent_namespace        = "/app/ch"
   cw_agent_log_group_name   = "/app/ch"

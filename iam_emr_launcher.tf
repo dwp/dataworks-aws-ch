@@ -98,3 +98,28 @@ resource "aws_iam_role_policy_attachment" "ch_emr_launcher_policy_execution" {
   role       = aws_iam_role.ch_emr_launcher_lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
+
+resource "aws_iam_policy" "ch_emr_launcher_getsecrets" {
+  name        = "chGetSecrets"
+  description = "Allow ch Lambda function to get secrets"
+  policy      = data.aws_iam_policy_document.ch_emr_launcher_getsecrets.json
+}
+
+data "aws_iam_policy_document" "ch_emr_launcher_getsecrets" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+
+    resources = [
+      data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer.secret_arn,
+    ]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ch_emr_launcher_getsecrets" {
+  role       = aws_iam_role.ch_emr_launcher_lambda_role.name
+  policy_arn = aws_iam_policy.ch_emr_launcher_getsecrets.arn
+}

@@ -69,10 +69,16 @@ resource "aws_s3_bucket_object" "configurations" {
       spark_executor_instances      = local.spark_num_executors_per_instance
       spark_default_parallelism     = local.spark_default_parallelism
       spark_kyro_buffer             = local.spark_kyro_buffer
-      hive_metsatore_username       = local.ch_writer.username
+      hive_metastore_username       = local.ch_writer.username
       hive_metastore_pwd            = local.ch_writer.secret_name
       hive_metastore_endpoint       = local.rds_cluster.endpoint
       hive_metastore_database_name  = local.rds_cluster.database_name
+      hive_metastore_location       = "data/uc_ch"
+      hive_compaction_threads       = local.hive_compaction_threads[local.environment]
+      hive_tez_sessions_per_queue   = local.hive_tez_sessions_per_queue[local.environment]
+      hive_max_reducers             = local.hive_max_reducers[local.environment]
+      tez_am_resource_memory_mb     = local.tez_am_resource_memory_mb[local.environment]
+
     }
   )
 }

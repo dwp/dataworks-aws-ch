@@ -13,8 +13,8 @@ stage_bucket : ${stage_bucket}
 destination_prefix : data/ch/companies
 db_name: test_ch
 table_name : companies
-log_path : /var/log/ch/e2e-tests.log
-e2e_log_path: /var/log/ch/e2e-tests.log
+log_path : /var/log/dataworks-aws-ch/e2e-tests.log
+e2e_log_path: /var/log/dataworks-aws-ch/e2e-tests.log
 e2e_s3_prefix : e2e-ch/companies/
 s3_prefix : ch/companies/
 filename : BasicCompanyData

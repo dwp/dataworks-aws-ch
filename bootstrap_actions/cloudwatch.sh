@@ -49,49 +49,49 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/acm-cert-retriever.log",
+            "file_path": "/var/log/dataworks-aws-ch/acm-cert-retriever.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "acm-cert-retriever.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/nohup.log",
+            "file_path": "/var/log/dataworks-aws-ch/nohup.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-nohup.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/install-pycrypto.log",
+            "file_path": "/var/log/dataworks-aws-ch/install-pycrypto.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-install-pycrypto.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/install-requests.log",
+            "file_path": "/var/log/dataworks-aws-ch/install-requests.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-install-requests.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/install-boto3.log",
+            "file_path": "/var/log/dataworks-aws-ch/install-boto3.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-install-boto3.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/download_steps_code.log",
+            "file_path": "/var/log/dataworks-aws-ch/download_steps_code.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-download_steps_code.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/metrics-setup.log",
+            "file_path": "/var/log/dataworks-aws-ch/metrics-setup.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-metrics-setup.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/ch/e2e-tests.log",
+            "file_path": "/var/log/dataworks-aws-ch/e2e-tests.log",
             "log_group_name": "$${cwa_tests_loggrp_name}",
             "log_stream_name": "e2e-tests.log",
             "timezone": "UTC"

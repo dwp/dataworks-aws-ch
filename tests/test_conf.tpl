@@ -11,8 +11,8 @@ region : eu-west-2
 db_name: test_db
 table_name : test
 publish_bucket : test_pb
-log_path : /var/log/ch/e2e-tests.log
-e2e_log_path: /var/log/ch/e2e-tests.log
+log_path : /var/log/dataworks-aws-ch/e2e-tests.log
+e2e_log_path: /var/log/dataworks-aws-ch/e2e-tests.log
 config_file_path: config.tpl
 e2e_s3_prefix : e2e-ch/companies/
 s3_prefix : e2e-ch/companies/

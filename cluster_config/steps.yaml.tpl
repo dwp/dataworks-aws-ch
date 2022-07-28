@@ -13,7 +13,7 @@ BootstrapActions:
   ScriptBootstrapAction:
     Path: "s3://${s3_config_bucket}/component/ch/download_steps_code.sh"
 Steps:
-- Name: "etl"
+- Name: "submit-job-payment"
   HadoopJarStep:
     Args:
     - "spark-submit"
@@ -22,7 +22,7 @@ Steps:
     - "--conf"
     - "spark.yarn.submit.waitAppCompletion=true"
     - "--py-files"
-    - "/opt/emr/steps/etl.py
-    - "/opt/emr/steps/conf.tpl"
+    - "/opt/emr/steps/jobs.zip"
+    - "/opt/emr/steps/etl.py"
     Jar: "command-runner.jar"
   ActionOnFailure: "${action_on_failure}"

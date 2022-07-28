@@ -89,7 +89,7 @@ log_wrapper_message "Retrieving the ACM Certificate details"
     --truststore-password "$TRUSTSTORE_PASSWORD" \
     --truststore-aliases "${truststore_aliases}" \
     --truststore-certs "${truststore_certs}" \
-    --jks-only true >> /var/log/ch/acm-cert-retriever.log 2>&1
+    --jks-only true >> /var/log/dataworks-aws-ch/acm-cert-retriever.log 2>&1
 
 
 sudo -E /bin/acm-cert-retriever \
@@ -97,7 +97,7 @@ sudo -E /bin/acm-cert-retriever \
     --acm-key-passphrase "$ACM_KEY_PASSWORD" \
     --private-key-alias "${private_key_alias}" \
     --truststore-aliases "${truststore_aliases}" \
-    --truststore-certs "${truststore_certs}"  >> /var/log/ch/acm-cert-retriever.log 2>&1
+    --truststore-certs "${truststore_certs}"  >> /var/log/dataworks-aws-ch/acm-cert-retriever.log 2>&1
 
 cd /etc/pki/ca-trust/source/anchors/
 sudo touch analytical_ca.pem
@@ -137,4 +137,4 @@ if [ "$${os_version}" == "Amazon Linux release 2 (Karoo)" ]; then
   sudo systemctl start amazon-ssm-agent
 fi
 
-) >> /var/log/ch/nohup.log 2>&1
+) >> /var/log/dataworks-aws-ch/nohup.log 2>&1
