@@ -169,34 +169,17 @@ resource "aws_iam_role_policy_attachment" "ch_write_logs" {
 }
 
 data "aws_iam_policy_document" "ch_read_config" {
+
   statement {
     effect = "Allow"
-
     actions = [
-      "s3:GetBucketLocation",
-      "s3:ListBucket",
+      "s3:GetObject",
     ]
-
-    resources = [
-      data.terraform_remote_state.common.outputs.config_bucket.arn,
-    ]
+    resources = [format("arn:aws:s3:::%s/emr/ch/*", local.config_bucket.id)]
   }
 
   statement {
     effect = "Allow"
-
-    actions = [
-      "s3:GetObject*",
-    ]
-
-    resources = [
-      "${data.terraform_remote_state.common.outputs.config_bucket.arn}/*",
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
     actions = [
       "kms:Decrypt",
       "kms:DescribeKey",
@@ -222,7 +205,6 @@ resource "aws_iam_role_policy_attachment" "ch_read_config" {
 data "aws_iam_policy_document" "ch_read_artefacts" {
   statement {
     effect = "Allow"
-
     actions = [
       "s3:GetBucketLocation",
       "s3:ListBucket",

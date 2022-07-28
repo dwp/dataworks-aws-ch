@@ -1,9 +1,12 @@
 ---
 BootstrapActions:
+- Name: "start_ssm"
+  ScriptBootstrapAction:
+    Path: "s3://${s3_config_bucket}/component/ch/start_ssm.sh"
 - Name: "metadata"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/ch/metadata.sh"
-- Name: "get-dks-cert"
+    Path: "s3://${s3_config_bucket}/component/kickstart-analytical-dataset-generation/metadata.sh"
+- Name: "emr-setup"
   ScriptBootstrapAction:
     Path: "s3://${s3_config_bucket}/component/ch/emr-setup.sh"
 - Name: "installer"

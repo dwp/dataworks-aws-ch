@@ -1,3 +1,9 @@
+resource "aws_s3_bucket_object" "ssm_script" {
+  bucket  = local.config_bucket.id
+  key     = "component/ch/start_ssm.sh"
+  content = file("bootstrap_actions/start_ssm.sh")
+}
+
 resource "aws_s3_bucket_object" "emr_setup_sh" {
   bucket = local.config_bucket.id
   key    = "component/ch/emr-setup.sh"
@@ -19,14 +25,12 @@ resource "aws_s3_bucket_object" "emr_setup_sh" {
       cwa_metrics_collection_interval = 60
       cwa_namespace                   = local.cw_agent_namespace
       cwa_log_group_name              = local.cw_agent_log_group_name
-      S3_CLOUDWATCH_SHELL             = format("s3://%s/%s", local.publish_bucket.id, aws_s3_bucket_object.cloudwatch_sh.key)
+      S3_CLOUDWATCH_SHELL             = format("s3://%s/%s", local.config_bucket.id, aws_s3_bucket_object.cloudwatch_sh.key)
       cwa_bootstrap_loggrp_name       = local.bootstrap_log_group_name
       cwa_steps_loggrp_name           = local.steps_log_group_name
       cwa_yarnspark_loggrp_name       = local.yarn_spark_log_group_name
       cwa_tests_loggrp_name           = local.e2e_log_group_name
       name                            = local.emr_cluster_name
-      s3_bucket_id                    = local.publish_bucket.id
-      s3_bucket_prefix                = local.ch_s3_prefix
   })
 }
 

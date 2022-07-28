@@ -8,7 +8,7 @@ function log_wrapper_message() {
 }
 
 URL="s3://${s3_bucket_id}/${s3_bucket_prefix}"
-Download_DIR=/opt/emr/steps
+Download_DIR=/opt/emr
 ZIP_DIR=/opt/emr/steps
 
 echo "Download latest spark codes"
@@ -16,7 +16,7 @@ log_wrapper_message "Downloading latest spark codes"
 
 $(which aws) s3 cp "$URL/steps/" $Download_DIR --recursive
 
-echo "SCRIPT_DOWNLOAD_URL: $URL/steps/"
+echo "SCRIPT_DOWNLOAD_URL: $URL/steps"
 
 log_wrapper_message "script_download_url: $URL/steps/"
 
@@ -26,7 +26,7 @@ log_wrapper_message "Creating the spark code directory: $ZIP_DIR"
 
 mkdir $ZIP_DIR
 
-log_wrapper_message "Copy run_step.py file to spark code directory: $ZIP_DIR"
+log_wrapper_message "Copy etl.py file to spark code directory: $ZIP_DIR"
 
 cp "$Download_DIR/etl.py" "$ZIP_DIR"
 

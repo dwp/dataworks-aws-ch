@@ -1,6 +1,0 @@
-emr-launcher-version:
-  development: "1.0.41"
-  qa:          "1.0.41"
-  integration: "1.0.41"
-  preprod:     "1.0.41"
-  production:  "1.0.41"

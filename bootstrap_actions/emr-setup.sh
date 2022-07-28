@@ -2,10 +2,10 @@
 echo "Creating shared directory"
 sudo mkdir -p /opt/shared
 sudo mkdir -p /opt/emr
-sudo mkdir -p /var/log/ch
+sudo mkdir -p /var/log/dataworks-aws-ch
 sudo chown hadoop:hadoop /opt/emr
 sudo chown hadoop:hadoop /opt/shared
-sudo chown hadoop:hadoop /var/log/ch
+sudo chown hadoop:hadoop /var/log/dataworks-aws-ch
 echo "${VERSION}" > /opt/emr/version
 echo "${LOG_LEVEL}" > /opt/emr/log_level
 echo "${ENVIRONMENT_NAME}" > /opt/emr/environment
@@ -61,8 +61,8 @@ export KEYSTORE_PASSWORD=$(uuidgen -r)
 export PRIVATE_KEY_PASSWORD=$(uuidgen -r)
 export ACM_KEY_PASSWORD=$(uuidgen -r)
 
-#sudo mkdir -p /opt/emr
-#sudo chown hadoop:hadoop /opt/emr
+sudo mkdir -p /opt/emr
+sudo chown hadoop:hadoop /opt/emr
 touch /opt/emr/dks.properties
 cat >> /opt/emr/dks.properties <<EOF
 identity.store.alias=${private_key_alias}
@@ -120,21 +120,6 @@ export HOSTNAME="$host"
 hostnamectl set-hostname "$HOSTNAME"
 aws ec2 create-tags --resources "$INSTANCE_ID" --tags Key=Name,Value="$HOSTNAME"
 
-URL="s3://${s3_bucket_id}/${s3_bucket_prefix}"
-Metrics_DIR=/opt/emr
-# shellcheck disable=SC2230
-$(which aws) s3 cp "$URL/status_metrics.sh" $Metrics_DIR
-chmod u+x $Metrics_DIR/status_metrics.sh
-$Metrics_DIR/status_metrics.sh &
-
 log_wrapper_message "Completed the emr-setup.sh step of the EMR Cluster"
-
-# During provisioning, EMR >= 5.30.0 stops the SSM agent but fails to start it
-# again for unknown reasons.
-
-os_version=$(cat /etc/system-release)
-if [ "$${os_version}" == "Amazon Linux release 2 (Karoo)" ]; then
-  sudo systemctl start amazon-ssm-agent
-fi
 
 ) >> /var/log/dataworks-aws-ch/nohup.log 2>&1

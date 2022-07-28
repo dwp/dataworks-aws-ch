@@ -23,9 +23,7 @@ if [ ! -x $PIP ]; then
 fi
 
 sudo -E $PIP install boto3==1.23.1 >> /var/log/dataworks-aws-ch/install-boto3.log 2>&1
-sudo -E $PIP install requests >> /var/log/dataworks-aws-ch/install-requests.log 2>&1
 sudo yum install -y python3-devel >> /var/log/dataworks-aws-ch/install-pycrypto.log 2>&1
-sudo -E $PIP install pycrypto >> /var/log/dataworks-aws-ch/install-pycrypto.log 2>&1
 sudo yum remove -y python3-devel >> /var/log/dataworks-aws-ch/install-pycrypto.log 2>&1
 
 log_wrapper_message "Completed the installer.sh step of the EMR Cluster"

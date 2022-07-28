@@ -41,7 +41,7 @@ resource "aws_s3_bucket_object" "steps" {
   key    = "emr/ch/steps.yaml"
   content = templatefile("cluster_config/steps.yaml.tpl",
     {
-      s3_config_bucket  = local.publish_bucket.id
+      s3_config_bucket  = local.config_bucket.id
       action_on_failure = local.step_fail_action[local.environment]
     }
   )
