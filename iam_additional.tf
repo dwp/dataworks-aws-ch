@@ -1,5 +1,4 @@
 
-
 data "aws_iam_policy_document" "ch_acm" {
   statement {
     effect = "Allow"
@@ -51,13 +50,12 @@ data "aws_iam_policy_document" "ch_write_data" {
     actions = [
       "s3:Get*",
       "s3:List*",
-      "s3:DeleteObject*",
+      "s3:DeleteObject",
       "s3:Put*",
     ]
 
     resources = [
       "${local.publish_bucket.arn}/data/uc_ch/*",
-      "${local.publish_bucket.arn}/dataworks-aws-ch/*",
     ]
   }
 
@@ -168,7 +166,7 @@ resource "aws_iam_role_policy_attachment" "ch_write_logs" {
   policy_arn = aws_iam_policy.ch_write_logs.arn
 }
 
-data "aws_iam_policy_document" "ch_read_bucket" {
+data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
 
   statement {
     effect = "Allow"
@@ -178,6 +176,15 @@ data "aws_iam_policy_document" "ch_read_bucket" {
     resources = [format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", local.config_bucket.id),
                  format("arn:aws:s3:::%s/data-ingress/companies/*", local.stage_bucket.id)]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObjectTagging",
+    ]
+    resources = [format("arn:aws:s3:::%s/data-ingress/companies/*", local.stage_bucket.id)]
+  }
+
 
   statement {
     effect = "Allow"
@@ -193,15 +200,15 @@ data "aws_iam_policy_document" "ch_read_bucket" {
   }
 }
 
-resource "aws_iam_policy" "ch_read_bucket" {
-  name        = "ReadBkt"
+resource "aws_iam_policy" "ch_read_bucket_and_tag" {
+  name        = "ReadBktAndTag"
   description = "Allow reading of ch config files"
-  policy      = data.aws_iam_policy_document.ch_read_bucket.json
+  policy      = data.aws_iam_policy_document.ch_read_bucket_and_tag.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_read_bucket" {
+resource "aws_iam_role_policy_attachment" "ch_read_bucket_and_tag" {
   role       = aws_iam_role.ch.name
-  policy_arn = aws_iam_policy.ch_read_bucket.arn
+  policy_arn = aws_iam_policy.ch_read_bucket_and_tag.arn
 }
 
 data "aws_iam_policy_document" "ch_read_artefacts" {

@@ -10,8 +10,8 @@ region : ${aws_region_name}
 url : ${url}
 publish_bucket : ${publish_bucket}
 stage_bucket : ${stage_bucket}
-destination_prefix : data/dataworks-aws-ch/companies
-db_name: test_ch
+destination_prefix : data/uc_ch/companies
+db_name: uc_ch
 table_name : companies
 log_path : /var/log/dataworks-aws-ch/etl.log
 e2e_log_path: /var/log/dataworks-aws-ch/e2e-tests.log

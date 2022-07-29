@@ -129,9 +129,15 @@ def filter_keys(filename, keys, filename_prefix):
         keys_filename = [file_regex_extract(key, filename_prefix) for key in keys]
         if filename not in keys_filename:
             keys_filename.append(filename)
-        keys_filename.sort()
+        logger.warning(f"keys including file latest {keys_filename}")
+        keys_filename.sort(reverse=False)
         keys_sort = keys_filename
-        idx = keys_sort.index(file_regex_extract(filename, filename_prefix))+1
+        logger.warning(f"keys sorted {keys_sort}")
+        l = len(keys_sort)
+        idx = keys_sort.index(filename)+1
+        if idx == l:
+            logger.warning(f"no new files after {filename}")
+            exit(0)
         for i in keys_sort[idx:]:
             for j in keys:
                 if i in j:
@@ -398,11 +404,9 @@ if __name__ == "__main__":
     keys = csv_files_only(all_keys, args['args']['filename'])
     logger.warning(f"keys {keys}")
     file_latest = file_latest_dynamo_fetch(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
-    file_latest_path = os.path.join(args['args']['s3_prefix'], args['args']['filename']+"-"+file_latest+".csv")
     logger.warning(f"file latest {file_latest}")
-    logger.warning(f"file latest path {file_latest_path}")
-    new_keys, new_file_latest_import = filter_keys(file_latest_path, keys, args['args']['filename'])
-    kbd = keys_by_date(new_keys, args['args']['filename'], args['args']['publish_bucket'])
+    new_keys, new_file_latest_import = filter_keys(file_latest, keys, args['args']['filename'])
+    kbd = keys_by_date(new_keys, args['args']['filename'], args['args']['stage_bucket'])
     spark_df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['publish_bucket'], args['args']['destination_prefix'])
     writer_parquet(spark_df, destination, args['args']['partitioning_column'])
