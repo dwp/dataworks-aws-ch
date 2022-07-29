@@ -385,11 +385,12 @@ def runtime_args():
 
 
 def all_args():
-    args = config("/opt/emr/conf.tpl")
     r_args = runtime_args()
     if r_args.e2e:
-        args['args']['log_path'] = args['args']['e2e_log_path']
-        args['args']['s3_prefix'] = args['args']['e2e_s3_prefix']
+        args = config("/opt/emr/e2e_conf.tpl")
+    else:
+        args = config("/opt/emr/conf.tpl")
+    logger.info(f"script args parsed: {args}")
     return args
 
 
@@ -399,21 +400,21 @@ if __name__ == "__main__":
     table = dynamo_table(args['args']['region'])
     s3_client = get_s3_client()
     spark = spark_session()
-    all_keys = s3_keys(s3_client, args['args']['stage_bucket'], args['args']['s3_prefix'])
+    all_keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
     logger.warning(f"all_keys {all_keys}")
     keys = csv_files_only(all_keys, args['args']['filename'])
     logger.warning(f"keys {keys}")
     file_latest = file_latest_dynamo_fetch(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     logger.warning(f"file latest {file_latest}")
     new_keys, new_suffix_latest_import = filter_keys(file_latest, keys, args['args']['filename'])
-    kbd = keys_by_date(new_keys, args['args']['filename'], args['args']['stage_bucket'])
+    kbd = keys_by_date(new_keys, args['args']['filename'], args['args']['source_bucket'])
     spark_df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
-    destination = os.path.join("s3://"+args['args']['publish_bucket'], args['args']['destination_prefix'])
+    destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     writer_parquet(spark_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(spark_df, destination, db, tbl, spark, args['args']['partitioning_column'])
     dates = list(kbd.keys())
-    tag_objects(s3_client, args['args']['publish_bucket'], args['args']['destination_prefix'], dates, db, tbl, args['args']['partitioning_column'])
-    cum_size = total_size(s3_client, args['args']['publish_bucket'], args['args']['destination_prefix'])
+    tag_objects(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], dates, db, tbl, args['args']['partitioning_column'])
+    cum_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
     file_latest_dynamo_add(new_suffix_latest_import, cum_size)

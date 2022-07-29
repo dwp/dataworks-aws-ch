@@ -36,7 +36,6 @@ def spark_fixture():
             .appName("ch-test")
             .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
             .enableHiveSupport()
-            .config("spark.local.dir", "spark-test")
             .getOrCreate()
     )
     yield spark
@@ -46,11 +45,11 @@ def spark_fixture():
 def s3_fixture():
     mock_s3().start()
     client = boto3.client("s3")
-    client.create_bucket(Bucket=args['args']['publish_bucket'],
+    client.create_bucket(Bucket=args['args']['source_bucket'],
                          CreateBucketConfiguration={"LocationConstraint": args['args']['region']})
     for i in keys:
         client.put_object(
-            Bucket=args['args']['publish_bucket'], Body=b"some content", Key=args['args']['s3_prefix']+i
+            Bucket=args['args']['source_bucket'], Body=b"some content", Key=args['args']['source_prefix']+i
         )
     yield client
     mock_s3().stop()
@@ -88,7 +87,7 @@ def dynamo_fixture():
 def test_all_keys(s3_fixture):
     expected = [os.path.join(args['args']['s3_prefix'], j) for j in keys]
     s3_client = s3_fixture
-    diff = DeepDiff(s3_keys(s3_client, args['args']['publish_bucket'], args['args']['s3_prefix']),
+    diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['s3_prefix']),
                     expected, ignore_string_case=False)
     assert diff == {}, "objects uploaded and objects returned differ"
 
@@ -124,10 +123,10 @@ def test_keys_by_date():
     k = ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-01-part1_7.csv", "BasicCompanyData-2019-01-02-part1_6.csv"]
     inp = [os.path.join(args['args']['s3_prefix'], j) for j in k]
 
-    expected = {"2019-01-02": [os.path.join("s3://"+args['args']['publish_bucket'], inp[0]),
-                               os.path.join("s3://"+args['args']['publish_bucket'], inp[2])],
-                "2019-01-01": [os.path.join("s3://"+args['args']['publish_bucket'], inp[1])]}
-    diff = DeepDiff(keys_by_date(inp, args['args']['filename'], args['args']['publish_bucket']), expected, ignore_string_case=False)
+    expected = {"2019-01-02": [os.path.join("s3://"+args['args']['source_bucket'], inp[0]),
+                               os.path.join("s3://"+args['args']['source_bucket'], inp[2])],
+                "2019-01-01": [os.path.join("s3://"+args['args']['source_bucket'], inp[1])]}
+    diff = DeepDiff(keys_by_date(inp, args['args']['filename'], args['args']['source_bucket']), expected, ignore_string_case=False)
     assert diff == {}, "keys were not correctly split into list by date"
 
 
@@ -157,7 +156,7 @@ def test_create_spark_dfs(spark_fixture):
 
 def test_total_size(s3_fixture):
     s3_client = s3_fixture
-    ts = total_size(s3_client, args['args']['publish_bucket'], args['args']['s3_prefix'])
+    ts = total_size(s3_client, args['args']['destination_bucket'], args['args']['s3_prefix'])
     assert ts == 60, "5 files on the bucket are 12 bytes each but the total size was not 60"
 
 

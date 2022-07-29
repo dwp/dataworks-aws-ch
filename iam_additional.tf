@@ -40,7 +40,8 @@ data "aws_iam_policy_document" "ch_write_data" {
     ]
 
     resources = [
-      local.publish_bucket.arn
+      local.publish_bucket.arn,
+      format("arn:aws:s3:::%s/*", local.stage_bucket.id)
     ]
   }
 
@@ -56,6 +57,7 @@ data "aws_iam_policy_document" "ch_write_data" {
 
     resources = [
       "${local.publish_bucket.arn}/data/uc_ch/*",
+      format("arn:aws:s3:::%s/e2e/*", local.stage_bucket.id)
     ]
   }
 
@@ -174,7 +176,7 @@ data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
       "s3:GetObject",
     ]
     resources = [format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", local.config_bucket.id),
-                 format("arn:aws:s3:::%s/data-ingress/companies/*", local.stage_bucket.id)]
+                 format("arn:aws:s3:::%s/*", local.stage_bucket.id)]
   }
 
   statement {
@@ -182,7 +184,7 @@ data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
     actions = [
       "s3:PutObjectTagging",
     ]
-    resources = [format("arn:aws:s3:::%s/data-ingress/companies/*", local.stage_bucket.id)]
+    resources = [format("arn:aws:s3:::%s/*", local.stage_bucket.id)]
   }
 
 

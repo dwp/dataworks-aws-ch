@@ -3,12 +3,22 @@ resource "aws_s3_bucket_object" "steps_conf" {
   key    = "${local.ch_s3_prefix}/steps/conf.tpl"
   content = templatefile("steps/conf.tpl",
     {
-      environment     = local.environment
       aws_region_name = var.region
       publish_bucket  = local.publish_bucket.id
-      url             = format("%s/datakey/actions/decrypt", local.dks_endpoint)
       stage_bucket    = local.stage_bucket.id
     }
+  )
+}
+
+resource "aws_s3_bucket_object" "e2e_conf" {
+  bucket = local.config_bucket.id
+  key    = "${local.ch_s3_prefix}/steps/e2e_conf.tpl"
+  content = templatefile("tests/e2e_conf.tpl",
+  {
+    aws_region_name = var.region
+    publish_bucket  = local.publish_bucket.id
+    stage_bucket    = local.stage_bucket.id
+  }
   )
 }
 
@@ -44,10 +54,8 @@ resource "aws_s3_bucket_object" "test_conf" {
   key    = "${local.ch_s3_prefix}/tests/test_conf.tpl"
   content = templatefile("tests/test_conf.tpl",
     {
-      environment     = local.environment
       aws_region_name = var.region
       publish_bucket  = local.publish_bucket.id
-      url             = format("%s/datakey/actions/decrypt", local.dks_endpoint)
       stage_bucket    = local.stage_bucket.id
     }
   )
