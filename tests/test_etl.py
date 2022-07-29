@@ -85,9 +85,9 @@ def dynamo_fixture():
 
 
 def test_all_keys(s3_fixture):
-    expected = [os.path.join(args['args']['s3_prefix'], j) for j in keys]
+    expected = [os.path.join(args['args']['source_prefix'], j) for j in keys]
     s3_client = s3_fixture
-    diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['s3_prefix']),
+    diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix']),
                     expected, ignore_string_case=False)
     assert diff == {}, "objects uploaded and objects returned differ"
 
@@ -107,7 +107,7 @@ def test_file_latest_dynamo_fetch(dynamo_fixture):
 
 
 def test_filter_keys():
-    keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv", "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
+    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv", "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
     suffix_latest_import = "2019-01-01-part2_6"
     expected_keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"] ]
     expected_new_suffix_latest_import = "2019-01-02-part1_7"
