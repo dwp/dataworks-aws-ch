@@ -3,7 +3,6 @@ import os
 from configparser import ConfigParser
 from moto import mock_dynamodb2
 from steps.etl import *
-# from etl import *
 import ast
 from pyspark.sql import SparkSession
 import pytest
