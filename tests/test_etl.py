@@ -155,8 +155,10 @@ def test_create_spark_dfs(spark_fixture):
 
 
 def test_total_size(s3_fixture):
+    destination_bucket = args['args']['source_bucket']
+    destination_prefix = args['args']['source_prefix']
     s3_client = s3_fixture
-    ts = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
+    ts = total_size(s3_client, destination_bucket, destination_prefix)
     assert ts == 60, "5 files on the bucket are 12 bytes each but the total size was not 60"
 
 
