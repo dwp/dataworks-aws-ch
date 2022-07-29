@@ -109,7 +109,7 @@ def test_file_latest_dynamo_fetch(dynamo_fixture):
 def test_filter_keys():
     keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv", "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
     suffix_latest_import = "2019-01-01-part2_6"
-    expected_keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"] ]
+    expected_keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"] ]
     expected_new_suffix_latest_import = "2019-01-02-part1_7"
     diff = DeepDiff(filter_keys(suffix_latest_import, keys, args['args']['filename']), (expected_keys, expected_new_suffix_latest_import), ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
@@ -121,7 +121,7 @@ def test_date_regex_extract():
 
 def test_keys_by_date():
     k = ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-01-part1_7.csv", "BasicCompanyData-2019-01-02-part1_6.csv"]
-    inp = [os.path.join(args['args']['s3_prefix'], j) for j in k]
+    inp = [os.path.join(args['args']['source_prefix'], j) for j in k]
 
     expected = {"2019-01-02": [os.path.join("s3://"+args['args']['source_bucket'], inp[0]),
                                os.path.join("s3://"+args['args']['source_bucket'], inp[2])],
@@ -156,7 +156,7 @@ def test_create_spark_dfs(spark_fixture):
 
 def test_total_size(s3_fixture):
     s3_client = s3_fixture
-    ts = total_size(s3_client, args['args']['destination_bucket'], args['args']['s3_prefix'])
+    ts = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
     assert ts == 60, "5 files on the bucket are 12 bytes each but the total size was not 60"
 
 
