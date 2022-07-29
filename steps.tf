@@ -54,9 +54,6 @@ resource "aws_s3_bucket_object" "test_conf" {
   key    = "${local.ch_s3_prefix}/tests/test_conf.tpl"
   content = templatefile("tests/test_conf.tpl",
     {
-      aws_region_name = var.region
-      publish_bucket  = local.publish_bucket.id
-      stage_bucket    = local.stage_bucket.id
     }
   )
 }

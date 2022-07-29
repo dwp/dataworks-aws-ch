@@ -5,9 +5,9 @@ range_key : DataProduct
 data_product_name : CH
 hash_id : dataworks-aws-ch-e2e
 [args]
-region : ${aws_region_name}
-destination_bucket : ${stage_bucket}
-source_bucket : ${stage_bucket}
+region : eu-west-2
+destination_bucket : test-destination-bucket
+source_bucket : test-source-bucket
 db_name: test_db
 table_name : test
 filename : BasicCompanyData
