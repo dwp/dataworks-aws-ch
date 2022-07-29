@@ -3,6 +3,7 @@ import os
 from configparser import ConfigParser
 from moto import mock_dynamodb2
 from steps.etl import *
+# from etl import *
 import ast
 from pyspark.sql import SparkSession
 import pytest
@@ -108,14 +109,11 @@ def test_file_latest_dynamo_fetch(dynamo_fixture):
 
 
 def test_filter_keys():
-    keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv",
-            "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
+    keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv", "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
     suffix_latest_import = "2019-01-01-part2_6"
-    expected_keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
+    expected_keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"] ]
     expected_new_suffix_latest_import = "2019-01-02-part1_7"
-
-    diff = DeepDiff(filter_keys(suffix_latest_import, keys, args['args']['filename']), (expected_keys, expected_new_suffix_latest_import),
-                    ignore_string_case=False)
+    diff = DeepDiff(filter_keys(suffix_latest_import, keys, args['args']['filename']), (expected_keys, expected_new_suffix_latest_import), ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 
 
@@ -156,6 +154,14 @@ def test_create_spark_dfs(spark_fixture):
     df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     assert df.count() == 6, "total rows are not equal to sum of rows in the two sample files"
     assert len(df.columns) == len(ast.literal_eval(args['args']['cols']))+1, "united df columns are more or less than expected"
+
+
+def test_parquet_writer(spark_fixture):
+    spark = spark_fixture
+    kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"]}
+    df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
+    writer_parquet(df, args['args']['destination_prefix'], args['args']['partitioning_column'])
+    assert os.listdir("tests/files/output") == [f"{args['args']['partitioning_column']}=2019-01-01"], "parquet partitions not all created"
 
 
 def test_total_size(s3_fixture):
