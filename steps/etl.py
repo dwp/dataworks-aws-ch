@@ -129,10 +129,8 @@ def filter_keys(filename, keys, filename_prefix):
         keys_filename = [file_regex_extract(key, filename_prefix) for key in keys]
         if filename not in keys_filename:
             keys_filename.append(filename)
-        logger.warning(f"keys including file latest {keys_filename}")
         keys_filename.sort(reverse=False)
         keys_sort = keys_filename
-        logger.warning(f"keys sorted {keys_sort}")
         l = len(keys_sort)
         idx = keys_sort.index(filename)+1
         if idx == l:
@@ -401,11 +399,8 @@ if __name__ == "__main__":
     s3_client = get_s3_client()
     spark = spark_session()
     all_keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
-    logger.warning(f"all_keys {all_keys}")
     keys = csv_files_only(all_keys, args['args']['filename'])
-    logger.warning(f"keys {keys}")
     file_latest = file_latest_dynamo_fetch(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
-    logger.warning(f"file latest {file_latest}")
     new_keys, new_suffix_latest_import = filter_keys(file_latest, keys, args['args']['filename'])
     kbd = keys_by_date(new_keys, args['args']['filename'], args['args']['source_bucket'])
     spark_df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])

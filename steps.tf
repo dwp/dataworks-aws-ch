@@ -33,7 +33,7 @@ resource "aws_s3_bucket_object" "etl" {
 
 resource "aws_s3_bucket_object" "e2e" {
   bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/tests/e2e.py"
+  key    = "${local.ch_s3_prefix}/steps/e2e.py"
   content = templatefile("tests/e2e.py",
     {
     }

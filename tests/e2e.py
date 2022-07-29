@@ -26,7 +26,7 @@ def setup_logging(log_path=None):
     return the_logger
 
 
-logger = setup_logging()
+logger = setup_logging("/var/log/dataworks-aws-ch/e2e-tests.log")
 
 
 def runtime_args():
@@ -37,6 +37,7 @@ def runtime_args():
         parser.add_argument("--cols", type=int, required=True, default=False)
         parser.add_argument("--db", type=str, required=True, default=False)
         parser.add_argument("--table", type=str, required=True, default=False)
+        parser.add_argument("--partitioning_column", type=str, required=True, default=False)
         args, unrecognized_args = parser.parse_known_args()
         if unrecognized_args:
             logger.warning(f"unrecognised args {unrecognized_args}")
@@ -72,7 +73,7 @@ if __name__ == "__main__":
 
     args = runtime_args()
     actual_cols = colcount(args.db, args.table)
-    actual_rows = rowcount(args.db, args.table, 'UploadedOnSource')
+    actual_rows = rowcount(args.db, args.table, args.partitioning_column)
     logger.info("checking number of columns")
     assert actual_cols == args.cols, f"actual cols: {actual_cols} not equal to expected cols: {args.cols}"
     logger.info("checking number of rows")
