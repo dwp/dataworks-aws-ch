@@ -108,14 +108,13 @@ def test_file_latest_dynamo_fetch(dynamo_fixture):
 
 
 def test_filter_keys():
-    k = ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv",
-         "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]
+    keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv",
+            "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
+    suffix_latest_import = "2019-01-01-part2_6"
+    expected_keys = [os.path.join(args['args']['s3_prefix'], j) for j in ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
+    expected_new_suffix_latest_import = "2019-01-02-part1_7"
 
-    inp = [os.path.join(args['args']['s3_prefix'], j) for j in k]
-    expected = inp[-2:]
-
-
-    diff = DeepDiff(filter_keys(inp[0], inp, args['args']['filename']), (expected, expected[-1]),
+    diff = DeepDiff(filter_keys(suffix_latest_import, keys, args['args']['filename']), (expected_keys, expected_new_suffix_latest_import),
                     ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 

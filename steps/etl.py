@@ -146,7 +146,7 @@ def filter_keys(filename, keys, filename_prefix):
             logger.warning("no new files since last import. exiting...")
             sys.exit(0)
         logger.info(f"{len(new_keys)} new files were added after last import")
-        return new_keys, new_keys[-1]
+        return new_keys, file_regex_extract(new_keys[-1], args['args']['filename'])
     except Exception as ex:
         logger.error(f"failed to filter keys added after latest imported file due to {ex}")
 
@@ -405,7 +405,7 @@ if __name__ == "__main__":
     logger.warning(f"keys {keys}")
     file_latest = file_latest_dynamo_fetch(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     logger.warning(f"file latest {file_latest}")
-    new_keys, new_file_latest_import = filter_keys(file_latest, keys, args['args']['filename'])
+    new_keys, new_suffix_latest_import = filter_keys(file_latest, keys, args['args']['filename'])
     kbd = keys_by_date(new_keys, args['args']['filename'], args['args']['stage_bucket'])
     spark_df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['publish_bucket'], args['args']['destination_prefix'])
@@ -416,4 +416,4 @@ if __name__ == "__main__":
     dates = list(kbd.keys())
     tag_objects(s3_client, args['args']['publish_bucket'], args['args']['destination_prefix'], dates, db, tbl, args['args']['partitioning_column'])
     cum_size = total_size(s3_client, args['args']['publish_bucket'], args['args']['destination_prefix'])
-    file_latest_dynamo_add(file_regex_extract(new_file_latest_import, args['args']['filename']), cum_size)
+    file_latest_dynamo_add(new_suffix_latest_import, cum_size)
