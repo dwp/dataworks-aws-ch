@@ -387,16 +387,16 @@ def runtime_args():
 def all_args():
     r_args = runtime_args()
     if r_args.e2e:
-        args = config("/opt/emr/e2e_conf.tpl")
+        return config("/opt/emr/e2e_conf.tpl")
     else:
-        args = config("/opt/emr/conf.tpl")
-    logger.info(f"script args parsed: {args}")
-    return args
+        return config("/opt/emr/conf.tpl")
 
 
 if __name__ == "__main__":
     args = all_args()
+
     logger = setup_logging(args['args']['log_path'])
+    logger.info(f"script args parsed: {args}")
     table = dynamo_table(args['args']['region'])
     s3_client = get_s3_client()
     spark = spark_session()

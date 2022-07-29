@@ -73,7 +73,9 @@ data "aws_iam_policy_document" "ch_write_data" {
     ]
 
     resources = [
-      data.terraform_remote_state.common.outputs.published_bucket_cmk.arn
+      data.terraform_remote_state.common.outputs.published_bucket_cmk.arn,
+      data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
+
     ]
   }
 }
@@ -196,8 +198,7 @@ data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
     ]
 
     resources = [
-      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn,
-      data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
+      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn
     ]
   }
 }

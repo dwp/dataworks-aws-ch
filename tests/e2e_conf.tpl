@@ -6,7 +6,6 @@ data_product_name : CH
 hash_id : dataworks-aws-ch-e2e
 [args]
 region : ${aws_region_name}
-destination_bucket : ${stage_bucket}
 source_bucket : ${stage_bucket}
 db_name: uc_test
 table_name : companies
