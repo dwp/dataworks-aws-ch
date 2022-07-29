@@ -49,7 +49,7 @@ def s3_fixture():
                          CreateBucketConfiguration={"LocationConstraint": args['args']['region']})
     for i in keys:
         client.put_object(
-            Bucket=args['args']['source_bucket'], Body=b"some content", Key=args['args']['source_prefix']+i
+            Bucket=args['args']['source_bucket'], Body=b"some content", Key=os.path.join(args['args']['source_prefix'],i)
         )
     yield client
     mock_s3().stop()
