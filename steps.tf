@@ -14,11 +14,11 @@ resource "aws_s3_bucket_object" "e2e_conf" {
   bucket = local.config_bucket.id
   key    = "${local.ch_s3_prefix}/steps/e2e_conf.tpl"
   content = templatefile("tests/e2e_conf.tpl",
-  {
-    aws_region_name = var.region
-    publish_bucket  = local.publish_bucket.id
-    stage_bucket    = local.stage_bucket.id
-  }
+    {
+      aws_region_name = var.region
+      publish_bucket  = local.publish_bucket.id
+      stage_bucket    = local.stage_bucket.id
+    }
   )
 }
 
