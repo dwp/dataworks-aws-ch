@@ -99,27 +99,12 @@ def csv_files_only(keys: list, filenames_prefix: str):
         sys.exit(-1)
 
 
-# def read_zipped_csv(s3_location):
-#     try:
-#         return pd.read_csv(s3_location)
-#     except Exception as ex:
-#         logger.error(f"failed to read zip file from s3 due to {ex}")
-#         sys.exit(-1)
-
-
 def schema_spark(schema: list):
     logger.info("build spark schema from list of cols")
     try:
         return [StructField(i, StringType(), True) for i in schema]
     except Exception as ex:
         logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
-
-# def create_spark_df(pandas_df, schema):
-#     logger.info("creating a spark df from pandas df")
-#     try:
-#         return spark.createDataFrame(pandas_df, schema)
-#     except Exception as ex:
-#         logger.error(f"failed to create a spark df from pandas df with schema {schema} due to {ex}")
 
 
 def filter_keys(filename, keys, filename_prefix):
@@ -331,15 +316,13 @@ def dynamo_table(region):
 
 
 def config(config_file_path: str):
-    # logger.info(f"getting args from file {config_file_path}")
     try:
         conf = ConfigParser()
         conf.read(config_file_path)
         return conf
     except Exception as ex:
-        # logger.error(f"failed to load configuration file {config_file_path} due to {ex}")
         print(ex)
-        # sys.exit(-1)
+        sys.exit(-1)
 
 
 def recreate_hive_table(df, path, db_name, table_name, sp, partitioning_column):

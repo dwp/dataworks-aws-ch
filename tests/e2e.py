@@ -46,8 +46,10 @@ def runtime_args():
         logger.error(f"unable to parse args due to :{ex}")
         sys.exit(-1)
 
+
 def run_hive_command(cmd):
 
+    logger.info(f"running hive command:{cmd}")
     cmd = ["hive", "-S", "-e", f"\"{cmd}\""]
     a = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     return a.communicate()[0].decode("utf-8")
@@ -55,6 +57,7 @@ def run_hive_command(cmd):
 
 def rowcount(db: str, table: str, partitioning_column):
 
+    logger.info("checking number of rows")
     cmd = f"SELECT count(*) FROM {db}.{table} WHERE {partitioning_column} BETWEEN '{str(datetime.date.today()-timedelta(1))}' AND '{str(datetime.date.today())}';"
     r = run_hive_command(cmd)
     return int(r)
@@ -62,6 +65,7 @@ def rowcount(db: str, table: str, partitioning_column):
 
 def colcount(db: str, table: str):
 
+    logger.info("checking number of columns")
     cmd = f"SHOW COLUMNS IN {db}.{table};"
     r = run_hive_command(cmd)
     r = r.replace('\n', ' ')
@@ -74,8 +78,6 @@ if __name__ == "__main__":
     args = runtime_args()
     actual_cols = colcount(args.db, args.table)
     actual_rows = rowcount(args.db, args.table, args.partitioning_column)
-    logger.info("checking number of columns")
     assert actual_cols == args.cols, f"actual cols: {actual_cols} not equal to expected cols: {args.cols}"
-    logger.info("checking number of rows")
     assert actual_rows == args.rows, f"actual rows: {actual_rows} not equal to expected rows: {args.rows}"
-    logger.info("test for row and col counts passed")
+    logger.info("e2e test for row and col counts passed")

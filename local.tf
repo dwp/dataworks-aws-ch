@@ -28,13 +28,7 @@ locals {
     preprod     = "management"
     production  = "management"
   }
-  root_dns_name = {
-    development = "dev.dataworks.dwp.gov.uk"
-    qa          = "qa.dataworks.dwp.gov.uk"
-    integration = "int.dataworks.dwp.gov.uk"
-    preprod     = "pre.dataworks.dwp.gov.uk"
-    production  = "dataworks.dwp.gov.uk"
-  }
+
   ch_log_level = {
     development = "DEBUG"
     qa          = "DEBUG"
