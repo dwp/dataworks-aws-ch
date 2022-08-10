@@ -106,7 +106,7 @@ def test_file_latest_dynamo_fetch(dynamo_fixture):
 
 
 def test_filter_keys():
-    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]]
+    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]]
     suffix_latest_import = "2019-01-01"
     expected_keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"] ]
     expected_new_suffix_latest_import = "2019-01-02"
