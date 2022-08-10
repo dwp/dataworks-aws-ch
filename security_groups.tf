@@ -121,7 +121,6 @@ resource "aws_security_group_rule" "ingress_to_dks" {
   security_group_id = data.terraform_remote_state.crypto.outputs.dks_sg_id[local.environment]
 }
 
-# https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-man-sec-groups.html#emr-sg-elasticmapreduce-sa-private
 resource "aws_security_group_rule" "emr_service_ingress_master" {
   description              = "Allow EMR master nodes to reach the EMR service"
   type                     = "ingress"
@@ -133,8 +132,6 @@ resource "aws_security_group_rule" "emr_service_ingress_master" {
 }
 
 
-# The EMR service will automatically add the ingress equivalent of this rule,
-# but doesn't inject this egress counterpart
 resource "aws_security_group_rule" "emr_master_to_core_egress_tcp" {
   description              = "Allow master nodes to send TCP traffic to core nodes"
   type                     = "egress"

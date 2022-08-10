@@ -9,7 +9,7 @@ import pytest
 import boto3
 from moto import mock_s3
 
-test_config_path = "tests/test_conf.tpl"
+test_config_path = "tests/unit_test_conf.tpl"
 
 keys = ["BasicCompanyData-2018-01-01.csv", "BasicCompanyData-2019-01-02.csv",
         "BasicCompanyData-2019-01-03.csv", "BasicCompanyData-2019-01-04.csv", "notacsv.txt"]
