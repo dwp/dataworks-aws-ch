@@ -11,11 +11,10 @@ from moto import mock_s3
 
 test_config_path = "tests/test_conf.tpl"
 
-keys = ["BasicCompanyData-2018-01-01-part1_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv",
-        "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv", "notacsv.txt"]
+keys = ["BasicCompanyData-2018-01-01.csv", "BasicCompanyData-2019-01-02.csv",
+        "BasicCompanyData-2019-01-03.csv", "BasicCompanyData-2019-01-04.csv", "notacsv.txt"]
 
-keys_only_csv = ["BasicCompanyData-2018-01-01-part1_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv",
-                 "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]
+keys_only_csv = keys[:-1]
 
 
 def config(config_file_path: str):
@@ -71,7 +70,7 @@ def dynamo_fixture():
         TableName=args['audit-table']['name'],
     )
     table = dynamodb.Table(args['audit-table']['name'])
-    files = ["2018-01-01-part2_6", "2019-01-01-part2_6"]
+    files = ["2018-01-01", "2019-01-01"]
     for f in files:
         table.put_item(
             Item={
@@ -98,29 +97,29 @@ def test_csv_files_only():
     assert diff == {}, "csv files are have not all been identified or other file types are present"
 
 
-def test_file_regex_extract():
-    assert file_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11-part1_6.csv", args['args']['filename']) == "2020-11-11-part1_6", "filename unique part was not extracted"
+def test_date_regex_extract():
+    assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.csv", args['args']['filename']) == "2020-11-11", "filename unique part was not extracted"
 
 
 def test_file_latest_dynamo_fetch(dynamo_fixture):
-    assert file_latest_dynamo_fetch(dynamo_fixture, args['audit-table']['hash_key'], args['audit-table']['hash_id']) == "2019-01-01-part2_6"
+    assert file_latest_dynamo_fetch(dynamo_fixture, args['audit-table']['hash_key'], args['audit-table']['hash_id']) == "2019-01-01"
 
 
 def test_filter_keys():
-    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01-part2_6.csv", "BasicCompanyData-2019-01-01-part1_6.csv", "BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"]]
-    suffix_latest_import = "2019-01-01-part2_6"
-    expected_keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-02-part1_7.csv"] ]
-    expected_new_suffix_latest_import = "2019-01-02-part1_7"
+    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]]
+    suffix_latest_import = "2019-01-01"
+    expected_keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"] ]
+    expected_new_suffix_latest_import = "2019-01-02"
     diff = DeepDiff(filter_keys(suffix_latest_import, keys, args['args']['filename']), (expected_keys, expected_new_suffix_latest_import), ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 
 
 def test_date_regex_extract():
-    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01-part1_6.csv", args['args']['filename']) == "2019-01-01", "date was not extracted correctly"
+    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01.csv", args['args']['filename']) == "2019-01-01", "date was not extracted correctly"
 
 
 def test_keys_by_date():
-    k = ["BasicCompanyData-2019-01-02-part1_6.csv", "BasicCompanyData-2019-01-01-part1_7.csv", "BasicCompanyData-2019-01-02-part1_6.csv"]
+    k = ["BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv"]
     inp = [os.path.join(args['args']['source_prefix'], j) for j in k]
 
     expected = {"2019-01-02": [os.path.join("s3://"+args['args']['source_bucket'], inp[0]),
@@ -132,13 +131,13 @@ def test_keys_by_date():
 
 def test_extract_csv(spark_fixture):
     spark = spark_fixture
-    df = extract_csv(["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"], ast.literal_eval(args['args']['cols']), spark)
+    df = extract_csv(["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"], ast.literal_eval(args['args']['cols']), spark)
     assert df.count() == 6, "read rows are too few or too many"
 
 
 def test_rename_cols(spark_fixture):
     spark = spark_fixture
-    k = ["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"]
+    k = ["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"]
     df = extract_csv(k, args['args']['cols'], spark)
     dfn = rename_cols(df)
     print(dfn.columns)
@@ -148,7 +147,7 @@ def test_rename_cols(spark_fixture):
 
 def test_create_spark_dfs(spark_fixture):
     spark = spark_fixture
-    kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01-part1_6.csv", "tests/files/BasicCompanyData-2019-01-01-part2_6.csv"]}
+    kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"]}
     df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     assert df.count() == 6, "total rows are not equal to sum of rows in the two sample files"
     assert len(df.columns) == len(ast.literal_eval(args['args']['cols']))+1, "united df columns are more or less than expected"

@@ -12,8 +12,8 @@ resource "aws_s3_bucket_object" "steps_conf" {
 
 resource "aws_s3_bucket_object" "e2e_conf" {
   bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/steps/e2e_conf.tpl"
-  content = templatefile("tests/e2e_conf.tpl",
+  key    = "${local.ch_s3_prefix}/steps/e2e_test_conf.tpl"
+  content = templatefile("tests/e2e_test_conf.tpl",
     {
       aws_region_name = var.region
       publish_bucket  = local.publish_bucket.id
@@ -51,8 +51,8 @@ resource "aws_s3_bucket_object" "test_etl" {
 
 resource "aws_s3_bucket_object" "test_conf" {
   bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/tests/test_conf.tpl"
-  content = templatefile("tests/test_conf.tpl",
+  key    = "${local.ch_s3_prefix}/tests/unit_test_conf.tpl"
+  content = templatefile("tests/unit_test_conf.tpl",
     {
     }
   )

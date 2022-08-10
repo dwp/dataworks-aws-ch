@@ -66,22 +66,11 @@ def file_latest_dynamo_fetch(table, hash_key, hash_id):
 def date_regex_extract(filename: str, filenames_prefix: str):
     logger.info(f"extracting date from file name {filename}")
     try:
-        pattern = f".*{filenames_prefix}"+"-([0-9]{4}-[0-9]{2}-[0-9]{2})-part.*\.csv"
+        pattern = f".*{filenames_prefix}"+"-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\.csv"
         match = re.findall(pattern, filename)
         return match[0]
     except Exception as ex:
         logger.error(f"failed to extract date from file name {filename} due to {ex}")
-        sys.exit(-1)
-
-
-def file_regex_extract(filename: str, filename_prefix: str):
-    logger.info(f"extracting suffix from file name {filename}")
-    try:
-        pattern = f".*{filename_prefix}"+"-([0-9]{4}-[0-9]{2}-[0-9]{2}-part.*)\.csv"
-        match = re.findall(pattern, filename)
-        return match[0]
-    except Exception as ex:
-        logger.error(f"failed to extract suffix from file name {filename} due to {ex}")
         sys.exit(-1)
 
 
@@ -111,7 +100,7 @@ def filter_keys(filename, keys, filename_prefix):
     logger.info(f"filtering files added after latest imported file")
     try:
         new_keys = []
-        keys_filename = [file_regex_extract(key, filename_prefix) for key in keys]
+        keys_filename = [date_regex_extract(key, filename_prefix) for key in keys]
         if filename not in keys_filename:
             keys_filename.append(filename)
         keys_filename.sort(reverse=False)
@@ -129,7 +118,7 @@ def filter_keys(filename, keys, filename_prefix):
             logger.warning("no new files since last import. exiting...")
             sys.exit(0)
         logger.info(f"{len(new_keys)} new files were added after last import")
-        return new_keys, file_regex_extract(new_keys[-1], filename_prefix)
+        return new_keys, date_regex_extract(new_keys[-1], filename_prefix)
     except Exception as ex:
         logger.error(f"failed to filter keys added after latest imported file due to {ex}")
 
