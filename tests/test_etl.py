@@ -109,7 +109,7 @@ def test_filter_keys():
     keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]]
     suffix_latest_import = "2019-01-01"
     expected_keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"] ]
-    expected_new_suffix_latest_import = "2019-01-01"
+    expected_new_suffix_latest_import = "2019-01-03"
     diff = DeepDiff(filter_keys(suffix_latest_import, keys, args['args']['filename']), (expected_keys, expected_new_suffix_latest_import), ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 
