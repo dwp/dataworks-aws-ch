@@ -7,7 +7,7 @@ hash_id : dataworks-aws-ch-e2e
 [args]
 region : ${aws_region_name}
 source_bucket : ${stage_bucket}
-db_name: uc_test
+db_name: test_ch
 table_name : companies
 filename : BasicCompanyData
 partitioning_column : date_sent
