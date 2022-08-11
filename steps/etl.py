@@ -357,7 +357,7 @@ def runtime_args():
 def all_args():
     r_args = runtime_args()
     if r_args.e2e:
-        return config("/opt/emr/e2e_conf.tpl")
+        return config("/opt/emr/e2e_test_conf.tpl")
     else:
         return config("/opt/emr/conf.tpl")
 
