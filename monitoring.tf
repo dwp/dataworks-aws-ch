@@ -105,19 +105,11 @@ resource "aws_cloudwatch_event_rule" "ch_started" {
   description   = "checks that all steps complete"
   event_pattern = <<EOF
 {
-  "source": [
-    "aws.emr"
-  ],
-  "detail-type": [
-    "EMR Cluster State Change"
-  ],
+  "source": ["aws.emr"],
+  "detail-type": ["EMR Cluster State Change"],
   "detail": {
-    "state": [
-      "STARTING"
-    ],
-    "name": [
-      "dataworks-aws-ch"
-    ],
+    "state": ["STARTING"],
+    "name": ["dataworks-aws-ch"]
   }
 }
 EOF
@@ -195,6 +187,55 @@ resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
     {
       Name              = "ch_step_failed",
       notification_type = "Error"
+      severity          = "Critical"
+    },
+  )
+}
+
+
+resource "aws_cloudwatch_event_rule" "file_landed" {
+  name          = "ch_file_created_on_published_bucket_rule"
+  description   = "checks that file landed on published bucket"
+  event_pattern = <<EOF
+{
+  "source": ["aws.s3"],
+  "detail-type": ["Object Created"],
+  "detail": {
+    "bucket": {
+      "name":["${local.publish_bucket.id}"]},
+    "object": {
+       "key": [{"prefix":"${local.companies_s3_prefix}/${local.partitioning_column}="}]}
+  }
+}
+EOF
+}
+
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket      = local.publish_bucket.id
+  eventbridge = true
+}
+
+resource "aws_cloudwatch_metric_alarm" "file_landed" {
+  alarm_name                = "ch_file_created_on_published_bucket"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "TriggeredRules"
+  namespace                 = "AWS/Events"
+  period                    = "60"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "Monitoring stage bucket"
+  insufficient_data_actions = []
+  alarm_actions             = [local.monitoring_topic_arn]
+  dimensions = {
+    RuleName = aws_cloudwatch_event_rule.file_landed.name
+  }
+  tags = merge(
+    local.common_repo_tags,
+    {
+      Name              = "ch_file_created_on_published_bucket",
+      notification_type = "Information",
       severity          = "Critical"
     },
   )
