@@ -14,7 +14,7 @@ resource "aws_cloudwatch_event_rule" "ch_terminated_with_errors_rule" {
       "TERMINATED_WITH_ERRORS"
     ],
     "name": [
-      "ch"
+      "dataworks-aws-ch"
     ]
   }
 }
@@ -46,6 +46,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_failed_with_errors" {
   )
 }
 
+
 resource "aws_cloudwatch_event_rule" "ch_success" {
   name          = "ch_success"
   description   = "checks that all steps complete"
@@ -62,7 +63,7 @@ resource "aws_cloudwatch_event_rule" "ch_success" {
       "TERMINATED"
     ],
     "name": [
-      "ch"
+      "dataworks-aws-ch"
     ],
     "stateChangeReason": [
       "{\"code\":\"ALL_STEPS_COMPLETED\",\"message\":\"Steps completed\"}"
@@ -98,6 +99,56 @@ resource "aws_cloudwatch_metric_alarm" "ch_success" {
   )
 }
 
+
+resource "aws_cloudwatch_event_rule" "ch_started" {
+  name          = "ch_success"
+  description   = "checks that all steps complete"
+  event_pattern = <<EOF
+{
+  "source": [
+    "aws.emr"
+  ],
+  "detail-type": [
+    "EMR Cluster State Change"
+  ],
+  "detail": {
+    "state": [
+      "STARTING"
+    ],
+    "name": [
+      "dataworks-aws-ch"
+    ],
+  }
+}
+EOF
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "ch_started" {
+  alarm_name                = "ch_started"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "TriggeredRules"
+  namespace                 = "AWS/Events"
+  period                    = "60"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "Monitoring ch start"
+  insufficient_data_actions = []
+  alarm_actions             = [local.monitoring_topic_arn]
+  dimensions = {
+    RuleName = aws_cloudwatch_event_rule.ch_started.name
+  }
+  tags = merge(
+    local.common_repo_tags,
+    {
+      Name              = "ch_started",
+      notification_type = "Information",
+      severity          = "Critical"
+    },
+  )
+}
+
 resource "aws_cloudwatch_event_rule" "ch_step_error_rule" {
   count         = length(local.steps)
   name          = format("%s_%s_%s", "ch_step", element(local.steps, count.index), "failed_rule")
@@ -121,6 +172,7 @@ resource "aws_cloudwatch_event_rule" "ch_step_error_rule" {
 }
 EOF
 }
+
 
 resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
   count                     = length(local.steps)
