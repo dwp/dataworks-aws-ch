@@ -103,8 +103,8 @@ resource "aws_cloudwatch_metric_alarm" "ch_success" {
 
 
 resource "aws_cloudwatch_event_rule" "ch_started" {
-  name          = "ch_success"
-  description   = "checks that all steps complete"
+  name          = "ch_started"
+  description   = "checks that emr started"
   event_pattern = <<EOF
 {
   "source": ["aws.emr"],
@@ -146,6 +146,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_started" {
 
 resource "aws_cloudwatch_event_rule" "ch_step_error_rule" {
   count         = length(local.steps)
+  lifecycle {ignore_changes = [tags]}
   name          = format("%s_%s_%s", "ch_step", element(local.steps, count.index), "failed_rule")
   description   = "Sends failed message to slack when ch cluster step fails"
   event_pattern = <<EOF
@@ -198,6 +199,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
 
 
 resource "aws_cloudwatch_event_rule" "file_landed" {
+
   name          = "ch_file_created_on_published_bucket_rule"
   description   = "checks that file landed on published bucket"
   event_pattern = <<EOF

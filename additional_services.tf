@@ -13,6 +13,7 @@ resource "aws_emr_security_configuration" "ebs_emrfs_em" {
 }
 
 resource "aws_sns_topic" "trigger_ch_sns" {
+  lifecycle {ignore_changes = [tags]}
   name = "trigger_ch_process"
 
   tags = merge(

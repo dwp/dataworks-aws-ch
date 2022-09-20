@@ -89,6 +89,7 @@ resource "aws_iam_policy" "ch_write_data" {
 
 
 resource "aws_iam_role" "ch" {
+  lifecycle {ignore_changes = [tags]}
   name               = "ch"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
   tags = merge(
