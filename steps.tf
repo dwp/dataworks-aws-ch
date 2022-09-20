@@ -8,6 +8,7 @@ resource "aws_s3_bucket_object" "steps_conf" {
       partitioning_column = local.partitioning_column
       publish_bucket      = local.publish_bucket.id
       stage_bucket        = local.stage_bucket.id
+      column_names        = local.column_names
     }
   )
 }
@@ -21,6 +22,7 @@ resource "aws_s3_bucket_object" "e2e_conf" {
       publish_bucket      = local.publish_bucket.id
       partitioning_column = local.partitioning_column
       stage_bucket        = local.stage_bucket.id
+      column_names        = local.column_names
     }
   )
 }
@@ -58,6 +60,7 @@ resource "aws_s3_bucket_object" "test_conf" {
   content = templatefile("tests/unit_test_conf.tpl",
     {
       partitioning_column = local.partitioning_column
+      column_names        = local.column_names
     }
   )
 }

@@ -133,7 +133,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  region  = "{{terraform.provider_region}}"
+  region  = var.region
 
   assume_role {
     role_arn = "arn:aws:iam::${lookup(local.account, local.environment)}:role/${var.assume_role}"
