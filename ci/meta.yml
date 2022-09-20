@@ -46,6 +46,9 @@ meta:
       task: terraform-apply
       .: (( inject meta.plan.terraform-common-config ))
       config:
+        params:
+          TF_INPUT: false
+          TF_CLI_ARGS_apply: -lock-timeout=300s
         run:
           path: sh
           args:
