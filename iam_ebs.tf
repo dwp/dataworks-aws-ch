@@ -122,6 +122,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
 }
 
 data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
+
   statement {
     effect = "Allow"
 
