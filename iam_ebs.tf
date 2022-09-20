@@ -149,7 +149,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
 }
 
 resource "aws_iam_policy" "ch_ebs_cmk_encrypt" {
-  lifecycle {ignore_changes = [all]}
+  lifecycle {ignore_changes = [tags]}
   name        = "chEbsCmkEncrypt"
   description = "Allow encryption and decryption using the ch EBS CMK"
   policy      = data.aws_iam_policy_document.ch_ebs_cmk_encrypt.json
