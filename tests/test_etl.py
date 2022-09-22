@@ -150,15 +150,15 @@ def test_total_size(s3_fixture):
 
 
 @mock_s3
-def test_tag_objects():
+def test_tag_object():
     bucket = 'test_b'
     prefix = 'test/prefix'
-    dates = ['2019-01-01', '2019-01-01']
+    date = '2019-01-01'
     dates_dont_include = ['2018-01-01', '2019-03-01']
     db = 'test_db'
     tbl = 'test_tbl'
-    keys = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.csv") for i in dates+dates_dont_include]
-    keys_expected = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.csv") for i in dates]
+    keys = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.csv") for i in [date]+dates_dont_include]
+    keys_expected = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+date, "afile.csv")]
     s3_client = boto3.client("s3")
     s3_client.create_bucket(Bucket=bucket,
                             CreateBucketConfiguration={"LocationConstraint": 'eu-west-2'})
@@ -166,14 +166,12 @@ def test_tag_objects():
         s3_client.put_object(
             Bucket=bucket, Body=b"some content", Key=i
         )
-    tag_objects(s3_client, bucket, prefix, dates, db, tbl, args['args']['partitioning_column'])
-
+    tag_object(s3_client, bucket, prefix, date, db, tbl, args['args']['partitioning_column'])
     for k in keys:
         response = s3_client.get_object_tagging(
             Bucket=bucket,
             Key=k
         )
-
         if k in keys_expected:
             assert response['TagSet'][2]['Value'] == tbl
         else:
