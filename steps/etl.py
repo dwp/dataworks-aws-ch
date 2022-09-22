@@ -66,7 +66,7 @@ def get_latest_file(table, hash_key, hash_id):
 def date_regex_extract(filename: str):
     logger.info(f"extracting date from file name {filename}")
     try:
-        pattern = f".*-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\.csv"
+        pattern = ".*-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\.csv"
         match = re.findall(pattern, filename)
         return match[0]
     except Exception as ex:
@@ -170,19 +170,6 @@ def rename_cols(df):
     new_column_name_list = list(map(lambda x: x.replace(" ", "").replace(".", "_"), df.columns))
     dfn = df.toDF(*new_column_name_list)
     return dfn
-
-
-def keys_by_date(keys: list, filenames_prefix, bucket) -> dict:
-    logger.info("creating dict of keys by date")
-    try:
-        kbd = {}
-        dates = [date_regex_extract(filename, filenames_prefix) for filename in keys]
-        for date in dates:
-            kbd[date] = [os.path.join("s3://"+bucket, filename) for filename in keys if date in filename]
-        return kbd
-    except Exception as ex:
-        logger.error(f"failed creating dict of keys by date due to {ex}")
-        sys.exit(-1)
 
 
 def create_spark_df(sp, key, schema, partitioning_column):

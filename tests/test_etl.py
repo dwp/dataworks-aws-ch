@@ -114,18 +114,7 @@ def test_get_new_key():
 
 
 def test_date_regex_extract():
-    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01.csv", args['args']['filename']) == "2019-01-01", "date was not extracted correctly"
-
-
-def test_keys_by_date():
-    k = ["BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv"]
-    inp = [os.path.join(args['args']['source_prefix'], j) for j in k]
-
-    expected = {"2019-01-02": [os.path.join("s3://"+args['args']['source_bucket'], inp[0]),
-                               os.path.join("s3://"+args['args']['source_bucket'], inp[2])],
-                "2019-01-01": [os.path.join("s3://"+args['args']['source_bucket'], inp[1])]}
-    diff = DeepDiff(keys_by_date(inp, args['args']['filename'], args['args']['source_bucket']), expected, ignore_string_case=False)
-    assert diff == {}, "keys were not correctly split into list by date"
+    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01.csv") == "2019-01-01", "date was not extracted correctly"
 
 
 def test_extract_csv(spark_fixture):
