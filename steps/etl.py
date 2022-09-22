@@ -366,7 +366,7 @@ if __name__ == "__main__":
     keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
     keys_csv = filter_csv_files(keys, args['args']['filename'])
     file_latest = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
-    new_key = get_new_key(file_latest, keys)
+    new_key = get_new_key(file_latest, keys, args['args']['source_prefix'])
     spark_df = create_spark_dfs(spark, new_key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     writer_parquet(spark_df, destination, args['args']['partitioning_column'])
