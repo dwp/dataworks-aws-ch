@@ -248,7 +248,7 @@ def spark_session():
     return spark
 
 
-def writer_parquet(df, s3_destination, partitioning_column):
+def write_parquet(df, s3_destination, partitioning_column):
     logger.info(f"writing parquet files partitioned by {partitioning_column} on {s3_destination}")
     try:
         df.write \
@@ -294,6 +294,22 @@ def config(config_file_path: str):
     except Exception as ex:
         print(ex)
         sys.exit(-1)
+
+
+def get_existing_df(spark, schema, prefix):
+    try:
+        logger.info(f"getting existing dataframe under prefix {prefix}")
+        df = spark.read \
+            .option("header", True) \
+            .option("schema", schema) \
+            .option("multiline", True) \
+            .format("csv") \
+            .load(prefix)
+
+    except BaseException as ex:
+        logger.error("failed to get existing spark dataframe because of error: %s", str(ex))
+        sys.exit(-1)
+    return df
 
 
 def recreate_hive_table(df, path, db_name, table_name, sp, partitioning_column):
@@ -355,12 +371,15 @@ if __name__ == "__main__":
     keys_csv = filter_csv_files(keys, args['args']['filename'])
     file_latest = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     new_key = get_new_key(keys, file_latest)
-    spark_df = create_spark_df(spark, new_key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
+    columns = ast.literal_eval(args['args']['cols'])
+    spark_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
-    writer_parquet(spark_df, destination, args['args']['partitioning_column'])
+    existing_df = get_existing_df(spark, columns, destination)
+    new_rows_df = spark_df.subtract(existing_df).show()
+    write_parquet(new_rows_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']
     tbl = args['args']['table_name']
-    recreate_hive_table(spark_df, destination, db, tbl, spark, args['args']['partitioning_column'])
+    recreate_hive_table(new_rows_df, destination, db, tbl, spark, args['args']['partitioning_column'])
     date = date_regex_extract(new_key)
     tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
     total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
