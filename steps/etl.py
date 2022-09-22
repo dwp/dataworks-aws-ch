@@ -185,7 +185,7 @@ def keys_by_date(keys: list, filenames_prefix, bucket) -> dict:
         sys.exit(-1)
 
 
-def create_spark_dfs(sp, key, schema, partitioning_column):
+def create_spark_df(sp, key, schema, partitioning_column):
     try:
         df = extract_csv(key, schema, sp)
         df = rename_cols(df)
@@ -367,7 +367,7 @@ if __name__ == "__main__":
     keys_csv = filter_csv_files(keys, args['args']['filename'])
     file_latest = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     new_key = get_new_key(keys, file_latest)
-    spark_df = create_spark_dfs(spark, new_key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
+    spark_df = create_spark_df(spark, new_key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     writer_parquet(spark_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']

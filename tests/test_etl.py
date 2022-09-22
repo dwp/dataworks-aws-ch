@@ -144,12 +144,12 @@ def test_rename_cols(spark_fixture):
     assert all([" " not in col for col in dfn.columns]), "spaces were not removed"
 
 
-def test_create_spark_dfs(spark_fixture):
+def test_create_spark_df(spark_fixture):
     spark = spark_fixture
-    kbd = {"2019-01-01": ["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"]}
-    df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
-    assert df.count() == 6, "total rows are not equal to sum of rows in the two sample files"
-    assert len(df.columns) == len(ast.literal_eval(args['args']['cols']))+1, "united df columns are more or less than expected"
+    key = "tests/files/BasicCompanyData-2019-01-01.csv"
+    df = create_spark_df(spark, key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
+    assert df.count() == 3, "total rows are not equal to rows in sample files"
+    assert len(df.columns) == len(ast.literal_eval(args['args']['cols']))+1, "united df columns are either more or fewer than expected"
 
 
 def test_total_size(s3_fixture):
