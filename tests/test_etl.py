@@ -101,8 +101,8 @@ def test_date_regex_extract():
     assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.csv", args['args']['filename']) == "2020-11-11", "filename unique part was not extracted"
 
 
-def test_get_file_latest_dynamo(dynamo_fixture):
-    assert get_file_latest_dynamo(dynamo_fixture, args['audit-table']['hash_key'], args['audit-table']['hash_id']) == "2019-01-01"
+def test_get_latest_file(dynamo_fixture):
+    assert get_latest_file(dynamo_fixture, args['audit-table']['hash_key'], args['audit-table']['hash_id']) == "2019-01-01"
 
 
 def test_filter_keys():
