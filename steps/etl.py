@@ -96,7 +96,7 @@ def schema_spark(schema: list):
         logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
 
 
-def get_new_file(filename, keys):
+def get_new_key(filename, keys):
     logger.info(f"filtering files added after latest imported file")
     try:
         if filename not in keys:
@@ -366,14 +366,14 @@ if __name__ == "__main__":
     keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
     keys_csv = filter_csv_files(keys, args['args']['filename'])
     file_latest = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
-    new_key = get_new_file(file_latest, keys)
+    new_key = get_new_key(file_latest, keys)
     spark_df = create_spark_dfs(spark, new_key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     writer_parquet(spark_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(spark_df, destination, db, tbl, spark, args['args']['partitioning_column'])
-    date = date_regex_extract(new_key,args['args']['filename'])
+    date = date_regex_extract(new_key, args['args']['filename'])
     tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
     total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
     add_latest_file(new_key, total_files_size)

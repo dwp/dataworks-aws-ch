@@ -105,12 +105,11 @@ def test_get_latest_file(dynamo_fixture):
     assert get_latest_file(dynamo_fixture, args['audit-table']['hash_key'], args['audit-table']['hash_id']) == "2019-01-01"
 
 
-def test_filter_keys():
+def test_get_new_key():
     keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]]
-    suffix_latest_import = "2019-01-01"
-    expected_keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"] ]
-    expected_new_suffix_latest_import = "2019-01-03"
-    diff = DeepDiff(filter_keys(suffix_latest_import, keys, args['args']['filename']), (expected_keys, expected_new_suffix_latest_import), ignore_string_case=False)
+    latest_file = "BasicCompanyData-2019-01-02.csv"
+    expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
+    diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 
 
