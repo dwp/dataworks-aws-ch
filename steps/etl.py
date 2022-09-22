@@ -63,10 +63,10 @@ def get_latest_file(table, hash_key, hash_id):
         sys.exit(-1)
 
 
-def date_regex_extract(filename: str, filenames_prefix: str):
+def date_regex_extract(filename: str):
     logger.info(f"extracting date from file name {filename}")
     try:
-        pattern = f".*{filenames_prefix}"+"-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\.csv"
+        pattern = f".*-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\.csv"
         match = re.findall(pattern, filename)
         return match[0]
     except Exception as ex:
@@ -189,7 +189,8 @@ def create_spark_df(sp, key, schema, partitioning_column):
     try:
         df = extract_csv(key, schema, sp)
         df = rename_cols(df)
-        df = add_partitioning_column(df, partitioning_column)
+        date = date_regex_extract(key)
+        df = add_partitioning_column(df, date, partitioning_column)
     except Exception as ex:
         logger.error(f"failed creating spark df due to {ex}")
         sys.exit(-1)
@@ -373,7 +374,7 @@ if __name__ == "__main__":
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(spark_df, destination, db, tbl, spark, args['args']['partitioning_column'])
-    date = date_regex_extract(new_key, args['args']['filename'])
+    date = date_regex_extract(new_key)
     tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
     total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
     add_latest_file(new_key, total_files_size)
