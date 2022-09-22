@@ -96,7 +96,7 @@ def schema_spark(schema: list):
         logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
 
 
-def get_new_key(keys, filenamo):
+def get_new_key(keys, filename):
     logger.info(f"filtering files added after latest imported file")
     try:
         if filename not in keys:
