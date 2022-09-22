@@ -91,8 +91,8 @@ def test_all_keys(s3_fixture):
     assert diff == {}, "objects uploaded and objects returned differ"
 
 
-def test_csv_files_only():
-    diff = DeepDiff(csv_files_only(keys, args['args']['filename']), keys_only_csv,
+def test_filter_csv_files():
+    diff = DeepDiff(filter_csv_files(keys, args['args']['filename']), keys_only_csv,
                     ignore_string_case=False)
     assert diff == {}, "csv files are have not all been identified or other file types are present"
 
@@ -101,8 +101,8 @@ def test_date_regex_extract():
     assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.csv", args['args']['filename']) == "2020-11-11", "filename unique part was not extracted"
 
 
-def test_file_latest_dynamo_fetch(dynamo_fixture):
-    assert file_latest_dynamo_fetch(dynamo_fixture, args['audit-table']['hash_key'], args['audit-table']['hash_id']) == "2019-01-01"
+def test_get_file_latest_dynamo(dynamo_fixture):
+    assert get_file_latest_dynamo(dynamo_fixture, args['audit-table']['hash_key'], args['audit-table']['hash_id']) == "2019-01-01"
 
 
 def test_filter_keys():

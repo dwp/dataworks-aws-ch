@@ -13,7 +13,6 @@ jobs:
         trigger: false
       - put: meta
         resource: meta-development
-    - .: (( inject meta.plan.unit-tests))
     - .: (( inject meta.plan.terraform-bootstrap ))
     - .: (( inject meta.plan.terraform-apply ))
       params:
@@ -22,6 +21,7 @@ jobs:
     - .: (( inject meta.plan.terraform-plan ))
       params:
         TF_WORKSPACE: 'default'
+    - .: (( inject meta.plan.unit-tests))
     - .: (( inject meta.plan.run-e2e-tests ))
       config:
         params:

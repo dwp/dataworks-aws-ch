@@ -33,7 +33,7 @@ def setup_logging(log_path=None):
 logger = setup_logging()
 
 
-def file_latest_dynamo_add(latest_file: str, cum_size: int):
+def add_latest_file(latest_file: str, cum_size: int):
     logger.info("writing new file name of latest import to dynamo table")
     try:
         table.put_item(
@@ -49,7 +49,7 @@ def file_latest_dynamo_add(latest_file: str, cum_size: int):
         sys.exit(-1)
 
 
-def file_latest_dynamo_fetch(table, hash_key, hash_id):
+def get_latest_file(table, hash_key, hash_id):
     logger.info("getting last imported file name from dynamo")
     try:
         response = table.query(KeyConditionExpression=Key(hash_key).eq(hash_id), ScanIndexForward=False)
@@ -74,7 +74,7 @@ def date_regex_extract(filename: str, filenames_prefix: str):
         sys.exit(-1)
 
 
-def csv_files_only(keys: list, filenames_prefix: str):
+def filter_csv_files(keys: list, filenames_prefix: str):
     logger.info("filtering keys")
     filenames_regex = f".*{filenames_prefix}-.*\.csv"
     try:
@@ -96,31 +96,30 @@ def schema_spark(schema: list):
         logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
 
 
-def filter_keys(filename, keys, filename_prefix):
+def get_new_file(filename, keys):
     logger.info(f"filtering files added after latest imported file")
     try:
-        new_keys = []
-        keys_filename = [date_regex_extract(key, filename_prefix) for key in keys]
-        if filename not in keys_filename:
-            keys_filename.append(filename)
-        keys_filename.sort(reverse=False)
-        keys_sort = keys_filename
+        if filename not in keys:
+            keys.append(filename)
+        keys.sort(reverse=False)
+        keys_sort = keys
         l = len(keys_sort)
         idx = keys_sort.index(filename)+1
         if idx == l:
-            logger.warning(f"no new files after {filename}")
+            logger.warning(f"no new files found after {filename}")
             exit(0)
-        for i in keys_sort[idx:]:
-            for j in keys:
-                if i in j:
-                    new_keys.append(j)
-        if len(new_keys) == 0:
-            logger.warning("no new files since last import. exiting...")
-            sys.exit(0)
-        logger.info(f"{len(new_keys)} new files were added after last import")
-        return new_keys, date_regex_extract(new_keys[-1], filename_prefix)
+        elif idx == l-1:
+            new_file = keys_sort[-1]
+            logger.info("found one new file after last processing")
+            return new_file
+        elif idx <= l-1:
+            logger.error("multiple files found since last import. exiting...")
+            sys.exit(1)
+        else:
+            logger.error("unable to get the new file key. exiting...")
+            sys.exit(1)
     except Exception as ex:
-        logger.error(f"failed to filter keys added after latest imported file due to {ex}")
+        logger.error(f"failed to get new key added after latest imported file due to {ex}")
 
 
 def union_all(df_list):
@@ -132,28 +131,27 @@ def union_all(df_list):
         sys.exit(-1)
 
 
-def tag_objects(s3_client, bucket, prefix: str, dates: list, db, tbl, col):
+def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
     try:
-        for date in dates:
-            dt_path = os.path.join(prefix, f"{col}={date}/")
-            logger.info(f"S3 Prefix {dt_path}")
-            for key in s3_client.list_objects(Bucket=bucket, Prefix=dt_path)["Contents"]:
-                filename = key["Key"]
-                response = s3_client.put_object_tagging(
-                    Bucket=bucket,
-                    Key=key["Key"],
-                    Tagging={"TagSet": [{"Key": "pii", "Value": "false"},
-                                        {"Key": "db", "Value": db},
-                                        {"Key": "table", "Value": tbl}]},
-                )
-                status = response['ResponseMetadata']['HTTPStatusCode']
-                logger.info(f"Tagging: s3 client response status: {status}, table: {tbl}, filename: {filename}")
+        dt_path = os.path.join(prefix, f"{col}={date}/")
+        logger.info(f"S3 Prefix {dt_path}")
+        for key in s3_client.list_objects(Bucket=bucket, Prefix=dt_path)["Contents"]:
+            filename = key["Key"]
+            response = s3_client.put_object_tagging(
+                Bucket=bucket,
+                Key=key["Key"],
+                Tagging={"TagSet": [{"Key": "pii", "Value": "false"},
+                                    {"Key": "db", "Value": db},
+                                    {"Key": "table", "Value": tbl}]},
+            )
+            status = response['ResponseMetadata']['HTTPStatusCode']
+            logger.info(f"Tagging: s3 client response status: {status}, table: {tbl}, filename: {filename}")
     except Exception as ex:
         logger.error(f"Failed to tag s3 objects due to {ex}")
         sys.exit(-1)
 
 
-def extract_csv(keys: list, schema, spark):
+def extract_csv(key: str, schema, spark):
     logger.info("reading csv files into spark dataframe")
     try:
         df = spark.read \
@@ -161,7 +159,7 @@ def extract_csv(keys: list, schema, spark):
             .option("schema", schema) \
             .option("multiline", True) \
             .format("csv") \
-            .load(keys)
+            .load(key)
     except Exception as ex:
         logger.error(f"failed to read the csv file into spark dataframe due to {ex}")
         sys.exit(-1)
@@ -187,19 +185,15 @@ def keys_by_date(keys: list, filenames_prefix, bucket) -> dict:
         sys.exit(-1)
 
 
-def create_spark_dfs(sp, kbd: dict, schema, partitioning_column):
+def create_spark_dfs(sp, key, schema, partitioning_column):
     try:
-        dfs = []
-        for k, v in kbd.items():
-            df = extract_csv(v, schema, sp)
-            df = rename_cols(df)
-            df = add_partitioning_column(df, k, partitioning_column)
-            dfs.append(df)
-        res = union_all(dfs)
+        df = extract_csv(key, schema, sp)
+        df = rename_cols(df)
+        df = add_partitioning_column(df, partitioning_column)
     except Exception as ex:
         logger.error(f"failed creating spark df due to {ex}")
         sys.exit(-1)
-    return res
+    return df
 
 
 def s3_keys(s3_client, bucket_id, prefix: str) -> list:
@@ -364,24 +358,22 @@ def all_args():
 
 if __name__ == "__main__":
     args = all_args()
-
     logger = setup_logging(args['args']['log_path'])
     logger.info(f"script args parsed: {args}")
     table = dynamo_table(args['args']['region'])
     s3_client = get_s3_client()
     spark = spark_session()
-    all_keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
-    keys = csv_files_only(all_keys, args['args']['filename'])
-    file_latest = file_latest_dynamo_fetch(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
-    new_keys, new_suffix_latest_import = filter_keys(file_latest, keys, args['args']['filename'])
-    kbd = keys_by_date(new_keys, args['args']['filename'], args['args']['source_bucket'])
-    spark_df = create_spark_dfs(spark, kbd, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
+    keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
+    keys_csv = filter_csv_files(keys, args['args']['filename'])
+    file_latest = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
+    new_key = get_new_file(file_latest, keys)
+    spark_df = create_spark_dfs(spark, new_key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     writer_parquet(spark_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(spark_df, destination, db, tbl, spark, args['args']['partitioning_column'])
-    dates = list(kbd.keys())
-    tag_objects(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], dates, db, tbl, args['args']['partitioning_column'])
-    cum_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
-    file_latest_dynamo_add(new_suffix_latest_import, cum_size)
+    date = date_regex_extract(new_key,args['args']['filename'])
+    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
+    total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
+    add_latest_file(new_key, total_files_size)
