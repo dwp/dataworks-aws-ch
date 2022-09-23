@@ -1,5 +1,4 @@
 [args]
-event_bus_arn : ${event_bus_arn}
 region : ${aws_region_name}
 source_bucket : ${stage_bucket}
 db_name: test_ch

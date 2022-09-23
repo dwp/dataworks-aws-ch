@@ -17,4 +17,3 @@ hash_key : Correlation_Id
 range_key : DataProduct
 data_product_name : CH
 hash_id : dataworks-aws-ch
-event_bus_arn : ${event_bus_arn}
