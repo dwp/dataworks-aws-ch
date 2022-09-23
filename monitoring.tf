@@ -247,3 +247,40 @@ resource "aws_cloudwatch_metric_alarm" "file_landed" {
     },
   )
 }
+
+resource "aws_cloudwatch_metric_alarm" "file_size_check_failed" {
+  lifecycle {ignore_changes = [tags]}
+  alarm_name                = "file_size_check_failed"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "TriggeredRules"
+  namespace                 = "AWS/Events"
+  period                    = "60"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "Monitoring file size"
+  insufficient_data_actions = []
+  alarm_actions             = [local.monitoring_topic_arn]
+  dimensions = {
+    RuleName = aws_cloudwatch_event_rule.file_size_check_failed.name
+  }
+  tags = merge(
+    local.common_repo_tags,
+    {
+      Name              = "file_size_check_failed",
+      notification_type = "Error",
+      severity          = "Critical"
+    },
+  )
+}
+
+resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
+  name          = "file_size_check_failed"
+  description   = "checks that file size is within a certain range"
+  event_pattern = <<EOF
+{
+  "source": ["${local.event_source}}"],
+  "detail-type": ["file size not within expected range"]
+}
+EOF
+}

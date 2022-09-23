@@ -373,13 +373,16 @@ def get_new_df(extraction_df, existing_df):
 
 
 def convert_to_gigabytes(bytes):
-    constant = 1073741824
-    gb = round(bytes/constant, 4)
-    return gb
+    try:
+        constant = 1073741824
+        gb = round(bytes / constant, 4)
+        return gb
+    except Exception as ex:
+        logger.error(f"failed to convert bytes to gigabytes due to {ex}")
+        sys.exit(-1)
 
 
 def file_size_in_expected_range(min_delta, max_delta, new_file_size, latest_file_size):
-
     try:
         logger.info(f"new file size is {str(new_file_size)}")
         logger.info(f"latest file size is {str(latest_file_size)}")
@@ -389,6 +392,17 @@ def file_size_in_expected_range(min_delta, max_delta, new_file_size, latest_file
             return False
         logger.info(f"file size changed by {str(delta_bytes)} bytes and it is withing expected variation")
         return True
+    except Exception as ex:
+        logger.error(f"Failed to read runtime args due to {ex}")
+        sys.exit(-1)
+
+
+def trigger_rule(detail_type):
+    try:
+        client = boto3.client('events')
+        logger.info(f"sending event {detail_type}")
+        client.put_events(Entries=[{'Source': args['args']['events_source'], 'DetailType': detail_type}])
+        return
     except Exception as ex:
         logger.error(f"Failed to read runtime args due to {ex}")
         sys.exit(-1)
@@ -408,6 +422,7 @@ if __name__ == "__main__":
     new_key = get_new_key(keys, latest_file)
     new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
     if not file_size_in_expected_range(-0.1, 0.1, new_file_size, latest_file_size):
+        trigger_rule('file size not within expected range')
         sys.exit(-1)
     columns = ast.literal_eval(args['args']['cols'])
     extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])

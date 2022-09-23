@@ -10,7 +10,8 @@ cols : ${column_names}
 log_path: /var/log/dataworks-aws-ch/e2e-tests.log
 source_prefix : e2e/data-ingress/companies
 destination_prefix : e2e/data/test_ch/companies
-destination_bucket: ${stage_bucket}
+destination_bucket : ${stage_bucket}
+event_source : ${event_source}
 [audit-table]
 name : data_pipeline_metadata
 hash_key : Correlation_Id
