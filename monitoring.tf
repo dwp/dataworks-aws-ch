@@ -274,8 +274,13 @@ resource "aws_cloudwatch_metric_alarm" "file_size_check_failed" {
   )
 }
 
+resource "aws_cloudwatch_event_bus" "file_checks" {
+  name = "file-checks"
+  event_source_name = local.event_source
+}
+
 resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
-  name          = "file_size_check_failed"
+  name          = "file_size_check_failed_rule"
   description   = "checks that file size is within a certain range"
   event_pattern = <<EOF
 {
