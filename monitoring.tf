@@ -281,6 +281,9 @@ resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
 {
   "source": ["${local.event_source}}"],
   "detail-type": ["file size not within expected range"]
+  "detail": {
+    "file_size": ["unexpected"]
+  }
 }
 EOF
 }
