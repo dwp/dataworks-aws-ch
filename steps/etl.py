@@ -296,18 +296,14 @@ def config(config_file_path: str):
         sys.exit(-1)
 
 
-def get_existing_df(spark, schema, prefix):
+def get_existing_df(spark, prefix):
     try:
         logger.info(f"getting existing dataframe under prefix {prefix}")
-        df = spark.read \
-            .option("header", True) \
-            .option("schema", schema) \
-            .option("multiline", True) \
-            .format("csv") \
-            .load(prefix)
-
-    except BaseException as ex:
-        logger.error("failed to get existing spark dataframe because of error: %s", str(ex))
+        df = spark.read.parquet(prefix+"*.parquet")
+        rows = df.count()
+        logger.info(f"rowcount existing dataframe: {rows}")
+    except Exception as ex:
+        logger.error("failed to get existing spark dataframe due to: %s", str(ex))
         sys.exit(-1)
     return df
 
@@ -360,6 +356,39 @@ def all_args():
         return config("/opt/emr/conf.tpl")
 
 
+def get_new_df(extraction_df, existing_df):
+
+    try:
+        new_df = extraction_df.subtract(existing_df)
+        rows = new_df.count()
+        if rows == 0:
+            logger.warning("file does not contain any new rows")
+            sys.exit(0)
+        logger.info(f"found {rows} new rows")
+        return new_df
+    except Exception as ex:
+        logger.error(f"Failed to read runtime args due to {ex}")
+        sys.exit(-1)
+
+
+def is_file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size):
+
+    try:
+        b = 1073741824
+        min_bytes = min_delta_gigabytes * b
+        max_bytes = max_delta_gigabytes * b
+        logger.info(f"new file size is {new_file_size}")
+        logger.info(f"latest file size is {latest_file_size}")
+        delta_bytes = new_file_size - latest_file_size
+        if delta_bytes < min_bytes | delta_bytes > max_bytes:
+            logger.error(f"the file size deviated too much from the previous file size")
+            sys.exit(-1)
+        logger.info(f"file size changed by {delta_bytes} bytes and it is withing expected variation")
+    except Exception as ex:
+        logger.error(f"Failed to read runtime args due to {ex}")
+        sys.exit(-1)
+
+
 if __name__ == "__main__":
     args = all_args()
     logger = setup_logging(args['args']['log_path'])
@@ -369,17 +398,20 @@ if __name__ == "__main__":
     spark = spark_session()
     keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
     keys_csv = filter_csv_files(keys, args['args']['filename'])
-    file_latest = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
-    new_key = get_new_key(keys, file_latest)
+    latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
+    latest_file_size = total_size(s3_client, args['args']['source_bucket'], latest_file)
+    new_key = get_new_key(keys, latest_file)
+    new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
+    is_file_size_in_expected_range(-0.1, 0.1, new_file_size, latest_file_size)
     columns = ast.literal_eval(args['args']['cols'])
-    spark_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
+    extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
-    existing_df = get_existing_df(spark, columns, destination)
-    new_rows_df = spark_df.subtract(existing_df).show()
-    write_parquet(new_rows_df, destination, args['args']['partitioning_column'])
+    existing_df = get_existing_df(spark, destination)
+    new_df = get_new_df(extraction_df, existing_df)
+    write_parquet(new_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']
     tbl = args['args']['table_name']
-    recreate_hive_table(new_rows_df, destination, db, tbl, spark, args['args']['partitioning_column'])
+    recreate_hive_table(new_df, destination, db, tbl, spark, args['args']['partitioning_column'])
     date = date_regex_extract(new_key)
     tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
     total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
