@@ -1,9 +1,3 @@
-[audit-table]
-name : data_pipeline_metadata
-hash_key : Correlation_Id
-range_key : DataProduct
-data_product_name : CH
-hash_id : dataworks-aws-ch
 [args]
 region : ${aws_region_name}
 destination_bucket : ${publish_bucket}
@@ -16,3 +10,10 @@ source_prefix : data-ingress/companies
 filename : BasicCompanyData
 partitioning_column : ${partitioning_column}
 cols : ${column_names}
+[audit-table]
+name : data_pipeline_metadata
+hash_key : Correlation_Id
+range_key : DataProduct
+data_product_name : CH
+hash_id : dataworks-aws-ch
+event_bus_arn : ${event_bus_arn}

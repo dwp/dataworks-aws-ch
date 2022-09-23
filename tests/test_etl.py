@@ -146,7 +146,7 @@ def test_total_size(s3_fixture):
     destination_prefix = args['args']['source_prefix']
     s3_client = s3_fixture
     ts = total_size(s3_client, destination_bucket, destination_prefix)
-    assert ts == 60, "5 files on the bucket are 12 bytes each but the total size was not 60"
+    assert ts == convert_to_gigabytes(60), "5 files on the bucket are 12 bytes each but the total size was not 60"
 
 
 @mock_s3
@@ -176,3 +176,21 @@ def test_tag_object():
             assert response['TagSet'][2]['Value'] == tbl
         else:
             assert response['TagSet'] == []
+
+
+def test_file_size_in_expected_range():
+    min_delta_gigabytes = -0.2
+    max_delta_gigabytes = 0.3
+    new_file_size = 2.3
+    latest_file_size = 2
+    assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check failed when it should have passed"
+    new_file_size = 2
+    latest_file_size = 2.1
+    assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check failed when it should have passed"
+    new_file_size = 2.9
+    latest_file_size = 2.1
+    assert not file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check passed when it should have failed"
+    new_file_size = 2.9
+    latest_file_size = 3.3
+    assert not file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check passed when it should have failed"
+

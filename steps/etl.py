@@ -217,7 +217,8 @@ def total_size(s3_client, bucket, prefix):
                 print(page["Contents"])
                 for obj in page["Contents"]:
                     size = size + int(obj["Size"])
-        return size
+        size_gb = convert_to_gigabytes(size)
+        return size_gb
     except Exception as ex:
         logger.error(f"failed calculate total import size {ex}")
         sys.exit(-1)
@@ -371,19 +372,23 @@ def get_new_df(extraction_df, existing_df):
         sys.exit(-1)
 
 
-def is_file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size):
+def convert_to_gigabytes(bytes):
+    constant = 1073741824
+    gb = round(bytes/constant, 4)
+    return gb
+
+
+def file_size_in_expected_range(min_delta, max_delta, new_file_size, latest_file_size):
 
     try:
-        b = 1073741824
-        min_bytes = min_delta_gigabytes * b
-        max_bytes = max_delta_gigabytes * b
-        logger.info(f"new file size is {new_file_size}")
-        logger.info(f"latest file size is {latest_file_size}")
+        logger.info(f"new file size is {str(new_file_size)}")
+        logger.info(f"latest file size is {str(latest_file_size)}")
         delta_bytes = new_file_size - latest_file_size
-        if delta_bytes < min_bytes | delta_bytes > max_bytes:
+        if delta_bytes < min_delta or delta_bytes > max_delta:
             logger.error(f"the file size deviated too much from the previous file size")
-            sys.exit(-1)
-        logger.info(f"file size changed by {delta_bytes} bytes and it is withing expected variation")
+            return False
+        logger.info(f"file size changed by {str(delta_bytes)} bytes and it is withing expected variation")
+        return True
     except Exception as ex:
         logger.error(f"Failed to read runtime args due to {ex}")
         sys.exit(-1)
@@ -402,7 +407,8 @@ if __name__ == "__main__":
     latest_file_size = total_size(s3_client, args['args']['source_bucket'], latest_file)
     new_key = get_new_key(keys, latest_file)
     new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
-    is_file_size_in_expected_range(-0.1, 0.1, new_file_size, latest_file_size)
+    if not file_size_in_expected_range(-0.1, 0.1, new_file_size, latest_file_size):
+        sys.exit(-1)
     columns = ast.literal_eval(args['args']['cols'])
     extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
@@ -413,6 +419,7 @@ if __name__ == "__main__":
     tbl = args['args']['table_name']
     recreate_hive_table(new_df, destination, db, tbl, spark, args['args']['partitioning_column'])
     date = date_regex_extract(new_key)
-    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
+    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'],
+               date, db, tbl, args['args']['partitioning_column'])
     total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
     add_latest_file(new_key, total_files_size)
