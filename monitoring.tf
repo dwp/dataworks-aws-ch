@@ -132,7 +132,8 @@ resource "aws_cloudwatch_metric_alarm" "ch_started" {
   insufficient_data_actions = []
   alarm_actions             = [local.monitoring_topic_arn]
   dimensions = {
-    RuleName = aws_cloudwatch_event_rule.ch_started.name
+    RuleName = aws_cloudwatch_event_rule.ch_started.name,
+    EventBusName = aws_cloudwatch_event_bus.file_checks.name
   }
   tags = merge(
     local.common_repo_tags,
@@ -185,7 +186,8 @@ resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
   insufficient_data_actions = []
   alarm_actions             = [local.monitoring_topic_arn]
   dimensions = {
-    RuleName = aws_cloudwatch_event_rule.ch_step_error_rule[count.index].name
+    RuleName = aws_cloudwatch_event_rule.ch_step_error_rule[count.index].name,
+    EventBusName = aws_cloudwatch_event_bus.file_checks.name
   }
   tags = merge(
     local.common_repo_tags,
