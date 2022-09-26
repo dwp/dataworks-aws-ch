@@ -284,9 +284,7 @@ resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
   event_bus_name = aws_cloudwatch_event_bus.file_checks.name
   event_pattern = <<EOF
 {
-  "source": ["${local.event_source}}"],
-  "detail-type": ["file size not within expected range"],
-  "detail": {"file_size":["unexpected"]}
+  "source": ["${local.event_source}}"]
 }
 EOF
 }
