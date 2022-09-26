@@ -181,16 +181,7 @@ def test_tag_object():
 def test_file_size_in_expected_range():
     min_delta_gigabytes = -0.2
     max_delta_gigabytes = 0.3
-    new_file_size = 2.3
-    latest_file_size = 2
-    assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check failed when it should have passed"
-    new_file_size = 2
-    latest_file_size = 2.1
-    assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check failed when it should have passed"
-    new_file_size = 2.9
-    latest_file_size = 2.1
-    assert not file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check passed when it should have failed"
-    new_file_size = 2.9
-    latest_file_size = 3.3
-    assert not file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, new_file_size, latest_file_size), "file size check passed when it should have failed"
-
+    file_size = -0.3
+    assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, file_size), "file size check failed when it should have passed"
+    file_size = -0.1
+    assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, file_size), "file size check failed when it should have passed"
