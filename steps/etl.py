@@ -382,13 +382,12 @@ def convert_to_gigabytes(bytes):
         sys.exit(-1)
 
 
-def file_size_in_expected_range(min_delta, max_delta, new_file_size, latest_file_size):
+def file_size_in_expected_range(min, max, file_size):
     try:
         logger.info(f"new file size is {str(new_file_size)}")
         logger.info(f"latest file size is {str(latest_file_size)}")
-        delta_bytes = new_file_size - latest_file_size
-        if delta_bytes < min_delta or delta_bytes > max_delta:
-            logger.error(f"the file size deviated too much from the previous file size")
+        if file_size < min or file_size > max:
+            logger.error(f"the file size check failed")
             return False
         logger.info(f"file size changed by {str(delta_bytes)} bytes and it is withing expected variation")
         return True
@@ -397,14 +396,14 @@ def file_size_in_expected_range(min_delta, max_delta, new_file_size, latest_file
         sys.exit(-1)
 
 
-def trigger_rule(detail_type):
+def trigger_rule(detail_type, event_bus):
     try:
         client = boto3.client('events')
         logger.info(f"sending event {detail_type}")
-        client.put_events(Entries=[{'Source': args['args']['events_source'], 'DetailType': detail_type}])
-        return
+        client.put_events(Entries=[{'DetailType': detail_type, 'Source': 'filechecks', 'Detail': '{"file":"checks"}',
+                                    'EventBusName': event_bus}])
     except Exception as ex:
-        logger.error(f"Failed to read runtime args due to {ex}")
+        logger.error(f"Failed to trigger rule due to {ex}")
         sys.exit(-1)
 
 
@@ -421,8 +420,12 @@ if __name__ == "__main__":
     latest_file_size = total_size(s3_client, args['args']['source_bucket'], latest_file)
     new_key = get_new_key(keys, latest_file)
     new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
-    if not file_size_in_expected_range(-0.1, 0.1, new_file_size, latest_file_size):
-        trigger_rule('file size not within expected range')
+    delta_bytes = new_file_size - latest_file_size
+    if not file_size_in_expected_range(-0.2, 0.2, delta_bytes):
+        trigger_rule('unexpected delta file size')
+        sys.exit(-1)
+    if not file_size_in_expected_range(2, 5, new_file_size):
+        trigger_rule('unexpected file size')
         sys.exit(-1)
     columns = ast.literal_eval(args['args']['cols'])
     extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])

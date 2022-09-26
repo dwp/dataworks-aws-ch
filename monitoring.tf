@@ -275,7 +275,7 @@ resource "aws_cloudwatch_metric_alarm" "file_size_check_failed" {
 }
 
 resource "aws_cloudwatch_event_bus" "file_checks" {
-  name = "file-checks"
+  name = local.event_bus_name
 }
 
 resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
@@ -288,3 +288,41 @@ resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
 }
 EOF
 }
+
+resource "aws_cloudwatch_metric_alarm" "delta_file_size_check_failed" {
+  lifecycle {ignore_changes = [tags]}
+  alarm_name                = "delta_file_size_check_failed"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "TriggeredRules"
+  namespace                 = "AWS/Events"
+  period                    = "60"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "checks delta file size between current and previous file"
+  insufficient_data_actions = []
+  alarm_actions             = [local.monitoring_topic_arn]
+  dimensions = {
+    RuleName = aws_cloudwatch_event_rule.delta_file_size_check_failed.name
+  }
+  tags = merge(
+    local.common_repo_tags,
+    {
+      Name              = "delta_file_size_check_failed",
+      notification_type = "Error",
+      severity          = "Critical"
+    },
+  )
+}
+
+resource "aws_cloudwatch_event_rule" "delta_file_size_check_failed" {
+  name          = "delta_file_size_check_rule"
+  description   = "checks that delta file size is within a certain range"
+  event_bus_name = aws_cloudwatch_event_bus.file_checks.name
+  event_pattern = <<EOF
+{
+  "detail-type": ["unexpected delta file size"]
+}
+EOF
+}
+
