@@ -9,7 +9,7 @@ resource "aws_s3_bucket_object" "steps_conf" {
       publish_bucket      = local.publish_bucket.id
       stage_bucket        = local.stage_bucket.id
       column_names        = local.column_names
-      event_source        = local.event_source
+      event_bus           = local.event_bus_name
     }
   )
 }
@@ -63,6 +63,7 @@ resource "aws_s3_bucket_object" "test_conf" {
     {
       partitioning_column = local.partitioning_column
       column_names        = local.column_names
+      event_bus           = local.event_bus_name
     }
   )
 }
