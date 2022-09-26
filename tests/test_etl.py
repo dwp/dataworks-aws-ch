@@ -188,8 +188,8 @@ def test_file_size_in_expected_range():
 
 def test_convert_to_gigabytes():
     bytes=1234567
-    expected_gb=0.0012
-    assert expected_gb-0.0005 <= convert_to_gigabytes(bytes) <= expected_gb+0.0005, "wrong gigabytes conversion"
+    expected_gb=0.0011
+    assert convert_to_gigabytes(bytes) == expected_gb, "wrong gigabytes conversion"
     bytes=34938203484
-    expected_gb=34.9382
-    assert expected_gb-0.0005 <= convert_to_gigabytes(bytes) <= expected_gb+0.0005, "wrong gigabytes conversion"
+    expected_gb=32.5387
+    assert convert_to_gigabytes(bytes) == expected_gb, "wrong gigabytes conversion"

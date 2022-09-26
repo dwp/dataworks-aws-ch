@@ -61,6 +61,7 @@ meta:
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init
+              terraform force-unlock -force 5fe7a2ab-7646-2631-dd4c-0ce6206e66cb
               terraform plan -out terraform.plan
               terraform apply -auto-approve terraform.plan
           dir: dataworks-aws-ch
