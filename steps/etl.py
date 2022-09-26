@@ -384,8 +384,6 @@ def convert_to_gigabytes(bytes):
 
 def file_size_in_expected_range(min, max, file_size):
     try:
-        logger.info(f"new file size is {str(new_file_size)}")
-        logger.info(f"latest file size is {str(latest_file_size)}")
         if file_size < min or file_size > max:
             logger.error(f"the file size check failed")
             return False
