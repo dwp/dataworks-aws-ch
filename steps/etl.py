@@ -387,7 +387,6 @@ def file_size_in_expected_range(min, max, file_size):
         if file_size < min or file_size > max:
             logger.error(f"the file size check failed")
             return False
-        logger.info(f"file size changed by {str(delta_bytes)} bytes and it is withing expected variation")
         return True
     except Exception as ex:
         logger.error(f"Failed to read runtime args due to {ex}")
