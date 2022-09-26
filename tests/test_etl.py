@@ -182,6 +182,6 @@ def test_file_size_in_expected_range():
     min_delta_gigabytes = -0.2
     max_delta_gigabytes = 0.3
     file_size = -0.3
-    assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, file_size), "file size check failed when it should have passed"
+    assert not file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, file_size), "file size check passed when it should have failed"
     file_size = -0.1
     assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, file_size), "file size check failed when it should have passed"
