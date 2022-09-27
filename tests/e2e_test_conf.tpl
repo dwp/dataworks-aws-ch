@@ -18,7 +18,7 @@ range_key : DataProduct
 data_product_name : CH
 hash_id : dataworks-aws-ch-e2e
 [file-size]
-min : 0.3
-max : 0.6
-delta_min : -0.2
-delta_max : 0.2
+min : 0.1
+max : 0.2
+delta_min : -0.05
+delta_max : 0.05

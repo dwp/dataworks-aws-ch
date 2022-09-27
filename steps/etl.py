@@ -403,6 +403,8 @@ def trigger_rule(detail_type):
         sys.exit(-1)
 
 
+
+
 if __name__ == "__main__":
     args = all_args()
     logger = setup_logging(args['args']['log_path'])
