@@ -393,12 +393,11 @@ def file_size_in_expected_range(min, max, file_size):
         sys.exit(-1)
 
 
-def trigger_rule(detail_type, event_bus):
+def trigger_rule(detail_type):
     try:
         client = boto3.client('events')
         logger.info(f"sending event {detail_type}")
-        client.put_events(Entries=[{'DetailType': detail_type, 'Source': 'filechecks', 'Detail': '{"file":"checks"}',
-                                    'EventBusName': event_bus}])
+        client.put_events(Entries=[{'DetailType': detail_type, 'Source': 'filechecks', 'Detail': '{"file":"checks"}'])
     except Exception as ex:
         logger.error(f"Failed to trigger rule due to {ex}")
         sys.exit(-1)
@@ -420,10 +419,12 @@ if __name__ == "__main__":
     delta_bytes = new_file_size - latest_file_size
     if not file_size_in_expected_range(-0.2, 0.2, delta_bytes):
         trigger_rule('unexpected delta file size')
-        sys.exit(-1)
+        logger.error('unexpected delta file size')
+        sys.exit(0)
     if not file_size_in_expected_range(2, 5, new_file_size):
         trigger_rule('unexpected file size')
-        sys.exit(-1)
+        logger.error('unexpected file size')
+        sys.exit(0)
     columns = ast.literal_eval(args['args']['cols'])
     extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
