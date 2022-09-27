@@ -419,14 +419,15 @@ if __name__ == "__main__":
     new_key = get_new_key(keys, latest_file)
     new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
     delta_bytes = new_file_size - latest_file_size
-    if not file_size_in_expected_range(-0.2, 0.2, delta_bytes):
+
+    if not file_size_in_expected_range(args['file-size']['delta_min'], args['file-size']['delta_max'], delta_bytes):
         trigger_rule('unexpected delta file size')
         logger.error('unexpected delta file size')
-        sys.exit(0)
-    if not file_size_in_expected_range(2, 5, new_file_size):
+    if not file_size_in_expected_range(args['file-size']['min'], args['file-size']['max'], new_file_size):
         trigger_rule('unexpected file size')
         logger.error('unexpected file size')
-        sys.exit(0)
+    if not file_size_in_expected_range(args['file-size']['min'], args['file-size']['max'], new_file_size) or not file_size_in_expected_range(args['file-size']['min'], args['file-size']['max'], delta_bytes):
+        sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])
     extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
