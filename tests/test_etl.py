@@ -8,6 +8,7 @@ from pyspark.sql import SparkSession
 import pytest
 import boto3
 from moto import mock_s3
+import unittest
 
 test_config_path = "tests/unit_test_conf.tpl"
 
@@ -116,9 +117,19 @@ def test_get_new_key():
     expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
-    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv","BasicCompanyData-2019-01-03.csv","BasicCompanyData-2019-01-04.csv"]]
-    latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
-    assert not get_new_key(keys, latest_file), "there were two keys after latest file and the function should have exited with error"
+
+    class TestGetNewKey(unittest.TestCase):
+        def test_get_new_key_exit(self):
+            with self.assertRaises(SystemExit) as cm:
+                keys = [os.path.join(args['args']['source_prefix'], j) for j in
+                        ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv",
+                         "BasicCompanyData-2019-01-04.csv"]]
+                latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
+                get_new_key(keys, latest_file)
+
+            self.assertEqual(cm.exception.code, 1)
+    t = TestGetNewKey()
+    t.test_get_new_key_exit()
 
 
 def test_date_regex_extract():
