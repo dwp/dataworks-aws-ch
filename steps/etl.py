@@ -112,7 +112,7 @@ def get_new_key(keys, filename):
             new_file = keys_sort[-1]
             logger.info("found one new file after last processing")
             return new_file
-        elif idx <= l-1:
+        elif idx < l-1:
             logger.error("multiple files found since last import. exiting...")
             sys.exit(1)
         else:
