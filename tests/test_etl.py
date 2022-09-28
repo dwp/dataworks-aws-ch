@@ -111,6 +111,11 @@ def test_get_new_key():
     expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
+    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv"]]
+    latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
+    expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
+    diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
+    assert diff == {}, "keys after latest imported files were not filtered"
 
 
 def test_date_regex_extract():
