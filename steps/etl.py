@@ -419,7 +419,7 @@ if __name__ == "__main__":
     new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
     delta_bytes = new_file_size - latest_file_size
 
-    if not file_size_in_expected_range(args['file-size']['delta_min'], args['file-size']['delta_max'], delta_bytes):
+    if not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         trigger_rule('unexpected delta file size')
         logger.error('unexpected delta file size')
     if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size):
