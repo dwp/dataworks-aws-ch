@@ -422,10 +422,10 @@ if __name__ == "__main__":
     if not file_size_in_expected_range(args['file-size']['delta_min'], args['file-size']['delta_max'], delta_bytes):
         trigger_rule('unexpected delta file size')
         logger.error('unexpected delta file size')
-    if not file_size_in_expected_range(args['file-size']['min'], args['file-size']['max'], new_file_size):
+    if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size):
         trigger_rule('unexpected file size')
         logger.error('unexpected file size')
-    if not file_size_in_expected_range(args['file-size']['min'], args['file-size']['max'], new_file_size) or not file_size_in_expected_range(args['file-size']['min'], args['file-size']['max'], delta_bytes):
+    if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size) or not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), delta_bytes):
         sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])
     extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
