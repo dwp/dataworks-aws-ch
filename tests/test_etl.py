@@ -118,7 +118,7 @@ def test_get_new_key():
     assert diff == {}, "keys after latest imported files were not filtered"
     keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv","BasicCompanyData-2019-01-03.csv","BasicCompanyData-2019-01-04.csv"]]
     latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
-    assert get_new_key(keys, latest_file), "there were two keys after latest file and the function should have exited with error"
+    assert not get_new_key(keys, latest_file), "there were two keys after latest file and the function should have exited with error"
 
 
 def test_date_regex_extract():

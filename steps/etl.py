@@ -106,14 +106,17 @@ def get_new_key(keys, filename):
         idx = keys.index(filename)+1
         if idx == l:
             logger.warning(f"no new files found after {filename}")
+            exit(0)
         elif idx == l-1:
             new_file = keys[-1]
             logger.info("found one new file after last processing")
             return new_file
         elif idx < l-1:
             logger.error("multiple files found since last import. exiting...")
+            sys.exit(1)
         else:
             logger.error("unable to get the new file key. exiting...")
+            sys.exit(1)
     except Exception as ex:
         logger.error(f"failed to get new key added after latest imported file due to {ex}")
 
@@ -409,8 +412,6 @@ if __name__ == "__main__":
     s3_client = get_s3_client()
     spark = spark_session()
     keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
-    if not keys:
-        exit(0)
     keys_csv = filter_csv_files(keys, args['args']['filename'])
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     latest_file_size = total_size(s3_client, args['args']['source_bucket'], latest_file)
