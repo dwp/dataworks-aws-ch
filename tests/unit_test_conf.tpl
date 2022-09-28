@@ -16,4 +16,3 @@ cols : ['CompanyName','CompanyNumber', 'RegAddress.CareOf', 'RegAddress.POBox', 
 log_path: /var/log/dataworks-aws-ch/e2e-tests.log
 source_prefix : e2e/data-ingress/companies
 destination_prefix : e2e/data/test_db/companies
-event_bus : ${event_bus}

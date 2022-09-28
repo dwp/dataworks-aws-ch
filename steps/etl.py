@@ -368,7 +368,7 @@ def get_new_df(extraction_df, existing_df):
         logger.info(f"found {rows} new rows")
         return new_df
     except Exception as ex:
-        logger.error(f"Failed to read runtime args due to {ex}")
+        logger.error(f"Failed to get new df due to {ex}")
         sys.exit(-1)
 
 
@@ -389,7 +389,7 @@ def file_size_in_expected_range(min, max, file_size):
             return False
         return True
     except Exception as ex:
-        logger.error(f"Failed to read runtime args due to {ex}")
+        logger.error(f"Failed to check if file size is as expected due to {ex}")
         sys.exit(-1)
 
 
@@ -408,7 +408,6 @@ def trigger_rule(detail_type):
 if __name__ == "__main__":
     args = all_args()
     logger = setup_logging(args['args']['log_path'])
-    logger.info(f"script args parsed: {args}")
     table = dynamo_table(args['args']['region'])
     s3_client = get_s3_client()
     spark = spark_session()

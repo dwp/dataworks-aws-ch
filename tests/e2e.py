@@ -30,7 +30,6 @@ logger = setup_logging("/var/log/dataworks-aws-ch/e2e-tests.log")
 
 
 def runtime_args():
-
     try:
         parser = argparse.ArgumentParser(description="Receives expected row and column number")
         parser.add_argument("--rows", type=int, required=True, default=False)
@@ -48,7 +47,6 @@ def runtime_args():
 
 
 def run_hive_command(cmd):
-
     logger.info(f"running hive command:{cmd}")
     try:
         cmd = ["hive", "-S", "-e", f"\"{cmd}\""]

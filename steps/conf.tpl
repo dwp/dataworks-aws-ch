@@ -10,7 +10,6 @@ source_prefix : data-ingress/companies
 filename : BasicCompanyData
 partitioning_column : ${partitioning_column}
 cols : ${column_names}
-event_bus : ${event_bus}
 [audit-table]
 name : data_pipeline_metadata
 hash_key : Correlation_Id
