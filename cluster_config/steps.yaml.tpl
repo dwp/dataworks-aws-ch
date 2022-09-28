@@ -1,8 +1,5 @@
 ---
 BootstrapActions:
-- Name: "start_ssm"
-  ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/start_ssm.sh"
 - Name: "emr-setup"
   ScriptBootstrapAction:
     Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/emr-setup.sh"
