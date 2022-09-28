@@ -102,14 +102,13 @@ def get_new_key(keys, filename):
         if filename not in keys:
             keys.append(filename)
         keys.sort(reverse=False)
-        keys_sort = keys
-        l = len(keys_sort)
-        idx = keys_sort.index(filename)+1
+        l = len(keys)
+        idx = keys.index(filename)+1
         if idx == l:
             logger.warning(f"no new files found after {filename}")
             exit(0)
         elif idx == l-1:
-            new_file = keys_sort[-1]
+            new_file = keys[-1]
             logger.info("found one new file after last processing")
             return new_file
         elif idx < l-1:
