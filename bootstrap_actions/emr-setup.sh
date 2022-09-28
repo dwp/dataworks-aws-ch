@@ -113,6 +113,7 @@ export INSTANCE_ROLE="$role"
 host="${name}-$${INSTANCE_ROLE//\"}-$UUID"
 export INSTANCE_ID="$instance"
 export HOSTNAME="$host"
+export instance_id="$instance"
 
 hostnamectl set-hostname "$HOSTNAME"
 aws ec2 create-tags --resources "$INSTANCE_ID" --tags Key=Name,Value="$HOSTNAME"
