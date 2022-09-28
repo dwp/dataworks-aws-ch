@@ -387,6 +387,7 @@ def file_size_in_expected_range(min, max, file_size):
         if not min < file_size < max:
             logger.error(f"the file size check failed")
             return False
+        logger.info(f"file size/delta size: {file_size}. check passed")
         return True
     except Exception as ex:
         logger.error(f"Failed to check if file size is as expected due to {ex}")
