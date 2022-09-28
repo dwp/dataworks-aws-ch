@@ -75,13 +75,13 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
           {
             "file_path": "/var/log/dataworks-aws-ch/e2e-tests.log",
             "log_group_name": "$${cwa_tests_loggrp_name}",
-            "log_stream_name": "e2e-tests.log",
+            "log_stream_name": "{instance_id}-e2e-tests.log",
             "timezone": "UTC"
           },
           {
             "file_path": "/var/log/dataworks-aws-ch/etl.log",
             "log_group_name": "$${cwa_steps_loggrp_name}",
-            "log_stream_name": "etl.log",
+            "log_stream_name": "{instance_id}-etl.log",
             "timezone": "UTC"
           },
           {
@@ -110,16 +110,3 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
   }
 }
 CWAGENTCONFIG
-
-%{ if emr_release == "5.29.0" ~}
-# Download and install CloudWatch Agent
-curl https://s3.$${AWS_DEFAULT_REGION}.amazonaws.com/amazoncloudwatch-agent-$${AWS_DEFAULT_REGION}/centos/amd64/latest/amazon-cloudwatch-agent.rpm -O
-rpm -U ./amazon-cloudwatch-agent.rpm
-# To maintain CIS compliance
-usermod -s /sbin/nologin cwagent
-
-start amazon-cloudwatch-agent
-%{ else ~}
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-systemctl start amazon-cloudwatch-agent
-%{ endif ~}

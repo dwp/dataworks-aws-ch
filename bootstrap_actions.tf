@@ -1,9 +1,3 @@
-resource "aws_s3_bucket_object" "ssm_script" {
-  bucket  = local.config_bucket.id
-  key     = "component/dataworks-aws-ch/start_ssm.sh"
-  content = file("bootstrap_actions/start_ssm.sh")
-}
-
 resource "aws_s3_bucket_object" "emr_setup_sh" {
   bucket = local.config_bucket.id
   key    = "component/dataworks-aws-ch/emr-setup.sh"

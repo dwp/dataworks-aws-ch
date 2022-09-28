@@ -269,7 +269,26 @@ data "aws_iam_policy_document" "ch_write_dynamodb" {
   statement {
     effect = "Allow"
     actions = [
-      "dynamodb:*",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem"
+    ]
+    resources = [
+      "arn:aws:dynamodb:${var.region}:${local.account[local.environment]}:table/${local.audit_table.name}"
+    ]
+    condition {
+      test     = "ForAllValues:StringLike"
+      variable = "dynamodb:LeadingKeys"
+      values   = ["Correlation_Id:dataworks-aws-ch*"]
+    }
+  }
+    statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:Scan",
+      "dynamodb:GetRecords",
+      "dynamodb:Query",
     ]
     resources = [
       "arn:aws:dynamodb:${var.region}:${local.account[local.environment]}:table/${local.audit_table.name}"
@@ -279,7 +298,7 @@ data "aws_iam_policy_document" "ch_write_dynamodb" {
 
 resource "aws_iam_policy" "ch_write_dynamodb" {
   name        = "chDynamoDB"
-  description = "Allows read and write access to ch's EMRFS DynamoDB table"
+  description = "Allows access to centralised DynamoDB table but can only modify ch items"
   policy      = data.aws_iam_policy_document.ch_write_dynamodb.json
 }
 
@@ -316,7 +335,7 @@ resource "aws_iam_role_policy_attachment" "ch_metadata_change" {
 
 resource "aws_iam_policy" "ch_sns_alerts" {
   name        = "chSnsAlerts"
-  description = "Allow ch to publish SNS alerts"
+  description = "Allow ch to send messages to monitoring topic"
   policy      = data.aws_iam_policy_document.ch_sns_topic_policy_for_alert.json
 }
 

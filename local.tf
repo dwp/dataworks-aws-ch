@@ -114,6 +114,9 @@ locals {
     preprod     = "1024"
     production  = "1024"
   }
+  hash_key                  = "Correlation_Id"
+  range_key                 = "DataProduct"
+  hash_id                   = ""
   companies_s3_prefix       = "data/uc_ch/companies"
   rds_cluster               = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster
   cw_agent_namespace        = "/app/dataworks-aws-ch"
