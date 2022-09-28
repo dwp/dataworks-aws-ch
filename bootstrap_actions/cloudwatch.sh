@@ -106,7 +106,6 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
       }
     },
     "log_stream_name": "$${cwa_namespace}",
-    "force_flush_interval" : 15
   }
 }
 CWAGENTCONFIG

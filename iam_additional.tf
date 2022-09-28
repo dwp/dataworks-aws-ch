@@ -278,7 +278,7 @@ data "aws_iam_policy_document" "ch_write_dynamodb" {
     condition {
       test     = "ForAllValues:StringLike"
       variable = "dynamodb:LeadingKeys"
-      values   = ["Correlation_Id:dataworks-aws-ch*"]
+      values   = ["dataworks-aws-ch*"]
     }
   }
     statement {

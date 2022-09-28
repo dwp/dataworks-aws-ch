@@ -133,7 +133,6 @@ resource "aws_cloudwatch_metric_alarm" "ch_started" {
   alarm_actions             = [local.monitoring_topic_arn]
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.ch_started.name
-//    EventBusName = aws_cloudwatch_event_bus.file_checks.name
   }
   tags = merge(
     local.common_repo_tags,
@@ -187,7 +186,6 @@ resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
   alarm_actions             = [local.monitoring_topic_arn]
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.ch_step_error_rule[count.index].name
-//    EventBusName = aws_cloudwatch_event_bus.file_checks.name
   }
   tags = merge(
     local.common_repo_tags,
@@ -275,15 +273,10 @@ resource "aws_cloudwatch_metric_alarm" "file_size_check_failed" {
     },
   )
 }
-//
-//resource "aws_cloudwatch_event_bus" "file_checks" {
-//  name = local.event_bus_name
-//}
 
 resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
   name          = "file_size_check_rule"
   description   = "checks that file size is within a certain range"
-//  event_bus_name = aws_cloudwatch_event_bus.file_checks.name
   event_pattern = <<EOF
 {
   "detail-type": ["unexpected file size"]
@@ -320,11 +313,9 @@ resource "aws_cloudwatch_metric_alarm" "delta_file_size_check_failed" {
 resource "aws_cloudwatch_event_rule" "delta_file_size_check_failed" {
   name          = "delta_file_size_check_rule"
   description   = "checks that delta file size is within a certain range"
-//  event_bus_name = aws_cloudwatch_event_bus.file_checks.name
   event_pattern = <<EOF
 {
   "detail-type": ["unexpected delta file size"]
 }
 EOF
 }
-

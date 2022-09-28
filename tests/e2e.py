@@ -59,18 +59,16 @@ def run_hive_command(cmd):
 
 
 def rowcount(db: str, table: str):
-
     logger.info("checking number of rows")
     try:
-
         cmd = f"SELECT count(*) FROM {db}.{table};"
         r = run_hive_command(cmd)
         return int(r)
     except Exception as ex:
         logger.error(ex)
 
-def colcount(db: str, table: str):
 
+def colcount(db: str, table: str):
     logger.info("checking number of columns")
     try:
 
