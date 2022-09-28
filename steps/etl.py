@@ -151,7 +151,7 @@ def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
         sys.exit(-1)
 
 
-def extract_csv(key: str, schema, spark):
+def extract_csv(key, schema, spark, bucket):
     logger.info("reading csv files into spark dataframe")
     try:
         df = spark.read \
@@ -159,7 +159,7 @@ def extract_csv(key: str, schema, spark):
             .option("schema", schema) \
             .option("multiline", True) \
             .format("csv") \
-            .load(key)
+            .load("s3://"+os.path.join(bucket,key))
     except Exception as ex:
         logger.error(f"failed to read the csv file into spark dataframe due to {ex}")
         sys.exit(-1)
@@ -172,9 +172,9 @@ def rename_cols(df):
     return dfn
 
 
-def create_spark_df(sp, key, schema, partitioning_column):
+def create_spark_df(sp, key, schema, partitioning_column, bucket):
     try:
-        df = extract_csv(key, schema, sp)
+        df = extract_csv(key, schema, sp, bucket)
         df = rename_cols(df)
         date = date_regex_extract(key)
         df = add_partitioning_column(df, date, partitioning_column)
@@ -428,7 +428,7 @@ if __name__ == "__main__":
     if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size) or not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])
-    extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
+    extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'], args['args']['source_bucket'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     existing_df = get_existing_df(spark, destination)
     new_df = get_new_df(extraction_df, existing_df)
