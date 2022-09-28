@@ -384,7 +384,7 @@ def convert_to_gigabytes(bytes):
 
 def file_size_in_expected_range(min, max, file_size):
     try:
-        if file_size < min or file_size > max:
+        if not min < file_size < max:
             logger.error(f"the file size check failed")
             return False
         return True
@@ -418,14 +418,13 @@ if __name__ == "__main__":
     new_key = get_new_key(keys, latest_file)
     new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
     delta_bytes = new_file_size - latest_file_size
-
     if not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         trigger_rule('unexpected delta file size')
         logger.error('unexpected delta file size')
     if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size):
         trigger_rule('unexpected file size')
         logger.error('unexpected file size')
-    if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size) or not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), delta_bytes):
+    if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size) or not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])
     extraction_df = create_spark_df(spark, new_key, columns, args['args']['partitioning_column'])
