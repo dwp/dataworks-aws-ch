@@ -138,7 +138,7 @@ def test_date_regex_extract():
 
 def test_extract_csv(spark_fixture):
     spark = spark_fixture
-    df = extract_csv(["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"], ast.literal_eval(args['args']['cols']), spark)
+    df = extract_csv(["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"], ast.literal_eval(args['args']['cols']), spark, args['args']['source_bucket'])
     assert df.count() == 6, "read rows are too few or too many"
 
 
@@ -155,7 +155,7 @@ def test_rename_cols(spark_fixture):
 def test_create_spark_df(spark_fixture):
     spark = spark_fixture
     key = "tests/files/BasicCompanyData-2019-01-01.csv"
-    df = create_spark_df(spark, key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
+    df = create_spark_df(spark, key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'], args['args']['source_bucket'])
     assert df.count() == 3, "total rows are not equal to rows in sample files"
     assert len(df.columns) == len(ast.literal_eval(args['args']['cols']))+1, "united df columns are either more or fewer than expected"
 
