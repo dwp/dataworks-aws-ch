@@ -174,7 +174,7 @@ def rename_cols(df):
 
 def create_spark_df(sp, key, schema, partitioning_column):
     try:
-        df = extract_csv(key, schema, sp, bucket)
+        df = extract_csv(key, schema, sp)
         df = rename_cols(df)
         date = date_regex_extract(key)
         df = add_partitioning_column(df, date, partitioning_column)
