@@ -57,6 +57,7 @@ def get_latest_file(table, hash_key, hash_id):
             logger.error("couldn't find any items for set hash key")
             sys.exit(-1)
         else:
+            logger.info(f'latest item: {str(response["Items"][0]["Latest_File"])}')
             return response["Items"][0]["Latest_File"]
     except Exception as ex:
         logger.error(f"failed to fetch last filename imported due to {ex}")
@@ -183,8 +184,8 @@ def create_spark_df(sp, key, schema, partitioning_column):
     return df
 
 
-def s3_keys(s3_client, bucket_id, prefix: str) -> list:
-    logger.info(f"looking for s3 objects with prefix {prefix}")
+def s3_keys(s3_client, bucket_id, prefix):
+    logger.info(f"looking for objects with prefix {prefix}")
     try:
         keys = []
         paginator = s3_client.get_paginator("list_objects_v2")
@@ -196,7 +197,7 @@ def s3_keys(s3_client, bucket_id, prefix: str) -> list:
         if len(keys) == 0:
             logger.info(f"no keys found under set prefix {prefix}")
             exit(0)
-        logger.info(f"found {len(keys)} under set prefix {prefix}")
+        logger.info(f"found {len(keys)} keys under prefix {prefix}")
         logger.info(f"key under set prefix {prefix}: {keys}")
 
         return keys
@@ -206,7 +207,7 @@ def s3_keys(s3_client, bucket_id, prefix: str) -> list:
 
 
 def total_size(s3_client, bucket, prefix):
-    logger.info(f"looking for s3 objects with prefix {prefix}")
+    logger.info(f"getting file size of objects with prefix {prefix}")
     try:
         size = 0
         paginator = s3_client.get_paginator("list_objects_v2")
