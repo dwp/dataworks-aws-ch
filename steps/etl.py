@@ -359,9 +359,8 @@ def all_args():
 
 
 def get_new_df(extraction_df, existing_df, partitioning_column, val):
-
     try:
-        logger.info(f"extractiondf schema: {extraction_df.schema}")
+        logger.info(f"extraction df schema: {extraction_df.schema}")
         logger.info(f"existing df schema: {existing_df.schema}")
         new_df = extraction_df.subtract(existing_df)
         rows = new_df.count()
@@ -369,7 +368,6 @@ def get_new_df(extraction_df, existing_df, partitioning_column, val):
             logger.warning("file does not contain any new rows")
             sys.exit(0)
         logger.info(f"found {rows} new rows")
-
         new_df = add_partitioning_column(new_df, val, partitioning_column)
         return new_df
     except Exception as ex:
