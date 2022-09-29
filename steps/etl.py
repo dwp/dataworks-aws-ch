@@ -303,7 +303,7 @@ def get_existing_df(spark, prefix, partitioning_column):
         rows = df.count()
         logger.info(f"rowcount existing dataframe: {rows}")
         logger.info("temp remove partitioning colum to exclude for new rows evaluation")
-        df.drop(partitioning_column)
+        df = df.drop(partitioning_column)
     except Exception as ex:
         logger.error("failed to get existing spark dataframe due to: %s", str(ex))
         sys.exit(-1)
