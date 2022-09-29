@@ -11,6 +11,8 @@ import sys
 from pyspark.sql.functions import lit
 from pyspark.sql import SparkSession, DataFrame
 import boto3
+import json
+from decimal import Decimal
 
 
 def setup_logging(log_path=None):
@@ -33,17 +35,16 @@ def setup_logging(log_path=None):
 logger = setup_logging()
 
 
-def add_latest_file(latest_file: str, cum_size: int):
+def add_latest_file(latest_file, cum_size):
     logger.info("writing new file name of latest import to dynamo table")
     try:
-        table.put_item(
-            Item={
+        item = {
                 args['audit-table']['hash_key']: args['audit-table']['hash_id'],
                 args['audit-table']['range_key']: args['audit-table']['data_product_name'],
                 "Latest_File": latest_file,
                 "CumulativeSizeBytes": cum_size
-            }
-        )
+                }
+        table.put_item(Item=json.loads(json.dumps(item), parse_float=Decimal), parse_float=Decimal)
     except Exception as ex:
         logger.error(f"failed to add item to dynamodb due to {ex}")
         sys.exit(-1)
@@ -443,6 +444,6 @@ if __name__ == "__main__":
     tbl = args['args']['table_name']
     recreate_hive_table(new_df, destination, db, tbl, spark, args['args']['partitioning_column'])
     date = date_regex_extract(new_key)
-    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'],date, db, tbl, args['args']['partitioning_column'])
+    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
     total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
     add_latest_file(new_key, total_files_size)
