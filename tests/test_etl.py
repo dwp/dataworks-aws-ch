@@ -139,7 +139,7 @@ def test_date_regex_extract():
 def test_extract_csv(spark_fixture):
     spark = spark_fixture
     df = extract_csv(["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"], ast.literal_eval(args['args']['cols']), spark)
-    assert df.count() == 6, "read rows are too few or too many"
+    assert df.count() == 5, "read rows are too few or too many"
 
 
 def test_rename_cols(spark_fixture):

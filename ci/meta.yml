@@ -114,7 +114,7 @@ meta:
             - |
               pip install --upgrade pip
               pip3 install deepdiff
-              pytest -vs tests
+              pytest -vv tests
         inputs:
           - name: dataworks-aws-ch
         params:
