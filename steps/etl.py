@@ -254,9 +254,9 @@ def write_parquet(df, s3_destination, partitioning_column):
     logger.info(f"writing parquet files partitioned by {partitioning_column} on {s3_destination}")
     try:
         df.write \
-            .mode('Overwrite') \
-            .partitionBy(partitioning_column) \
-            .parquet(s3_destination)
+          .mode('Overwrite') \
+          .partitionBy(partitioning_column) \
+          .parquet(s3_destination)
     except Exception as ex:
         logger.error(f"failed to write the transformed dataframe due to {ex}")
 
@@ -361,6 +361,8 @@ def all_args():
 def get_new_df(extraction_df, existing_df):
 
     try:
+        logger.info(f"extractiondf schema: {extraction_df.schema}")
+        logger.info(f"existing df schema: {existing_df.schema}")
         new_df = extraction_df.subtract(existing_df)
         rows = new_df.count()
         if rows == 0:
