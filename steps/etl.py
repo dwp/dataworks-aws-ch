@@ -44,7 +44,7 @@ def add_latest_file(latest_file, cum_size):
                 "Latest_File": latest_file,
                 "CumulativeSizeBytes": cum_size
                 }
-        table.put_item(Item=json.loads(json.dumps(item), parse_float=Decimal), parse_float=Decimal)
+        table.put_item(Item=json.loads(json.dumps(item), parse_float=Decimal))
     except Exception as ex:
         logger.error(f"failed to add item to dynamodb due to {ex}")
         sys.exit(-1)
@@ -416,13 +416,15 @@ if __name__ == "__main__":
     logger = setup_logging(args['args']['log_path'])
     table = dynamo_table(args['args']['region'])
     s3_client = get_s3_client()
+    source_bucket = args['args']['source_bucket']
+    destination_bucket = args['args']['destination_bucket']
     spark = spark_session()
-    keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
+    keys = s3_keys(s3_client, source_bucket, args['args']['source_prefix'])
     keys_csv = filter_files(keys, args['args']['filename'], 'csv')
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
-    latest_file_size = total_size(s3_client, args['args']['source_bucket'], latest_file)
+    latest_file_size = total_size(s3_client, source_bucket, latest_file)
     new_key = get_new_key(keys, latest_file)
-    new_file_size = total_size(s3_client, args['args']['source_bucket'], new_key)
+    new_file_size = total_size(s3_client, source_bucket, new_key)
     delta_bytes = new_file_size - latest_file_size
     if not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         trigger_rule('unexpected delta file size')
@@ -434,10 +436,10 @@ if __name__ == "__main__":
         sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
-    new_key_full_s3_path = os.path.join("s3://"+args['args']['source_bucket'], new_key)
+    new_key_full_s3_path = os.path.join("s3://"+source_bucket, new_key)
     extraction_df = create_spark_df(spark, new_key_full_s3_path, columns)
-    destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
-    existing_data = s3_keys(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], exit_if_no_keys=False)
+    destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
+    existing_data = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], exit_if_no_keys=False)
     parquet_files = filter_files(existing_data, "", 'parquet', exit_if_no_keys=False)
     day = date_regex_extract(new_key)
     if not parquet_files == []:
@@ -445,11 +447,11 @@ if __name__ == "__main__":
         new_df = get_new_df(extraction_df, existing_df, partitioning_column, day)
     else:
         new_df = add_partitioning_column(extraction_df, day, partitioning_column)
-    write_parquet(new_df, destination, args['args']['partitioning_column'])
+    write_parquet(new_df, destination, partitioning_column)
     db = args['args']['db_name']
     tbl = args['args']['table_name']
-    recreate_hive_table(new_df, destination, db, tbl, spark, args['args']['partitioning_column'])
+    recreate_hive_table(new_df, destination, db, tbl, spark, partitioning_column)
     date = date_regex_extract(new_key)
-    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], date, db, tbl, args['args']['partitioning_column'])
-    total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
+    tag_object(s3_client, destination_bucket, args['args']['destination_prefix'], date, db, tbl, partitioning_column)
+    total_files_size = total_size(s3_client, destination_bucket, args['args']['destination_prefix'])
     add_latest_file(new_key, total_files_size)
