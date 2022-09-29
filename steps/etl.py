@@ -75,9 +75,9 @@ def date_regex_extract(filename: str):
         sys.exit(-1)
 
 
-def filter_csv_files(keys: list, filenames_prefix: str):
+def filter_files(keys: list, filenames_prefix: str, type):
     logger.info("filtering keys")
-    filenames_regex = f".*{filenames_prefix}-.*\.csv"
+    filenames_regex = f".*{filenames_prefix}-.*\.{type}"
     try:
         matches = [key for key in keys if re.match(filenames_regex, key)]
         if len(matches) == 0:
@@ -413,7 +413,7 @@ if __name__ == "__main__":
     s3_client = get_s3_client()
     spark = spark_session()
     keys = s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'])
-    keys_csv = filter_csv_files(keys, args['args']['filename'])
+    keys_csv = filter_files(keys, args['args']['filename'], 'csv')
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     latest_file_size = total_size(s3_client, args['args']['source_bucket'], latest_file)
     new_key = get_new_key(keys, latest_file)
@@ -431,8 +431,13 @@ if __name__ == "__main__":
     new_key_full_s3_path = os.path.join("s3://"+args['args']['source_bucket'], new_key)
     extraction_df = create_spark_df(spark, new_key_full_s3_path, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
-    existing_df = get_existing_df(spark, destination)
-    new_df = get_new_df(extraction_df, existing_df)
+    existing_data = s3_keys(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
+    parquet_files = filter_files(existing_data, "", 'parquet')
+    if not parquet_files == []:
+        existing_df = get_existing_df(spark, destination)
+        new_df = get_new_df(extraction_df, existing_df)
+    else:
+        new_df = extraction_df
     write_parquet(new_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']
     tbl = args['args']['table_name']

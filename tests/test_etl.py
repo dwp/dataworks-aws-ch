@@ -92,8 +92,8 @@ def test_all_keys(s3_fixture):
     assert diff == {}, "objects uploaded and objects returned differ"
 
 
-def test_filter_csv_files():
-    diff = DeepDiff(filter_csv_files(keys, args['args']['filename']), keys_only_csv,
+def test_filter_files():
+    diff = DeepDiff(filter_files(keys, args['args']['filename'], 'csv'), keys_only_csv,
                     ignore_string_case=False)
     assert diff == {}, "csv files are have not all been identified or other file types are present"
 
