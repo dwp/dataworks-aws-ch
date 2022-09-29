@@ -75,13 +75,13 @@ def date_regex_extract(filename: str):
         sys.exit(-1)
 
 
-def filter_files(keys: list, filenames_prefix: str, type):
+def filter_files(keys, filenames_prefix, type, exit_if_no_keys=True):
     logger.info("filtering keys")
     filenames_regex = f".*{filenames_prefix}-.*\.{type}"
     try:
         matches = [key for key in keys if re.match(filenames_regex, key)]
-        if len(matches) == 0:
-            logger.warning("no csv files. exiting...")
+        if len(matches) == 0 and exit_if_no_keys:
+            logger.warning(f"no {type} files. exiting...")
             sys.exit(0)
         return matches
     except Exception as ex:
@@ -432,7 +432,7 @@ if __name__ == "__main__":
     extraction_df = create_spark_df(spark, new_key_full_s3_path, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     existing_data = s3_keys(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], exit_if_no_keys=False)
-    parquet_files = filter_files(existing_data, "", 'parquet')
+    parquet_files = filter_files(existing_data, "", 'parquet', exit_if_no_keys=False)
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination)
         new_df = get_new_df(extraction_df, existing_df)
