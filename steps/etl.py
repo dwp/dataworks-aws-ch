@@ -449,7 +449,6 @@ if __name__ == "__main__":
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(new_df, destination, db, tbl, spark, partitioning_column)
-    date = date_regex_extract(new_key)
-    tag_object(s3_client, destination_bucket, args['args']['destination_prefix'], date, db, tbl, partitioning_column)
+    tag_object(s3_client, destination_bucket, args['args']['destination_prefix'], day, db, tbl, partitioning_column)
     total_files_size = total_size(s3_client, destination_bucket, args['args']['destination_prefix'])
     add_latest_file(new_key, total_files_size)
