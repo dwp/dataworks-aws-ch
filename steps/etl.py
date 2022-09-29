@@ -173,12 +173,10 @@ def rename_cols(df):
     return dfn
 
 
-def create_spark_df(sp, key, schema, partitioning_column):
+def create_spark_df(sp, key, schema):
     try:
         df = extract_csv(key, schema, sp)
         df = rename_cols(df)
-        date = date_regex_extract(key)
-        df = add_partitioning_column(df, date, partitioning_column)
     except Exception as ex:
         logger.error(f"failed creating spark df due to {ex}")
         sys.exit(-1)
@@ -298,12 +296,14 @@ def config(config_file_path: str):
         sys.exit(-1)
 
 
-def get_existing_df(spark, prefix):
+def get_existing_df(spark, prefix, partitioning_column):
     try:
         logger.info(f'getting existing dataframe under prefix {os.path.join(prefix, "*/*.parquet")}')
         df = spark.read.option("basePath", prefix).format("parquet").load(os.path.join(prefix, "*/*.parquet"))
         rows = df.count()
         logger.info(f"rowcount existing dataframe: {rows}")
+        logger.info("temp remove partitioning colum to exclude for new rows evaluation")
+        df.drop(partitioning_column)
     except Exception as ex:
         logger.error("failed to get existing spark dataframe due to: %s", str(ex))
         sys.exit(-1)
@@ -358,7 +358,7 @@ def all_args():
         return config("/opt/emr/conf.tpl")
 
 
-def get_new_df(extraction_df, existing_df):
+def get_new_df(extraction_df, existing_df, partitioning_column, val):
 
     try:
         logger.info(f"extractiondf schema: {extraction_df.schema}")
@@ -369,6 +369,8 @@ def get_new_df(extraction_df, existing_df):
             logger.warning("file does not contain any new rows")
             sys.exit(0)
         logger.info(f"found {rows} new rows")
+
+        new_df = add_partitioning_column(new_df, val, partitioning_column)
         return new_df
     except Exception as ex:
         logger.error(f"Failed to get new df due to {ex}")
@@ -431,16 +433,18 @@ if __name__ == "__main__":
     if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size) or not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])
+    partitioning_column = args['args']['partitioning_column']
     new_key_full_s3_path = os.path.join("s3://"+args['args']['source_bucket'], new_key)
-    extraction_df = create_spark_df(spark, new_key_full_s3_path, columns, args['args']['partitioning_column'])
+    extraction_df = create_spark_df(spark, new_key_full_s3_path, columns)
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
     existing_data = s3_keys(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], exit_if_no_keys=False)
     parquet_files = filter_files(existing_data, "", 'parquet', exit_if_no_keys=False)
+    day = date_regex_extract(new_key)
     if not parquet_files == []:
-        existing_df = get_existing_df(spark, destination)
-        new_df = get_new_df(extraction_df, existing_df)
+        existing_df = get_existing_df(spark, destination, partitioning_column)
+        new_df = get_new_df(extraction_df, existing_df, partitioning_column, day)
     else:
-        new_df = extraction_df
+        new_df = add_partitioning_column(extraction_df, day, partitioning_column)
     write_parquet(new_df, destination, args['args']['partitioning_column'])
     db = args['args']['db_name']
     tbl = args['args']['table_name']
