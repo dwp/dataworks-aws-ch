@@ -301,7 +301,7 @@ def config(config_file_path: str):
 def get_existing_df(spark, prefix):
     try:
         logger.info(f'getting existing dataframe under prefix {os.path.join(prefix, "*/*.parquet")}')
-        df = spark.read.parquet(os.path.join(prefix, "*/*.parquet"))
+        df = spark.read.option("basePath", prefix).format("parquet").load(os.path.join(prefix, "*/*.parquet"))
         rows = df.count()
         logger.info(f"rowcount existing dataframe: {rows}")
     except Exception as ex:
