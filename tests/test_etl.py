@@ -155,7 +155,7 @@ def test_rename_cols(spark_fixture):
 def test_create_spark_df(spark_fixture):
     spark = spark_fixture
     key = "tests/files/BasicCompanyData-2019-01-01.csv"
-    df = create_spark_df(spark, key, ast.literal_eval(args['args']['cols']), args['args']['partitioning_column'])
+    df = create_spark_df(spark, key, ast.literal_eval(args['args']['cols']))
     assert df.count() == 3, "total rows are not equal to rows in sample files"
     assert len(df.columns) == len(ast.literal_eval(args['args']['cols']))+1, "united df columns are either more or fewer than expected"
 
