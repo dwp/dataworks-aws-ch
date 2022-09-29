@@ -184,7 +184,7 @@ def create_spark_df(sp, key, schema, partitioning_column):
     return df
 
 
-def s3_keys(s3_client, bucket_id, prefix):
+def s3_keys(s3_client, bucket_id, prefix, exit_if_no_keys=True):
     logger.info(f"looking for objects with prefix {prefix}")
     try:
         keys = []
@@ -194,7 +194,7 @@ def s3_keys(s3_client, bucket_id, prefix):
             if "Contents" in page:
                 keys = keys + [obj["Key"] for obj in page["Contents"]]
 
-        if len(keys) == 0:
+        if len(keys) == 0 and exit_if_no_keys:
             logger.info(f"no keys found under set prefix {prefix}")
             exit(0)
         logger.info(f"found {len(keys)} keys under prefix {prefix}")
@@ -431,7 +431,7 @@ if __name__ == "__main__":
     new_key_full_s3_path = os.path.join("s3://"+args['args']['source_bucket'], new_key)
     extraction_df = create_spark_df(spark, new_key_full_s3_path, columns, args['args']['partitioning_column'])
     destination = os.path.join("s3://"+args['args']['destination_bucket'], args['args']['destination_prefix'])
-    existing_data = s3_keys(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
+    existing_data = s3_keys(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'], exit_if_no_keys=False)
     parquet_files = filter_files(existing_data, "", 'parquet')
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination)
@@ -443,7 +443,6 @@ if __name__ == "__main__":
     tbl = args['args']['table_name']
     recreate_hive_table(new_df, destination, db, tbl, spark, args['args']['partitioning_column'])
     date = date_regex_extract(new_key)
-    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'],
-               date, db, tbl, args['args']['partitioning_column'])
+    tag_object(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'],date, db, tbl, args['args']['partitioning_column'])
     total_files_size = total_size(s3_client, args['args']['destination_bucket'], args['args']['destination_prefix'])
     add_latest_file(new_key, total_files_size)
