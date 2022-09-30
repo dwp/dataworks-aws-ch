@@ -362,7 +362,7 @@ def get_new_df(extraction_df, existing_df, partitioning_column, val):
     try:
         logger.info(f"extraction df schema: {extraction_df.schema}")
         logger.info(f"existing df schema: {existing_df.schema}")
-        new_df = extraction_df.subtract(existing_df)
+        new_df = extraction_df.exceptAll(existing_df)
         rows = new_df.count()
         if rows == 0:
             logger.warning("file does not contain any new rows")
