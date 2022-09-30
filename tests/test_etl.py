@@ -171,7 +171,7 @@ def test_get_new_df(spark_fixture):
     expected_new_df = create_spark_df(spark, new_df_key, new_df_cols)
     day = date_regex_extract(new_key)
     actual_new_df = get_new_df(extraction_df, existing_df, args['args']['partitioning_column'], day)
-    assert actual_new_df == expected_new_df, "failed to identify new rows since latest import"
+    assert actual_new_df.count() == expected_new_df.count(), "failed to identify new rows since latest import"
 
 
 def test_total_size(s3_fixture):
