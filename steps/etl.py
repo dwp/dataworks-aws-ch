@@ -2,7 +2,7 @@ import re
 from functools import reduce
 from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
-from pyspark.sql.types import StructField, StringType
+from pyspark.sql.types import StructField, StringType, StructType
 import argparse
 import ast
 import logging
@@ -13,7 +13,6 @@ from pyspark.sql import SparkSession, DataFrame
 import boto3
 import json
 from decimal import Decimal
-
 
 def setup_logging(log_path=None):
     json_format = "{ \"timestamp\": \"%(asctime)s\", \"log_level\": \"%(levelname)s\", \"message\": \"%(message)s\"}"
@@ -261,7 +260,7 @@ def write_parquet(df, s3_destination, partitioning_column):
 def add_partitioning_column(df, val, partitioning_column):
     logger.info(f"adding new column {partitioning_column} with value {val}")
     try:
-        return df.withColumn(partitioning_column, lit(val))
+        return df.withColumn(partitioning_column, lit(val).cast(StringType()))
     except Exception as ex:
         logger.error(f"failed to add partitioning column due to {ex}")
 
@@ -406,6 +405,15 @@ def trigger_rule(detail_type):
         sys.exit(-1)
 
 
+def get_schema(columns):
+    try:
+        sch = StructType()
+        for i in columns:
+            sch = sch.add(i, StringType(), True)
+    except Exception as ex:
+        logger.error(f"Failed to get schema from columns {columns} due to {ex}")
+        sys.exit(-1)
+
 
 
 if __name__ == "__main__":
@@ -434,7 +442,8 @@ if __name__ == "__main__":
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
     new_key_full_s3_path = os.path.join("s3://"+source_bucket, new_key)
-    extraction_df = create_spark_df(spark, new_key_full_s3_path, columns)
+    schema = get_schema(columns)
+    extraction_df = create_spark_df(spark, new_key_full_s3_path, schema)
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
     existing_data = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], exit_if_no_keys=False)
     parquet_files = filter_files(existing_data, "", 'parquet', exit_if_no_keys=False)

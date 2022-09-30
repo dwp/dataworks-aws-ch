@@ -169,7 +169,8 @@ def test_get_new_df(spark_fixture):
     extraction_df = create_spark_df(spark, new_key, ast.literal_eval(args['args']['cols']))
     new_df_cols = ["CompanyName","CompanyNumber","RegAddress_CareOf","RegAddress_POBox","RegAddress_AddressLine1","RegAddress_AddressLine2","RegAddress_PostTown","RegAddress_County","RegAddress_Country","RegAddress_PostCode","CompanyCategory","CompanyStatus","CountryOfOrigin","DissolutionDate","IncorporationDate","Accounts_AccountRefDay","Accounts_AccountRefMonth","Accounts_NextDueDate","Accounts_LastMadeUpDate","Accounts_AccountCategory","Returns_NextDueDate","Returns_LastMadeUpDate","Mortgages_NumMortCharges","Mortgages_NumMortOutstanding","Mortgages_NumMortPartSatisfied","Mortgages_NumMortSatisfied","SICCode_SicText_1","SICCode_SicText_2","SICCode_SicText_3","SICCode_SicText_4","LimitedPartnerships_NumGenPartners","LimitedPartnerships_NumLimPartners","URI","PreviousName_1_CONDATE","PreviousName_1_CompanyName","PreviousName_2_CONDATE","PreviousName_2_CompanyName","PreviousName_3_CONDATE","PreviousName_3_CompanyName","PreviousName_4_CONDATE","PreviousName_4_CompanyName","PreviousName_5_CONDATE","PreviousName_5_CompanyName","PreviousName_6_CONDATE","PreviousName_6_CompanyName","PreviousName_7_CONDATE","PreviousName_7_CompanyName","PreviousName_8_CONDATE","PreviousName_8_CompanyName","PreviousName_9_CONDATE","PreviousName_9_CompanyName","PreviousName_10_CONDATE","PreviousName_10_CompanyName","ConfStmtNextDueDate","ConfStmtLastMadeUpDate","date_sent"]
     expected_new_df = create_spark_df(spark, new_df_key, new_df_cols)
-    assert get_new_df(extraction_df, existing_df, args['args']['partitioning_column'], "2019-01-02") == expected_new_df, "wrong new df"
+    actual_df = get_new_df(extraction_df, existing_df, args['args']['partitioning_column'], '2019-01-02')
+    assert actual_df.collect() == expected_new_df.collect(), "error filtering new rows"
 
 
 def test_total_size(s3_fixture):
