@@ -143,8 +143,7 @@ def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
                 Key=key["Key"],
                 Tagging={"TagSet": [{"Key": "pii", "Value": "false"},
                                     {"Key": "db", "Value": db},
-                                    {"Key": "table", "Value": tbl}]},
-            )
+                                    {"Key": "table", "Value": tbl}]})
             status = response['ResponseMetadata']['HTTPStatusCode']
             logger.info(f"Tagging: s3 client response status: {status}, table: {tbl}, filename: {filename}")
     except Exception as ex:
@@ -362,7 +361,7 @@ def get_new_df(extraction_df, existing_df, partitioning_column, val):
     try:
         logger.info(f"extraction df schema: {extraction_df.schema}")
         logger.info(f"existing df schema: {existing_df.schema}")
-        new_df = extraction_df.exceptAll(existing_df)
+        new_df = extraction_df.subtract(existing_df)
         rows = new_df.count()
         if rows == 0:
             logger.warning("file does not contain any new rows")
@@ -442,9 +441,9 @@ if __name__ == "__main__":
     day = date_regex_extract(new_key)
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination, partitioning_column)
-        new_df = get_new_df(extraction_df, existing_df, partitioning_column, day)
+        new_df = get_new_df(extraction_df, existing_df, partitioning_column, day[:-4])
     else:
-        new_df = add_partitioning_column(extraction_df, day, partitioning_column)
+        new_df = add_partitioning_column(extraction_df, day[:-4], partitioning_column)
     write_parquet(new_df, destination, partitioning_column)
     db = args['args']['db_name']
     tbl = args['args']['table_name']
