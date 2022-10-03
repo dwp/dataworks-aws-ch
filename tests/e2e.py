@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     args = runtime_args()
     actual_cols = colcount(args.db, args.table)
-    actual_rows = rowcount(args.db, args.table)
+    actual_rows = rowcount(args.db, args.table, args.partitioning_column)
     assert actual_cols == args.cols, logger.error(f"actual cols: {actual_cols} not equal to expected cols: {args.cols}")
     assert actual_rows == args.rows, logger.error(f"actual rows: {actual_rows} not equal to expected rows: {args.rows}")
     logger.info("e2e test for row and col counts passed")
