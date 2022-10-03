@@ -1,10 +1,8 @@
 import argparse
-import datetime
-from datetime import timedelta
+from datetime import datetime
 import os
 import logging
 import sys
-import boto3
 import subprocess
 
 
@@ -56,10 +54,11 @@ def run_hive_command(cmd):
         logger.error(ex)
 
 
-def rowcount(db: str, table: str):
+def rowcount(db: str, table: str, partitioning_column: str):
     logger.info("checking number of rows")
     try:
-        cmd = f"SELECT count(*) FROM {db}.{table};"
+        date_sent = datetime.strftime(datetime.today().date(), format="%Y-%m-%d")
+        cmd = f"SELECT count(*) FROM {db}.{table} where {partitioning_column}={date_sent};"
         r = run_hive_command(cmd)
         return int(r)
     except Exception as ex:
@@ -69,7 +68,6 @@ def rowcount(db: str, table: str):
 def colcount(db: str, table: str):
     logger.info("checking number of columns")
     try:
-
         cmd = f"SHOW COLUMNS IN {db}.{table};"
         r = run_hive_command(cmd)
         r = r.replace('\n', ' ')
