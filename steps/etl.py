@@ -438,9 +438,9 @@ if __name__ == "__main__":
     day = date_regex_extract(new_key)
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination, partitioning_column)
-        new_df = get_new_df(extraction_df, existing_df, partitioning_column, day[:-4])
+        new_df = get_new_df(extraction_df, existing_df, partitioning_column, day)
     else:
-        new_df = add_partitioning_column(extraction_df, day[:-4], partitioning_column)
+        new_df = add_partitioning_column(extraction_df, day, partitioning_column)
     write_parquet(new_df, destination, partitioning_column)
     db = args['args']['db_name']
     tbl = args['args']['table_name']
