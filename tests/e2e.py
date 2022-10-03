@@ -58,7 +58,7 @@ def rowcount(db: str, table: str, partitioning_column: str):
     logger.info("checking number of rows")
     try:
         date_sent = datetime.strftime(datetime.today().date(), format="%Y-%m-%d")
-        cmd = f"SELECT count(*) FROM {db}.{table} where {partitioning_column}={date_sent};"
+        cmd = f"SELECT count(*) FROM {db}.{table} where {partitioning_column}='{date_sent}';"
         r = run_hive_command(cmd)
         return int(r)
     except Exception as ex:
