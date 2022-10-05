@@ -357,3 +357,47 @@ data "aws_iam_policy_document" "ch_sns_topic_policy_for_alert" {
     resources = [local.monitoring_topic_arn]
   }
 }
+
+data "aws_iam_policy_document" "ch_events" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "events:*",
+    ]
+
+    resources = [
+      aws_cloudwatch_event_rule.ch_started.arn, aws_cloudwatch_event_rule.ch_step_error_rule.arn,aws_cloudwatch_event_rule.ch_success.arn,
+      aws_cloudwatch_event_rule.ch_terminated_with_errors_rule.arn, aws_cloudwatch_event_rule.delta_file_size_check_failed.arn, aws_cloudwatch_event_rule.file_size_check_failed.arn,
+      aws_cloudwatch_event_rule.file_landed.arn,
+      aws_cloudwatch_metric_alarm.ch_started.arn, aws_cloudwatch_metric_alarm.ch_step_error.arn,aws_cloudwatch_metric_alarm.ch_success.arn,
+      aws_cloudwatch_metric_alarm.ch_failed_with_errors, aws_cloudwatch_metric_alarm.delta_file_size_check_failed.arn, aws_cloudwatch_metric_alarm.file_size_check_failed.arn,
+      aws_cloudwatch_metric_alarm.file_landed.arn
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject*",
+      "s3:PutObject*",
+
+    ]
+
+    resources = [
+      "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix}",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ch_events" {
+  name        = "chEvents"
+  description = "Allow ch events"
+  policy      = data.aws_iam_policy_document.ch_events.json
+}
+
+resource "aws_iam_role_policy_attachment" "ch_events" {
+  role       = aws_iam_role.ch.name
+  policy_arn = aws_iam_policy.ch_events.arn
+}
