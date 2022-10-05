@@ -367,10 +367,10 @@ data "aws_iam_policy_document" "ch_events" {
     ]
 
     resources = [
-      aws_cloudwatch_event_rule.ch_started.arn, aws_cloudwatch_event_rule.ch_step_error_rule[count.index].arn,aws_cloudwatch_event_rule.ch_success.arn,
+      aws_cloudwatch_event_rule.ch_started.arn, aws_cloudwatch_event_rule.ch_step_error_rule.*.arn,aws_cloudwatch_event_rule.ch_success.arn,
       aws_cloudwatch_event_rule.ch_terminated_with_errors_rule.arn, aws_cloudwatch_event_rule.delta_file_size_check_failed.arn, aws_cloudwatch_event_rule.file_size_check_failed.arn,
       aws_cloudwatch_event_rule.file_landed.arn,
-      aws_cloudwatch_metric_alarm.ch_started.arn, aws_cloudwatch_metric_alarm.ch_step_error[count.index].arn,aws_cloudwatch_metric_alarm.ch_success.arn,
+      aws_cloudwatch_metric_alarm.ch_started.arn, aws_cloudwatch_metric_alarm.ch_step_error.*.arn,aws_cloudwatch_metric_alarm.ch_success.arn,
       aws_cloudwatch_metric_alarm.ch_failed_with_errors, aws_cloudwatch_metric_alarm.delta_file_size_check_failed.arn, aws_cloudwatch_metric_alarm.file_size_check_failed.arn,
       aws_cloudwatch_metric_alarm.file_landed.arn
     ]
