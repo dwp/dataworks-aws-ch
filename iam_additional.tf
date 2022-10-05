@@ -373,7 +373,7 @@ data "aws_iam_policy_document" "ch_events" {
       aws_cloudwatch_metric_alarm.ch_started.arn, aws_cloudwatch_metric_alarm.ch_success.arn,
       aws_cloudwatch_metric_alarm.ch_failed_with_errors.arn, aws_cloudwatch_metric_alarm.delta_file_size_check_failed.arn, aws_cloudwatch_metric_alarm.file_size_check_failed.arn,
       aws_cloudwatch_metric_alarm.file_landed.arn
-    ], [for rule_arn in aws_cloudwatch_event_rule.ch_step_error_rule : rule_arn], [for alarm_arn in aws_cloudwatch_metric_alarm.ch_step_error: alarm_arn])
+    ], [for rule in aws_cloudwatch_event_rule.ch_step_error_rule.* : rule.arn], [for alarm in aws_cloudwatch_metric_alarm.ch_step_error.*: alarm.arn])
   }
 
   statement {
