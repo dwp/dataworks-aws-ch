@@ -365,7 +365,7 @@ data "aws_iam_policy_document" "ch_events" {
     actions = [
       "events:*",
     ]
-    resources = "*"
+    resources = ["*"]
   }
 
 }
