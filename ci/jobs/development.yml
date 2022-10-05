@@ -22,7 +22,7 @@ jobs:
       params:
         TF_WORKSPACE: 'default'
     - .: (( inject meta.plan.unit-tests))
-    - .: (( inject meta.plan.run-e2e-tests ))
+    - .: (( inject meta.plan.e2e-test ))
       config:
         params:
           AWS_ACC: ((aws_account.development))

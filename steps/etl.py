@@ -399,7 +399,7 @@ def trigger_rule(detail_type):
     try:
         client = boto3.client('events')
         logger.info(f"sending event {detail_type}")
-        client.put_events(Entries=[{'DetailType': detail_type, 'Source': 'filechecks', 'Detail': '{"file":"checks"}'}])
+        client.put_events(Entries=[{'DetailType': f'{detail_type}', 'Source': 'filechecks', 'Detail': '{"file":"checks"}'}])
     except Exception as ex:
         logger.error(f"Failed to trigger rule due to {ex}")
         sys.exit(-1)
