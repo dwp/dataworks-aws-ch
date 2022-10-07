@@ -170,7 +170,7 @@ def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
 def extract_csv(key, schema, spark):
     logger.info("reading csv files into spark dataframe")
     try:
-        df = spark.read \
+        df = spark.read.format("csv") \
                   .option("header", True) \
                   .option("schema", schema) \
                   .option("multiline", True) \
@@ -181,8 +181,6 @@ def extract_csv(key, schema, spark):
                   .option("header", True) \
                   .option("enforceSchema", False) \
                   .schema(schema)\
-                  .load(key) \
-                  .format("csv") \
                   .load(key)
 
     except Exception as ex:
