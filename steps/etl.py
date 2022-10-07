@@ -4,6 +4,7 @@ from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
 from pyspark.sql.types import StructField, StringType, StructType
 import argparse
+from py4j.protocol import Py4JJavaError
 import ast
 import logging
 import os
@@ -140,9 +141,14 @@ def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
             response = s3_client.put_object_tagging(
                 Bucket=bucket,
                 Key=key["Key"],
-                Tagging={"TagSet": [{"Key": "pii", "Value": "false"},
-                                    {"Key": "db", "Value": db},
-                                    {"Key": "table", "Value": tbl}]})
+                Tagging={"TagSet":
+                            [
+                                {"Key": "pii", "Value": "false"},
+                                {"Key": "db", "Value": db},
+                                {"Key": "table", "Value": tbl}
+                            ]
+                         }
+            )
             status = response['ResponseMetadata']['HTTPStatusCode']
             logger.info(f"Tagging: s3 client response status: {status}, table: {tbl}, filename: {filename}")
     except Exception as ex:
@@ -154,22 +160,25 @@ def extract_csv(key, schema, spark):
     logger.info("reading csv files into spark dataframe")
     try:
         df = spark.read \
-            .option("header", True) \
-            .option("schema", schema) \
-            .option("multiline", True) \
-            .format("csv")\
-            .option("mode", "FAILFAST")\
-            .option("ignoreTrailingWhiteSpace", True)\
-            .option("ignoreLeadingWhiteSpace", True)\
-            .option("header", True)\
-            .option("enforceSchema", False)\
-            .schema(schema).load(key)\
-            .format("csv") \
-            .load(key)
+                  .option("header", True) \
+                  .option("schema", schema) \
+                  .option("multiline", True) \
+                  .format("csv") \
+                  .option("mode", "FAILFAST") \
+                  .option("ignoreTrailingWhiteSpace", True) \
+                  .option("ignoreLeadingWhiteSpace", True) \
+                  .option("header", True) \
+                  .option("enforceSchema", False) \
+                  .schema(schema)\
+                  .load(key) \
+                  .format("csv") \
+                  .load(key)
 
     except Exception as ex:
-        logger.error(f"failed to read the csv file into spark dataframe due to {ex}")
+        trigger_rule('incorrect file format')
+        logger.error(f"Failed to tag s3 objects due to {ex}")
         sys.exit(-1)
+
     return df
 
 
@@ -430,11 +439,11 @@ if __name__ == "__main__":
     new_file_size = total_size(s3_client, source_bucket, new_key)
     delta_bytes = new_file_size - latest_file_size
     if not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
-        trigger_rule('unexpected delta file size')
-        logger.error('unexpected delta file size')
+        trigger_rule('incorrect delta file size')
+        logger.error('incorrect delta file size')
     if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size):
-        trigger_rule('unexpected file size')
-        logger.error('unexpected file size')
+        trigger_rule('incorrect file size')
+        logger.error('incorrect file size')
     if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size) or not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])

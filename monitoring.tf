@@ -279,7 +279,7 @@ resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
   description   = "checks that file size is within a certain range"
   event_pattern = <<EOF
 {
-  "detail-type": ["unexpected file size"]
+  "detail-type": ["incorrect file size"]
 }
 EOF
 }
@@ -315,7 +315,44 @@ resource "aws_cloudwatch_event_rule" "delta_file_size_check_failed" {
   description   = "checks that delta file size is within a certain range"
   event_pattern = <<EOF
 {
-  "detail-type": ["unexpected delta file size"]
+  "detail-type": ["incorrect delta file size"]
+}
+EOF
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
+  lifecycle {ignore_changes = [tags]}
+  alarm_name                = "file_format_check_failed"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "TriggeredRules"
+  namespace                 = "AWS/Events"
+  period                    = "60"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  alarm_description         = "checks file format"
+  insufficient_data_actions = []
+  alarm_actions             = [local.monitoring_topic_arn]
+  dimensions = {
+    RuleName = aws_cloudwatch_event_rule.file_format_check_rule.name
+  }
+  tags = merge(
+    local.common_repo_tags,
+    {
+      Name              = "file_format_check_failed",
+      notification_type = "Error",
+      severity          = "Critical"
+    },
+  )
+}
+
+resource "aws_cloudwatch_event_rule" "file_format_check_rule" {
+  name          = "file_format_check_rule"
+  description   = "checks that delta file size is within a certain range"
+  event_pattern = <<EOF
+{
+  "detail-type": ["incorrect file format"]
 }
 EOF
 }
