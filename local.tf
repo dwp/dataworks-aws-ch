@@ -166,5 +166,34 @@ locals {
   spark_driver_cores               = 1
   spark_default_parallelism        = local.spark_num_executors_per_instance * local.spark_executor_cores * 2
   spark_kyro_buffer                = var.spark_kyro_buffer[local.environment]
-  column_names = "['CompanyName','CompanyNumber','RegAddress.CareOf','RegAddress.POBox','RegAddress.AddressLine1','RegAddress.AddressLine2','RegAddress.PostTown','RegAddress.County','RegAddress.Country','RegAddress.PostCode','CompanyCategory','CompanyStatus','CountryOfOrigin','DissolutionDate','IncorporationDate','Accounts.AccountRefDay','Accounts.AccountRefMonth','Accounts.NextDueDate','Accounts.LastMadeUpDate','Accounts.AccountCategory','Returns.NextDueDate','Returns.LastMadeUpDate','Mortgages.NumMortCharges','Mortgages.NumMortOutstanding','Mortgages.NumMortPartSatisfied','Mortgages.NumMortSatisfied','SICCode.SicText_1','SICCode.SicText_2','SICCode.SicText_3','SICCode.SicText_4','LimitedPartnerships.NumGenPartners','LimitedPartnerships.NumLimPartners','URI','PreviousName_1.CONDATE','PreviousName_1.CompanyName','PreviousName_2.CONDATE','PreviousName_2.CompanyName','PreviousName_3.CONDATE','PreviousName_3.CompanyName','PreviousName_4.CONDATE','PreviousName_4.CompanyName','PreviousName_5.CONDATE','PreviousName_5.CompanyName','PreviousName_6.CONDATE','PreviousName_6.CompanyName','PreviousName_7.CONDATE','PreviousName_7.CompanyName','PreviousName_8.CONDATE','PreviousName_8.CompanyName','PreviousName_9.CONDATE','PreviousName_9.CompanyName','PreviousName_10.CONDATE','PreviousName_10.CompanyName','ConfStmtNextDueDate','ConfStmtLastMadeUpDate']"
+  column_names = <<EOF
+    [
+    StructField('CompanyName', StringType(), True), StructField('CompanyNumber', StringType(), True),
+    StructField('RegAddress.CareOf', StringType(), True), StructField('RegAddress.POBox', StringType(), True),
+    StructField('RegAddress.AddressLine1', StringType(), True), StructField('RegAddress.AddressLine2', StringType(), True),
+    StructField('RegAddress.PostTown', StringType(), True), StructField('RegAddress.County', StringType(), True),
+    StructField('RegAddress.Country', StringType(), True), StructField('RegAddress.PostCode', StringType(), True),
+    StructField('CompanyCategory', StringType(), True), StructField('CompanyStatus', StringType(), True), StructField('CountryOfOrigin', StringType(), True),
+    StructField('DissolutionDate', StringType(), True), StructField('IncorporationDate', StringType(), True), StructField('Accounts.AccountRefDay', StringType(), True),
+    StructField('Accounts.AccountRefMonth', StringType(), True), StructField('Accounts.NextDueDate', StringType(), True),
+    StructField('Accounts.LastMadeUpDate', StringType(), True), StructField('Accounts.AccountCategory', StringType(), True),
+    StructField('Returns.NextDueDate', StringType(), True), StructField('Returns.LastMadeUpDate', StringType(), True),
+    StructField('Mortgages.NumMortCharges', StringType(), True), StructField('Mortgages.NumMortOutstanding', StringType(), True),
+    StructField('Mortgages.NumMortPartSatisfied', StringType(), True), StructField('Mortgages.NumMortSatisfied', StringType(), True),
+    StructField('SICCode.SicText_1', StringType(), True), StructField('SICCode.SicText_2', StringType(), True), StructField('SICCode.SicText_3', StringType(), True),
+    StructField('SICCode.SicText_4', StringType(), True), StructField('LimitedPartnerships.NumGenPartners', StringType(), True),
+    StructField('LimitedPartnerships.NumLimPartners', StringType(), True), StructField('URI', StringType(), True), StructField('PreviousName_1.CONDATE', StringType(), True),
+    StructField('PreviousName_1.CompanyName', StringType(), True), StructField('PreviousName_2.CONDATE', StringType(), True),
+    StructField('PreviousName_2.CompanyName', StringType(), True), StructField('PreviousName_3.CONDATE', StringType(), True),
+    StructField('PreviousName_3.CompanyName', StringType(), True), StructField('PreviousName_4.CONDATE', StringType(), True),
+    StructField('PreviousName_4.CompanyName', StringType(), True), StructField('PreviousName_5.CONDATE', StringType(), True),
+    StructField('PreviousName_5.CompanyName', StringType(), True), StructField('PreviousName_6.CONDATE', StringType(), True),
+    StructField('PreviousName_6.CompanyName', StringType(), True), StructField('PreviousName_7.CONDATE', StringType(), True),
+    StructField('PreviousName_7.CompanyName', StringType(), True), StructField('PreviousName_8.CONDATE', StringType(), True),
+    StructField('PreviousName_8.CompanyName', StringType(), True), StructField('PreviousName_9.CONDATE', StringType(), True),
+    StructField('PreviousName_9.CompanyName', StringType(), True), StructField('PreviousName_10.CONDATE', StringType(), True),
+    StructField('PreviousName_10.CompanyName', StringType(), True), StructField('ConfStmtNextDueDate', StringType(), True),StructField('ConfStmtLastMadeUpDate', StringType(), True)
+    ]
+EOF
+
 }

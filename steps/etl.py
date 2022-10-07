@@ -2,9 +2,8 @@ import re
 from functools import reduce
 from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
-from pyspark.sql.types import StructField, StringType, StructType
+from pyspark.sql.types import StructField, StringType, StructType, IntegerType
 import argparse
-from py4j.protocol import Py4JJavaError
 import ast
 import logging
 import os
