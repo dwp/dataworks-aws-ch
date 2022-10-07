@@ -9,6 +9,8 @@ import pytest
 import boto3
 from moto import mock_s3
 import unittest
+from pyspark.sql.types import StructField, StringType, StructType
+
 
 test_config_path = "tests/unit_test_conf.tpl"
 
@@ -165,10 +167,10 @@ def test_get_new_df(spark_fixture):
     key = "tests/files/BasicCompanyData-2019-01-01.csv"
     new_key = "tests/files/BasicCompanyData-2019-01-02.csv"
     new_df_key = "tests/files/new_df.csv"
-    schema = ast.literal_eval(args['args']['cols'])
+    schema = StructType(ast.literal_eval(args['args']['cols']))
     existing_df = create_spark_df(spark, key, schema)
     extraction_df = create_spark_df(spark, new_key, schema)
-    new_df_cols = ["CompanyName","CompanyNumber","RegAddress_CareOf","RegAddress_POBox","RegAddress_AddressLine1","RegAddress_AddressLine2","RegAddress_PostTown","RegAddress_County","RegAddress_Country","RegAddress_PostCode","CompanyCategory","CompanyStatus","CountryOfOrigin","DissolutionDate","IncorporationDate","Accounts_AccountRefDay","Accounts_AccountRefMonth","Accounts_NextDueDate","Accounts_LastMadeUpDate","Accounts_AccountCategory","Returns_NextDueDate","Returns_LastMadeUpDate","Mortgages_NumMortCharges","Mortgages_NumMortOutstanding","Mortgages_NumMortPartSatisfied","Mortgages_NumMortSatisfied","SICCode_SicText_1","SICCode_SicText_2","SICCode_SicText_3","SICCode_SicText_4","LimitedPartnerships_NumGenPartners","LimitedPartnerships_NumLimPartners","URI","PreviousName_1_CONDATE","PreviousName_1_CompanyName","PreviousName_2_CONDATE","PreviousName_2_CompanyName","PreviousName_3_CONDATE","PreviousName_3_CompanyName","PreviousName_4_CONDATE","PreviousName_4_CompanyName","PreviousName_5_CONDATE","PreviousName_5_CompanyName","PreviousName_6_CONDATE","PreviousName_6_CompanyName","PreviousName_7_CONDATE","PreviousName_7_CompanyName","PreviousName_8_CONDATE","PreviousName_8_CompanyName","PreviousName_9_CONDATE","PreviousName_9_CompanyName","PreviousName_10_CONDATE","PreviousName_10_CompanyName","ConfStmtNextDueDate","ConfStmtLastMadeUpDate","date_sent"]
+    new_df_cols = schema.add(StructField('date_sent', StringType(), True))
     expected_new_df = create_spark_df(spark, new_df_key, new_df_cols)
     actual_df = get_new_df(extraction_df, existing_df, args['args']['partitioning_column'], '2019-01-02')
     assert actual_df.collect() == expected_new_df.collect(), "error filtering new rows"
@@ -219,10 +221,11 @@ def test_file_size_in_expected_range():
     file_size = -0.1
     assert file_size_in_expected_range(min_delta_gigabytes, max_delta_gigabytes, file_size), "file size check failed when it should have passed"
 
+
 def test_convert_to_gigabytes():
-    bytes=1234567
-    expected_gb=0.0011
+    bytes = 1234567
+    expected_gb = 0.0011
     assert convert_to_gigabytes(bytes) == expected_gb, "wrong gigabytes conversion"
-    bytes=34938203484
-    expected_gb=32.5387
+    bytes = 34938203484
+    expected_gb = 32.5387
     assert convert_to_gigabytes(bytes) == expected_gb, "wrong gigabytes conversion"
