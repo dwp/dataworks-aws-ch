@@ -92,7 +92,7 @@ def filter_files(keys, filenames_prefix, type, exit_if_no_keys=True):
 def schema_spark(schema: dict):
     logger.info("build spark schema from list of cols")
     try:
-        return StringType([StructField(k, get_spark_type(v), True) for k,v in schema.items()])
+        return StructType([StructField(k, get_spark_type(v), True) for k,v in schema.items()])
     except Exception as ex:
         logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
 
