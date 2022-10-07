@@ -12,7 +12,7 @@ db_name: test_db
 table_name : test
 filename : BasicCompanyData
 partitioning_column : date_sent
-cols : '[StructField("CompanyName", StringType(), True), StructField("CompanyNumber", StringType(), True), StructField("RegAddress.CareOf", StringType(), True)]'
+cols : {"CompanyName":"string","CompanyNumber":"int","RegAddress.CareOf":"string"}
 log_path: /var/log/dataworks-aws-ch/e2e-tests.log
 source_prefix : e2e/data-ingress/companies
 destination_prefix : e2e/data/test_db/companies

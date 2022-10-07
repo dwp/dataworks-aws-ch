@@ -141,7 +141,7 @@ def test_date_regex_extract():
 def test_extract_csv(spark_fixture):
     spark = spark_fixture
     cols = ast.literal_eval(args['args']['cols'])
-    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.csv", StructType(cols), spark)
+    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.csv", schema_spark(cols), spark)
     assert df.count() == 2, "read rows are too few or too many"
 
 

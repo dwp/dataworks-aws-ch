@@ -89,10 +89,10 @@ def filter_files(keys, filenames_prefix, type, exit_if_no_keys=True):
         sys.exit(-1)
 
 
-def schema_spark(schema: list):
+def schema_spark(schema: dict):
     logger.info("build spark schema from list of cols")
     try:
-        return [StructField(i, StringType(), True) for i in schema]
+        return [StructField(k, get_spark_type(v), True) for k,v in schema.items()]
     except Exception as ex:
         logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
 
@@ -120,6 +120,18 @@ def get_new_key(keys, filename):
             sys.exit(1)
     except Exception as ex:
         logger.error(f"failed to get new key added after latest imported file due to {ex}")
+
+
+def get_spark_type(type):
+    logger.info("unioning list of dfs")
+    try:
+        if type == "string":
+            return StringType()
+        if type == "int":
+            return IntegerType()
+    except Exception as ex:
+        logger.error(f"failed to to get spark type from {type} due to {ex}")
+        sys.exit(-1)
 
 
 def union_all(df_list):
@@ -448,7 +460,7 @@ if __name__ == "__main__":
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
     new_key_full_s3_path = os.path.join("s3://"+source_bucket, new_key)
-    extraction_df = create_spark_df(spark, new_key_full_s3_path, columns)
+    extraction_df = create_spark_df(spark, new_key_full_s3_path, schema_spark(columns))
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
     existing_data = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], exit_if_no_keys=False)
     parquet_files = filter_files(existing_data, "", 'parquet', exit_if_no_keys=False)
