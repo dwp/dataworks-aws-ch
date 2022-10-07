@@ -147,8 +147,8 @@ def test_extract_csv(spark_fixture):
 
 def test_rename_cols(spark_fixture):
     spark = spark_fixture
-    k = ["tests/files/BasicCompanyData-2019-01-01.csv", "tests/files/BasicCompanyData-2019-01-02.csv"]
-    df = extract_csv(k, args['args']['cols'], spark)
+    cols = ast.literal_eval(args['args']['cols'])
+    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.csv", schema_spark(cols), spark)
     dfn = rename_cols(df)
     print(dfn.columns)
     assert all(["." not in col for col in dfn.columns]), ". were not removed"
@@ -158,7 +158,8 @@ def test_rename_cols(spark_fixture):
 def test_create_spark_df(spark_fixture):
     spark = spark_fixture
     key = "tests/files/BasicCompanyData-2019-01-01.csv"
-    df = create_spark_df(spark, key, ast.literal_eval(args['args']['cols']))
+    cols = ast.literal_eval(args['args']['cols'])
+    df = create_spark_df(spark, key, schema_spark(cols))
     assert df.count() == 2, "total rows are not equal to rows in sample files"
     assert len(df.columns) == len(ast.literal_eval(args['args']['cols'])), "united df columns are either more or fewer than expected"
 
@@ -168,7 +169,7 @@ def test_get_new_df(spark_fixture):
     key = "tests/files/BasicCompanyData-2019-01-01.csv"
     new_key = "tests/files/BasicCompanyData-2019-01-02.csv"
     new_df_key = "tests/files/new_df.csv"
-    schema = StructType(ast.literal_eval(args['args']['cols']))
+    schema = schema_spark(ast.literal_eval(args['args']['cols']))
     existing_df = create_spark_df(spark, key, schema)
     extraction_df = create_spark_df(spark, new_key, schema)
     new_df_cols = schema.add(StructField('date_sent', StringType(), True))
