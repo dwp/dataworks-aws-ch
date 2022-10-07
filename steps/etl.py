@@ -157,8 +157,16 @@ def extract_csv(key, schema, spark):
             .option("header", True) \
             .option("schema", schema) \
             .option("multiline", True) \
+            .format("csv")\
+            .option("mode", "FAILFAST")\
+            .option("ignoreTrailingWhiteSpace", True)\
+            .option("ignoreLeadingWhiteSpace", True)\
+            .option("header", True)\
+            .option("enforceSchema", False)\
+            .schema(schema).load(key)\
             .format("csv") \
             .load(key)
+
     except Exception as ex:
         logger.error(f"failed to read the csv file into spark dataframe due to {ex}")
         sys.exit(-1)
@@ -233,13 +241,14 @@ def get_s3_client():
 def spark_session():
     logger.info("building spark session")
     try:
-        spark = (
-            SparkSession.builder.master("yarn")
-                .appName(f'company_etl')
-                .enableHiveSupport()
-                .getOrCreate()
-        )
+        spark = (SparkSession.builder.master("yarn")
+                             .appName(f'company_etl')
+                             .enableHiveSupport()
+                             .getOrCreate())
+
         spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+        spark.conf.set("spark.sql.csv.parser.columnPruning.enabled", False)
+
     except Exception as ex:
         logger.error(f"failed to create spark session due to {ex}")
         sys.exit(-1)

@@ -149,10 +149,10 @@ locals {
     preprod     = "0.0.1"
     production  = "0.0.1"
   }
-  metrics_namespace = "app/dataworks-aws-ch/"
-  ch_s3_prefix      = "component/dataworks-aws-ch"
-  publish_bucket    = data.terraform_remote_state.common.outputs.published_bucket
-  logstore_bucket   = data.terraform_remote_state.security-tools.outputs.logstore_bucket
+  metrics_namespace                = "app/dataworks-aws-ch/"
+  ch_s3_prefix                     = "component/dataworks-aws-ch"
+  publish_bucket                   = data.terraform_remote_state.common.outputs.published_bucket
+  logstore_bucket                  = data.terraform_remote_state.security-tools.outputs.logstore_bucket
   spark_num_cores_per_node         = var.emr_num_cores_per_core_instance[local.environment] - 1
   spark_num_nodes                  = local.core_instance_count + local.task_instance_count + local.master_instance_count
   spark_executor_cores             = var.num_cores_per_executor[local.environment]
@@ -166,5 +166,5 @@ locals {
   spark_driver_cores               = 1
   spark_default_parallelism        = local.spark_num_executors_per_instance * local.spark_executor_cores * 2
   spark_kyro_buffer                = var.spark_kyro_buffer[local.environment]
-  column_names = "['CompanyName','CompanyNumber', 'RegAddress.CareOf', 'RegAddress.POBox', 'RegAddress.AddressLine1', 'RegAddress.AddressLine2','RegAddress.PostTown', 'RegAddress.County', 'RegAddress.Country', 'RegAddress.PostCode', 'CompanyCategory','CompanyStatus', 'CountryOfOrigin','DissolutionDate','IncorporationDate', 'Accounts.AccountRefDay','Accounts.AccountRefMonth', 'Accounts.NextDueDate','Accounts.LastMadeUpDate','Accounts.AccountCategory','Returns.NextDueDate', 'Returns.LastMadeUpDate','Mortgages.NumMortCharges', 'Mortgages.NumMortOutstanding','Mortgages.NumMortPartSatisfied', 'Mortgages.NumMortSatisfied','SICCode.SicText_1', 'SICCode.SicText_2', 'SICCode.SicText_3','SICCode.SicText_4','LimitedPartnerships.NumGenPartners','LimitedPartnerships.NumLimPartners', 'URI', 'PreviousName_1.CONDATE','PreviousName_1.CompanyName','PreviousName_2.CONDATE','PreviousName_2.CompanyName', 'PreviousName_3.CONDATE','PreviousName_3.CompanyName', 'PreviousName_4.CONDATE','PreviousName_4.CompanyName', 'PreviousName_5.CONDATE','PreviousName_5.CompanyName', 'PreviousName_6.CONDATE','PreviousName_6.CompanyName','PreviousName_7.CONDATE','PreviousName_7.CompanyName', 'PreviousName_8.CONDATE',' PreviousName_8.CompanyName', 'PreviousName_9.CONDATE','PreviousName_9.CompanyName', 'PreviousName_10.CONDATE','PreviousName_10.CompanyName', 'ConfStmtNextDueDate','ConfStmtLastMadeUpDate']"
+  column_names = "['CompanyName','CompanyNumber','RegAddress.CareOf','RegAddress.POBox','RegAddress.AddressLine1','RegAddress.AddressLine2','RegAddress.PostTown','RegAddress.County','RegAddress.Country','RegAddress.PostCode','CompanyCategory','CompanyStatus','CountryOfOrigin','DissolutionDate','IncorporationDate','Accounts.AccountRefDay','Accounts.AccountRefMonth','Accounts.NextDueDate','Accounts.LastMadeUpDate','Accounts.AccountCategory','Returns.NextDueDate','Returns.LastMadeUpDate','Mortgages.NumMortCharges','Mortgages.NumMortOutstanding','Mortgages.NumMortPartSatisfied','Mortgages.NumMortSatisfied','SICCode.SicText_1','SICCode.SicText_2','SICCode.SicText_3','SICCode.SicText_4','LimitedPartnerships.NumGenPartners','LimitedPartnerships.NumLimPartners','URI','PreviousName_1.CONDATE','PreviousName_1.CompanyName','PreviousName_2.CONDATE','PreviousName_2.CompanyName','PreviousName_3.CONDATE','PreviousName_3.CompanyName','PreviousName_4.CONDATE','PreviousName_4.CompanyName','PreviousName_5.CONDATE','PreviousName_5.CompanyName','PreviousName_6.CONDATE','PreviousName_6.CompanyName','PreviousName_7.CONDATE','PreviousName_7.CompanyName','PreviousName_8.CONDATE','PreviousName_8.CompanyName','PreviousName_9.CONDATE','PreviousName_9.CompanyName','PreviousName_10.CONDATE','PreviousName_10.CompanyName','ConfStmtNextDueDate','ConfStmtLastMadeUpDate']"
 }
