@@ -186,13 +186,13 @@ def extract_csv(key, schema, spark):
                   .option("enforceSchema", False) \
                   .schema(schema)\
                   .load(key)
-
+        df.show(0)
     except Exception as ex:
         trigger_rule('incorrect file format')
         logger.error(f"Failed to tag s3 objects due to {ex}")
         sys.exit(-1)
 
-    return df.collect()
+    return df
 
 
 def rename_cols(df):
