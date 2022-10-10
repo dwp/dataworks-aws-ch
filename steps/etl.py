@@ -184,7 +184,7 @@ def extract_csv(key, schema, spark):
                   .option("header", True) \
                   .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
-                  .schema(schema)\
+                  .schema(schema) \
                   .load(key)
         df.show(0)
     except Exception as ex:
