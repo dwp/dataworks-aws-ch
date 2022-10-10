@@ -2,7 +2,7 @@ import re
 from functools import reduce
 from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
-from pyspark.sql.types import StructField, StringType, StructType, IntegerType
+from pyspark.sql.types import StructField, StringType, StructType, IntegerType, DateType
 import argparse
 import ast
 import logging
@@ -123,12 +123,16 @@ def get_new_key(keys, filename):
 
 
 def get_spark_type(type):
-    logger.info("unioning list of dfs")
     try:
         if type == "string":
             return StringType()
-        if type == "int":
+        elif type == "int":
             return IntegerType()
+        elif type == "date":
+            return DateType()
+        else:
+            logger.error(f"unable to convert given type: {type}")
+            sys.exit(-1)
     except Exception as ex:
         logger.error(f"failed to to get spark type from {type} due to {ex}")
         sys.exit(-1)
@@ -174,11 +178,11 @@ def extract_csv(key, schema, spark):
                   .option("header", True) \
                   .option("schema", schema) \
                   .option("multiline", True) \
-                  .format("csv") \
                   .option("mode", "FAILFAST") \
                   .option("ignoreTrailingWhiteSpace", True) \
                   .option("ignoreLeadingWhiteSpace", True) \
                   .option("header", True) \
+                  .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
                   .schema(schema)\
                   .load(key)
@@ -188,7 +192,7 @@ def extract_csv(key, schema, spark):
         logger.error(f"Failed to tag s3 objects due to {ex}")
         sys.exit(-1)
 
-    return df
+    return df.collect()
 
 
 def rename_cols(df):
