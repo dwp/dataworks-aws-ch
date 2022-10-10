@@ -172,7 +172,7 @@ def test_get_new_df(spark_fixture):
     schema = schema_spark(ast.literal_eval(args['args']['cols']))
     existing_df = create_spark_df(spark, key, schema)
     extraction_df = create_spark_df(spark, new_key, schema)
-    new_df_cols = rename_cols(expected_new_df).schema.add(StructField('date_sent', StringType(), True))
+    new_df_cols = rename_cols(extraction_df).schema.add(StructField('date_sent', StringType(), True))
     expected_new_df = create_spark_df(spark, new_df_key, new_df_cols)
     actual_df = get_new_df(extraction_df, existing_df, args['args']['partitioning_column'], '2019-01-02')
     assert actual_df.collect() == expected_new_df.collect(), "error filtering new rows"
