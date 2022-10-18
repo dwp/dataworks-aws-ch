@@ -62,6 +62,7 @@ meta:
               terraform workspace show
               terraform init
               terraform plan -out terraform.plan
+              echo 'cidrhost(data.terraform_remote_state.aws_sdx.outputs.subnet_sdx_connectivity[0].cidr_block, 14)' | terraform console
               terraform apply -auto-approve terraform.plan
           dir: dataworks-aws-ch
         inputs:
