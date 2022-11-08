@@ -10,7 +10,7 @@ resources:
   - name: dataworks-aws-ch
     type: git
     source:
-      branch: master
+      branch:  decrease-min-file-size
       uri: https://github.com/dwp/dataworks-aws-ch.git
       access_token: ((dataworks-secrets.concourse_github_pat))
     webhook_token: ((dataworks.concourse_github_webhook_token))
@@ -47,7 +47,7 @@ resources:
     source:
       owner: dwp
       repository: emr-launcher
-      semver_constraint: "1.0.36"
+      semver_constraint: "1.0.38"
       access_token: ((dataworks-secrets.concourse_github_pat))
     check_every: 1h
     webhook_token: ((dataworks.concourse_github_webhook_token))
@@ -55,7 +55,7 @@ resources:
   - name: dataworks-behavioural-framework
     type: git
     source:
-      branch: master
+      branch: decrease-test-file-size
       uri: https://github.com/dwp/dataworks-behavioural-framework.git
       access_token: ((dataworks-secrets.concourse_github_pat))
     check_every: 5m
