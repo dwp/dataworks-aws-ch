@@ -3,9 +3,15 @@ groups:
     jobs:
       - development
       - qa
+      - integration
+      - preprod
+      - production
   - name: pull-request
     jobs:
       - dataworks-aws-ch-pr
   - name: update-pipeline
     jobs:
       - update-pipeline
+  - name: ami-test
+    jobs:
+      - apply-and-test-with-ami

@@ -1,0 +1,23 @@
+jobs:
+  - name: production
+    max_in_flight: 1
+    plan:
+      - get: dataworks-aws-ch
+        trigger: true
+        passed:
+          - preprod
+      - get: al2-emr-ami
+        trigger: true
+        passed:
+          - preprod
+      - get: emr-launcher-release
+        trigger: true
+        passed:
+          - preprod
+      - .: (( inject meta.plan.terraform-bootstrap ))
+      - .: (( inject meta.plan.terraform-apply ))
+        params:
+          TF_WORKSPACE: 'production'
+      - .: (( inject meta.plan.terraform-plan ))
+        params:
+          TF_WORKSPACE: 'production'

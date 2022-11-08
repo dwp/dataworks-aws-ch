@@ -7,12 +7,13 @@ meta:
           type: docker-image
           source:
             repository: ((dataworks.terraform_repository))
-            tag: ((dataworks.terraform_14_version))
+            tag: ((dataworks.terraform_version))
         params:
           TF_INPUT: false
           TF_CLI_ARGS_apply: -lock-timeout=300s
           TF_CLI_ARGS_plan: -lock-timeout=300s
           TF_VAR_costcode: ((dataworks.costcode))
+
     terraform-bootstrap:
       task: terraform-bootstrap
       config:
@@ -28,6 +29,9 @@ meta:
           args:
             - -exc
             - |
+              if [ -f ../previous_success/exit-if-succeeded.sh ]; then
+                source ../previous_success/exit-if-succeeded.sh
+              fi
               python bootstrap_terraform.py
               cp terraform.tf ../terraform-bootstrap
           dir: dataworks-aws-ch
@@ -37,15 +41,23 @@ meta:
           - name: terraform-bootstrap
       params:
         AWS_REGION: eu-west-2
+
     terraform-apply:
       task: terraform-apply
       .: (( inject meta.plan.terraform-common-config ))
       config:
+        params:
+          TF_INPUT: false
+          TF_CLI_ARGS_apply: -lock-timeout=300s
         run:
           path: sh
           args:
             - -exc
             - |
+              if [ -f ../previous_success/exit-if-succeeded.sh ]; then
+                source ../previous_success/exit-if-succeeded.sh
+              fi
+              export TF_VAR_emr_ami_id=$(cat ../al2-emr-ami/id)
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init
@@ -55,6 +67,9 @@ meta:
         inputs:
           - name: dataworks-aws-ch
           - name: terraform-bootstrap
+          - name: al2-emr-ami
+          - name: emr-launcher-release
+
     terraform-plan:
       task: terraform-plan
       .: (( inject meta.plan.terraform-common-config ))
@@ -64,6 +79,10 @@ meta:
           args:
             - -exc
             - |
+              if [ -f ../previous_success/exit-if-succeeded.sh ]; then
+                source ../previous_success/exit-if-succeeded.sh
+              fi
+              export TF_VAR_emr_ami_id=$(cat ../al2-emr-ami/id)
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init
@@ -72,6 +91,160 @@ meta:
         inputs:
           - name: dataworks-aws-ch
           - name: terraform-bootstrap
-      params:
-        DETAILED_EXITCODE: -detailed-exitcode
+          - name: al2-emr-ami
+          - name: emr-launcher-release
+        params:
+          DETAILED_EXITCODE: -detailed-exitcode
+
+    unit-tests:
+      task: unit-tests
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: dwpdigital/python3-pyspark-pytest
+            #            pinning this to specific tag as the latest image is failing some tests due to upgraded dependencies
+            tag: 0.0.17
+        run:
+          path: sh
+          dir: dataworks-aws-ch
+          args:
+            - -exc
+            - |
+              pip install --upgrade pip
+              pip3 install deepdiff
+              pytest -vv tests
+        inputs:
+          - name: dataworks-aws-ch
+        params:
+          SPARK_LOCAL_HOSTNAME: localhost
+
+    e2e-test:
+      task: e2e-test
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((dataworks.docker_python_boto_behave_repository))
+            tag: ((dataworks.docker_python_boto_behave_version))
+        params:
+          AWS_REGION: ((dataworks.aws_region))
+          AWS_DEFAULT_REGION: ((dataworks.aws_region))
+          E2E_TEST_TIMEOUT: 7200
+          E2E_FEATURE_TAG_FILTER: "dataworks-aws-ch"
+          ASSUME_DURATION: 10800
+        run:
+          dir: dataworks-behavioural-framework
+          path: sh
+          args:
+            - -exc
+            - |
+              if [ -f ../previous_success/exit-if-succeeded.sh ]; then
+                source ../previous_success/exit-if-succeeded.sh
+              fi
+              source /assume-role
+              set +x
+              export E2E_FEATURE_TAG_FILTER="@${E2E_FEATURE_TAG_FILTER}"
+              cd src/runners
+              ./run-ci.sh \
+              "../../../meta"
+        inputs:
+          - name: dataworks-behavioural-framework
+          - name: meta
+
+    ami-test-results:
+      task: ami-test-result
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((dataworks.terraform_repository))
+            tag: ((dataworks.terraform_version))
+        params:
+          AWS_DEFAULT_REGION: ((dataworks.aws_region))
+          GIT_USERNAME: ((dataworks.concourse_github_username))
+          GIT_EMAIL: ((dataworks.concourse_github_email))
+          GITHUB_TOKEN: ((dataworks-secrets.concourse_github_pat))
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              set +x
+              source ./previous_success/exit-if-succeeded.sh
+
+              AMI_ID=$(cat al2-emr-ami/id)
+              DATE=$(date -u)
+              PIPELINE="$(cat meta/build_pipeline_name)"
+
+              git config --global user.name "${GIT_USERNAME}"
+              git config --global user.email "${GIT_EMAIL}"
+
+              git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/dwp/ami-builder-configs
+              cd ami-builder-configs/results
+
+              echo "$AMI_ID $RESULT" > "$PIPELINE.test"
+
+              git add "$PIPELINE.test"
+              git commit -m "Updating $PIPELINE AMI test on ${DATE}"
+              git push https://${GITHUB_TOKEN}:x-oauth-basic@github.com/dwp/ami-builder-configs
+        inputs:
+          - name: meta
+          - name: al2-emr-ami
+          - name: previous_success
+
+    check-ami-test-results:
+      task: check-ami-test-result
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((dataworks.terraform_repository))
+            tag: ((dataworks.terraform_version))
+        params:
+          AWS_DEFAULT_REGION: ((dataworks.aws_region))
+          GIT_USERNAME: ((dataworks.concourse_github_username))
+          GIT_EMAIL: ((dataworks.concourse_github_email))
+          GITHUB_TOKEN: ((dataworks-secrets.concourse_github_pat))
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              set +x
+              PREVIOUS_SUCCESS=false
+              AMI_ID=$(cat untested_ami/id)
+              DATE=$(date -u)
+              PIPELINE="$(cat meta/build_pipeline_name)"
+              PATH_TO_RESULTS="ami-builder-configs/results"
+
+              git config --global user.name "${GIT_USERNAME}"
+              git config --global user.email "${GIT_EMAIL}"
+              git clone https://${GITHUB_TOKEN}:x-oauth-basic@github.com/dwp/ami-builder-configs
+
+              if [ -f "./$PATH_TO_RESULTS/$PIPELINE.test" ]; then
+                set +e
+                grep "$AMI_ID SUCCESS" "./$PATH_TO_RESULTS/$PIPELINE.test"
+                if [ $? -eq 0 ]; then
+                  PREVIOUS_SUCCESS=true
+                fi
+                set -e
+              fi
+
+              touch ./previous_success/exit-if-succeeded.sh
+
+              if $PREVIOUS_SUCCESS; then
+                 echo 'echo "AMI already passed. Exiting..."; exit 0' > ./previous_success/exit-if-succeeded.sh
+              fi
+
+              chmod +x ./previous_success/exit-if-succeeded.sh
+        outputs:
+          - name: previous_success
+        inputs:
+          - name: meta
+          - name: untested_ami
 

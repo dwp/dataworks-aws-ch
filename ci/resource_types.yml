@@ -4,9 +4,17 @@ resource_types:
     source:
       repository: teliaoss/github-pr-resource
       tag: latest
-
+  - name: ami
+    type: docker-image
+    source:
+      repository: dwpdigital/ami-resource
+  - name: meta
+    type: docker-image
+    source:
+      repository: olhtbr/metadata-resource
+      tag: 2.0.1
   - name: github-release
     type: docker-image
     source:
       repository: concourse/github-release-resource
-      tag: ((github_release_version))
+      tag: latest
