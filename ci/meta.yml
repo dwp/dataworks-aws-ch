@@ -58,6 +58,7 @@ meta:
                 source ../previous_success/exit-if-succeeded.sh
               fi
               export TF_VAR_emr_ami_id=$(cat ../al2-emr-ami/id)
+              export TF_VAR_emr_launcher_zip="{base_path = \"../emr-launcher-release\", version = \"$(cat ../emr-launcher-release/version)\"}"
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init

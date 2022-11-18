@@ -217,10 +217,6 @@ EOF
 }
 
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket      = local.publish_bucket.id
-  eventbridge = true
-}
 
 resource "aws_cloudwatch_metric_alarm" "file_landed" {
   lifecycle {ignore_changes = [tags]}
