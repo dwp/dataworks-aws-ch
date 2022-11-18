@@ -131,7 +131,7 @@ resource "aws_security_group_rule" "emr_service_ingress_master" {
   to_port                  = 9443
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.ch_master.id
-  security_group_id        = aws_security_group.ch_emr_service.id
+  security_group_id        = "aws_security_group.ch_emr_service.id"
 }
 
 

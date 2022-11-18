@@ -29,7 +29,7 @@ resource "aws_s3_bucket_object" "instances" {
       )
       master_sg           = aws_security_group.ch_master.id
       slave_sg            = aws_security_group.ch_slave.id
-      service_access_sg   = "aws_security_group.ch_emr_service.id"
+      service_access_sg   = aws_security_group.ch_emr_service.id
       instance_type       = var.emr_instance_type[local.environment]
       core_instance_count = var.emr_core_instance_count[local.environment]
     }
