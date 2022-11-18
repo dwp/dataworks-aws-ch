@@ -150,6 +150,56 @@ provider "aws" {
   }
 }
 
+
+provider "aws" {
+  alias = "crypto"
+  region  = var.region
+
+  assume_role {
+    role_arn = "arn:aws:iam::${local.account[local.management_account[local.environment]]}:role/${var.assume_role}"
+  }
+}
+
+provider "aws" {
+  alias   = "management_dns"
+  region  = var.region
+
+  assume_role {
+    role_arn = "arn:aws:iam::${local.account[local.management_account[local.environment]]}:role/${var.assume_role}"
+  }
+}
+
+provider "aws" {
+  region  = var.region
+
+  assume_role {
+    role_arn = "arn:aws:iam::${lookup(local.account, local.environment)}:role/${var.assume_role}"
+  }
+
+  default_tags {
+    tags = local.common_repo_tags
+  }
+}
+
+data "aws_region" "current" {
+}
+
+data "aws_iam_user" "breakglass" {
+  user_name = "breakglass"
+}
+
+data "aws_iam_role" "ci" {
+  name = "ci"
+}
+
+data "aws_iam_role" "administrator" {
+  name = "administrator"
+}
+
+data "aws_iam_role" "aws_config" {
+  name = "aws_config"
+}
+
 // Get AWS Account ID for credentials in use
 data "aws_caller_identity" "current" {}
 
