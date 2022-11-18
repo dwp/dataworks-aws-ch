@@ -107,7 +107,7 @@ resource "aws_iam_role" "ch" {
   name               = "ch"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name = "ch_role"
     }

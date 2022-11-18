@@ -17,7 +17,7 @@ resource "aws_sns_topic" "trigger_ch_sns" {
   name = "trigger_ch_process"
 
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       "Name" = "trigger_ch_sns"
     },

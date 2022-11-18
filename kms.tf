@@ -8,7 +8,7 @@ resource "aws_kms_key" "ch_ebs_cmk" {
   policy                  = data.aws_iam_policy_document.ch_ebs_cmk_s.json
 
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name = "ch_ebs_cmk"
     }
