@@ -52,33 +52,38 @@ resource "aws_s3_bucket_object" "configurations" {
   key    = "emr/dataworks-aws-ch-test/configurations.yaml"
   content = templatefile("cluster_config/configurations.yaml.tpl",
     {
-      environment                   = local.environment
-      s3_log_bucket                 = local.logstore_bucket.id
-      s3_log_prefix                 = local.s3_log_prefix
-      s3_published_bucket           = local.publish_bucket.id
-      proxy_no_proxy                = replace(replace(local.no_proxy, ",", "|"), ".s3", "*.s3")
-      proxy_http_host               = local.proxy_host
-      proxy_http_port               = local.proxy_port
-      proxy_https_host              = local.proxy_host
-      proxy_https_port              = local.proxy_port
-      spark_executor_cores          = local.spark_executor_cores
-      spark_executor_memory         = local.spark_executor_memory
-      spark_executor_memoryOverhead = local.spark_executor_memoryOverhead
-      spark_driver_memory           = local.spark_driver_memory
-      spark_driver_cores            = local.spark_driver_cores
-      spark_executor_instances      = local.spark_num_executors_per_instance
-      spark_default_parallelism     = local.spark_default_parallelism
-      spark_kyro_buffer             = local.spark_kyro_buffer
-      hive_metastore_username       = local.ch_writer.username
-      hive_metastore_pwd            = local.ch_writer.secret_name
-      hive_metastore_endpoint       = local.rds_cluster.endpoint
-      hive_metastore_database_name  = local.rds_cluster.database_name
-      hive_metastore_location       = "data/uc_ch"
-      hive_compaction_threads       = local.hive_compaction_threads[local.environment]
-      hive_tez_sessions_per_queue   = local.hive_tez_sessions_per_queue[local.environment]
-      hive_max_reducers             = local.hive_max_reducers[local.environment]
-      tez_am_resource_memory_mb     = local.tez_am_resource_memory_mb[local.environment]
-
+      s3_log_bucket                                 = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
+      s3_log_prefix                                 = local.s3_log_prefix
+      proxy_no_proxy                                = replace(replace(local.no_proxy, ",", "|"), ".s3", "*.s3")
+      proxy_http_host                               = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
+      proxy_http_port                               = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
+      proxy_https_host                              = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
+      proxy_https_port                              = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
+      environment                                   = local.environment
+      hive_tez_container_size                       = local.hive_tez_container_size[local.environment]
+      hive_tez_java_opts                            = local.hive_tez_java_opts[local.environment]
+      hive_auto_convert_join_noconditionaltask_size = local.hive_auto_convert_join_noconditionaltask_size[local.environment]
+      tez_grouping_min_size                         = local.tez_grouping_min_size[local.environment]
+      tez_grouping_max_size                         = local.tez_grouping_max_size[local.environment]
+      tez_am_resource_memory_mb                     = local.tez_am_resource_memory_mb[local.environment]
+      tez_am_launch_cmd_opts                        = local.tez_am_launch_cmd_opts[local.environment]
+      tez_runtime_io_sort_mb                        = local.tez_runtime_io_sort_mb[local.environment]
+      tez_runtime_unordered_output_buffer_size_mb   = local.tez_runtime_unordered_output_buffer_size_mb[local.environment]
+      hive_metsatore_username                       = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.clive_writer.username
+      hive_metastore_pwd                            = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.clive_writer.secret_name
+      hive_metastore_endpoint                       = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.endpoint
+      hive_metastore_database_name                  = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.database_name
+      hive_metastore_location                       = local.hive_metastore_location
+      s3_published_bucket                           = data.terraform_remote_state.common.outputs.published_bucket.id
+      s3_processed_bucket                           = data.terraform_remote_state.common.outputs.processed_bucket.id
+      hive_bytes_per_reducer                        = local.hive_bytes_per_reducer[local.environment]
+      hive_tez_sessions_per_queue                   = local.hive_tez_sessions_per_queue[local.environment]
+      llap_number_of_instances                      = local.llap_number_of_instances[local.environment]
+      llap_daemon_yarn_container_mb                 = local.llap_daemon_yarn_container_mb[local.environment]
+      hive_auto_convert_join_noconditionaltask_size = local.hive_auto_convert_join_noconditionaltask_size[local.environment]
+      hive_max_reducers                             = local.hive_max_reducers[local.environment]
+      map_reduce_vcores_per_task                    = local.map_reduce_vcores_per_task[local.environment]
+      map_reduce_vcores_per_node                    = local.map_reduce_vcores_per_node[local.environment]
     }
   )
 }
