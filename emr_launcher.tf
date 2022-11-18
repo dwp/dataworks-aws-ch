@@ -16,8 +16,8 @@ resource "aws_lambda_function" "ch_emr_launcher" {
   environment {
     variables = {
       EMR_LAUNCHER_CONFIG_S3_BUCKET = local.config_bucket.id
-      EMR_LAUNCHER_CONFIG_S3_FOLDER = "emr/dataworks-aws-ch"
-      EMR_LAUNCHER_LOG_LEVEL        = "debug"
+      EMR_LAUNCHER_CONFIG_S3_FOLDER = "emr/dataworks-aws-ch-test"
+      EMR_LAUNCHER_LOG_LEVEL        = "DEBUG"
     }
   }
 }

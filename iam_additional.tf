@@ -42,26 +42,25 @@ data "aws_iam_policy_document" "ch_write_data" {
     effect = "Allow"
 
     actions = [
-      "s3:Get*",
-      "s3:List*",
-      "s3:Delete*",
-      "s3:Put*",
+      "s3:*"
     ]
 
     resources = [
-      "${local.publish_bucket.arn}/data/uc_ch/*",
-      format("arn:aws:s3:::%s/e2e/*", local.stage_bucket.id)
+      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data",
+      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/*",
+      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/*",
+      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch",
+      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/companies/*",
+      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/companies"
     ]
   }
 
   statement {
     effect = "Allow"
-
     actions = [
       "s3:Get*",
       "s3:List*",
     ]
-
     resources = [
       "arn:aws:s3:::${local.mgt_certificate_bucket}*",
       "arn:aws:s3:::${local.env_certificate_bucket}/*",
@@ -70,7 +69,6 @@ data "aws_iam_policy_document" "ch_write_data" {
 
   statement {
     effect = "Allow"
-
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
@@ -78,7 +76,6 @@ data "aws_iam_policy_document" "ch_write_data" {
       "kms:GenerateDataKey",
       "kms:DescribeKey"
     ]
-
     resources = [
       data.terraform_remote_state.common.outputs.published_bucket_cmk.arn,
       data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
@@ -231,7 +228,7 @@ data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
     actions = [
       "s3:*",
     ]
-    resources = [format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", local.config_bucket.id),
+    resources = [format("arn:aws:s3:::%s/emr/dataworks-aws-ch-test/*", local.config_bucket.id),
     format("arn:aws:s3:::%s/*", local.stage_bucket.id)]
   }
 

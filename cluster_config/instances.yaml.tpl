@@ -20,10 +20,10 @@ Instances:
             SizeInGB: 100
             VolumeType: "gp2"
           VolumesPerInstance: 1
-      InstanceType: "r4.2xlarge"
+      InstanceType: "m5.4xlarge"
   - InstanceFleetType: "CORE"
     Name: CORE
-    TargetOnDemandCapacity: ${core_instance_count}
+    TargetOnDemandCapacity: 2
     InstanceTypeConfigs:
     - EbsConfiguration:
         EbsBlockDeviceConfigs:
@@ -31,4 +31,4 @@ Instances:
             SizeInGB: 100
             VolumeType: "gp2"
           VolumesPerInstance: 1
-      InstanceType: "r4.2xlarge"
+      InstanceType: "m5.4xlarge"

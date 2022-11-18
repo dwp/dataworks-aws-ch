@@ -186,6 +186,7 @@ locals {
     Owner        = "dataworks platform"
     Persistence  = "Ignore"
     AutoShutdown = "False"
+    for-use-with-amazon-emr-managed-policies = "true"
   }
   tags = {
   {% for key, value in common_tags.items() %}

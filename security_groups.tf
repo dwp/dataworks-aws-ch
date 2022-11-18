@@ -1,33 +1,33 @@
-provider "aws" {
-  alias = "aws"
-}
-
 resource "aws_security_group" "ch_master" {
   name                   = "ch Master"
   description            = "Contains rules for ch master nodes; most rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
-  vpc_id                 = local.internal_compute_vpc_id
+  vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+  tags                   = local.common_tags
 }
 
 resource "aws_security_group" "ch_slave" {
   name                   = "ch Slave"
   description            = "Contains rules for ch slave nodes; most rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
-  vpc_id                 = local.internal_compute_vpc_id
+  vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+  tags                   = local.common_tags
 }
 
 resource "aws_security_group" "ch_common" {
   name                   = "ch Common"
-  description            = "Contains rules for both ch master and slave nodes"
+  description            = "Contains rules for both ch master and ch slave nodes"
   revoke_rules_on_delete = true
-  vpc_id                 = local.internal_compute_vpc_id
+  vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+  tags                   = local.common_tags
 }
 
 resource "aws_security_group" "ch_emr_service" {
   name                   = "ch EMR Service"
-  description            = "Contains rules for ch EMR service when managing the ch cluster; rules are injected by EMR, not managed by TF"
+  description            = "Contains rules for EMR service when managing the ch cluster; rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
-  vpc_id                 = local.internal_compute_vpc_id
+  vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
+  tags                   = local.common_tags
 }
 
 resource "aws_security_group_rule" "egress_https_to_vpc_endpoints" {
@@ -86,7 +86,7 @@ resource "aws_security_group_rule" "egress_internet_proxy" {
   from_port                = 3128
   to_port                  = 3128
   protocol                 = "tcp"
-  source_security_group_id = local.proxy_sg
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
   security_group_id        = aws_security_group.ch_common.id
 }
 
@@ -97,10 +97,10 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
   to_port                  = 3128
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = local.proxy_sg
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
 }
 
-resource "aws_security_group_rule" "egress_to_dks" {
+resource "aws_security_group_rule" "egress_ch_to_dks" {
   description       = "Allow requests to the DKS"
   type              = "egress"
   from_port         = 8443
@@ -111,16 +111,19 @@ resource "aws_security_group_rule" "egress_to_dks" {
 }
 
 resource "aws_security_group_rule" "ingress_to_dks" {
-  provider          = aws.crypto
-  description       = "Allow inbound requests to DKS from ch"
-  type              = "ingress"
-  protocol          = "tcp"
-  from_port         = 8443
-  to_port           = 8443
-  cidr_blocks       = data.terraform_remote_state.crypto.outputs.dks_subnet.cidr_blocks
+  provider    = aws.crypto
+  description = "Allow inbound requests to DKS from ch"
+  type        = "ingress"
+  protocol    = "tcp"
+  from_port   = 8443
+  to_port     = 8443
+
+  cidr_blocks = data.terraform_remote_state.internal_compute.outputs.ch_subnet.cidr_blocks
+
   security_group_id = data.terraform_remote_state.crypto.outputs.dks_sg_id[local.environment]
 }
 
+# https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-man-sec-groups.html#emr-sg-elasticmapreduce-sa-private
 resource "aws_security_group_rule" "emr_service_ingress_master" {
   description              = "Allow EMR master nodes to reach the EMR service"
   type                     = "ingress"
@@ -132,6 +135,8 @@ resource "aws_security_group_rule" "emr_service_ingress_master" {
 }
 
 
+# The EMR service will automatically add the ingress equivalent of this rule,
+# but doesn't inject this egress counterpart
 resource "aws_security_group_rule" "emr_master_to_core_egress_tcp" {
   description              = "Allow master nodes to send TCP traffic to core nodes"
   type                     = "egress"
@@ -200,44 +205,4 @@ resource "aws_security_group_rule" "emr_core_to_core_egress_udp" {
   protocol          = "udp"
   self              = true
   security_group_id = aws_security_group.ch_slave.id
-}
-
-resource "aws_security_group_rule" "ch_to_hive_metastore_v2" {
-  description              = "ch to Hive Metastore v2"
-  type                     = "ingress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
-}
-
-resource "aws_security_group_rule" "hive_metastore_v2_from_ch" {
-  description              = "Hive Metastore v2  from ch"
-  type                     = "egress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.ch_common.id
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
-}
-
-resource "aws_security_group_rule" "ch_to_hive_metastore_v2_invert" {
-  description              = "ch to Hive Metastore v2"
-  type                     = "egress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
-}
-
-resource "aws_security_group_rule" "hive_metastore_v2_from_ch_invert" {
-  description              = "Hive Metastore v2  from ch"
-  type                     = "ingress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.ch_common.id
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
 }

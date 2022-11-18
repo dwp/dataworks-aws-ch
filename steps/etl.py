@@ -265,6 +265,7 @@ def spark_session():
     try:
         spark = (SparkSession.builder.master("yarn")
                              .appName(f'company_etl')
+                             .enableHiveSupport()
                              .getOrCreate())
 
         spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
