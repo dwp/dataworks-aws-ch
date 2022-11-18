@@ -1,7 +1,6 @@
 jobs:
   - name: qa
     max_in_flight: 1
-    serial_groups: [qa-applies]
     plan:
       - get: dataworks-aws-ch
         trigger: true
