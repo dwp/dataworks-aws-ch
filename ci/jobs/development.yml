@@ -16,11 +16,11 @@ jobs:
     - .: (( inject meta.plan.terraform-bootstrap ))
     - .: (( inject meta.plan.terraform-apply ))
       params:
-        TF_WORKSPACE: 'default'
+        TF_WORKSPACE: 'development'
         AWS_ACC: ((aws_account.development))
     - .: (( inject meta.plan.terraform-plan ))
       params:
-        TF_WORKSPACE: 'default'
+        TF_WORKSPACE: 'development'
     - .: (( inject meta.plan.unit-tests))
     - .: (( inject meta.plan.e2e-test ))
       config:
