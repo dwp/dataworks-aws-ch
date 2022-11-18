@@ -115,39 +115,12 @@ data "terraform_remote_state" "security-tools" {
   }
 }
 
-
 variable "assume_role" {
   default = "ci"
 }
 
 variable "region" {
   default = "eu-west-2"
-}
-
-provider "aws" {
-  region  = var.region
-
-  assume_role {
-    role_arn = "arn:aws:iam::${lookup(local.account, local.environment)}:role/${var.assume_role}"
-  }
-}
-
-provider "aws" {
-  alias = "crypto"
-  region  = var.region
-
-  assume_role {
-    role_arn = "arn:aws:iam::${local.account[local.management_account[local.environment]]}:role/${var.assume_role}"
-  }
-}
-
-provider "aws" {
-  alias   = "management_dns"
-  region  = var.region
-
-  assume_role {
-    role_arn = "arn:aws:iam::${local.account[local.management_account[local.environment]]}:role/${var.assume_role}"
-  }
 }
 
 
