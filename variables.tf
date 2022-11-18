@@ -1,14 +1,3 @@
-variable "assume_role" {
-  type        = string
-  default     = "ci"
-  description = "IAM role assumed by Concourse when running Terraform"
-}
-
-variable "region" {
-  type    = string
-  default = "eu-west-2"
-}
-
 variable "truststore_aliases" {
   description = "comma seperated truststore aliases"
   type        = list(string)
@@ -28,7 +17,7 @@ variable "emr_release" {
 
 variable "emr_ami_id" {
   description = "AMI ID to use for the EMR nodes"
-  default     = "ami-0743442f852e29cc6"
+  default     = "ami-050b863a496b98587"
 }
 
 variable "emr_instance_type" {

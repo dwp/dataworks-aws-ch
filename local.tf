@@ -149,14 +149,7 @@ locals {
   proxy_host                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
   proxy_port                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
   proxy_sg                  = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
-  env_prefix = {
-    development = "dev."
-    qa          = "qa."
-    stage       = "stg."
-    integration = "int."
-    preprod     = "pre."
-    production  = ""
-  }
+
   ch_version = {
     development = "0.0.1"
     qa          = "0.0.1"
