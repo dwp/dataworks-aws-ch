@@ -58,8 +58,7 @@ data "aws_iam_policy_document" "ch_write_data" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:Get*",
-      "s3:List*",
+      "s3:*",
     ]
     resources = [
       "arn:aws:s3:::${local.mgt_certificate_bucket}*",
@@ -70,11 +69,7 @@ data "aws_iam_policy_document" "ch_write_data" {
   statement {
     effect = "Allow"
     actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:ReEncrypt",
-      "kms:GenerateDataKey",
-      "kms:DescribeKey"
+      "kms:*",
     ]
     resources = [
       data.terraform_remote_state.common.outputs.published_bucket_cmk.arn,
@@ -95,11 +90,7 @@ data "aws_iam_policy_document" "ch_write_data" {
   statement {
     effect = "Allow"
     actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:DescribeLogGroups",
-      "logs:DescribeLogStreams",
-      "logs:PutLogEvents",
+      "logs:*"
     ]
     resources = [
       "*",
@@ -110,8 +101,7 @@ data "aws_iam_policy_document" "ch_write_data" {
     effect = "Allow"
 
     actions = [
-      "s3:Get*",
-      "s3:List*",
+      "s3:*",
     ]
 
     resources = [
@@ -142,7 +132,7 @@ resource "aws_iam_role" "ch" {
 
 resource "aws_iam_instance_profile" "ch" {
   name = "ch_jobflow_role"
-  role = "arn:aws:iam::${local.account[local.environment]}:role/administrator"
+  role = aws_iam_role.ch.id
 }
 
 
