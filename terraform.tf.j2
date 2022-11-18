@@ -149,9 +149,6 @@ provider "aws" {
     role_arn = "arn:aws:iam::${lookup(local.account, local.environment)}:role/${var.assume_role}"
   }
 
-  default_tags {
-    tags = local.common_tags
-  }
 }
 
 data "aws_region" "current" {
