@@ -115,6 +115,22 @@ data "terraform_remote_state" "security-tools" {
   }
 }
 
+variable "assume_role" {
+  default = "ci"
+}
+
+variable "region" {
+  default = "eu-west-2"
+}
+
+provider "aws" {
+  region  = var.region
+
+  assume_role {
+    role_arn = "arn:aws:iam::${lookup(local.account, local.environment)}:role/${var.assume_role}"
+  }
+}
+
 provider "aws" {
   alias = "crypto"
   region  = var.region
@@ -133,86 +149,34 @@ provider "aws" {
   }
 }
 
-provider "aws" {
-  region  = var.region
+// Get AWS Account ID for credentials in use
+data "aws_caller_identity" "current" {}
 
-  assume_role {
-    role_arn = "arn:aws:iam::${lookup(local.account, local.environment)}:role/${var.assume_role}"
-  }
-
-  default_tags {
-    tags = local.common_repo_tags
-  }
-}
-
-data "aws_region" "current" {
-}
-
-data "aws_iam_user" "breakglass" {
-  user_name = "breakglass"
-}
-
-data "aws_iam_role" "ci" {
-  name = "ci"
-}
-
-data "aws_iam_role" "administrator" {
-  name = "administrator"
-}
-
-data "aws_iam_role" "aws_config" {
-  name = "aws_config"
-}
-
-module "dataworks_common" {
-  source                = "{{terraform.dataworks_common_module_name}}"
-  version               = "{{terraform.dataworks_common_module_version}}"
-  tag_value_environment = local.environment
-}
+data "aws_region" "current" {}
+data "aws_availability_zones" "available" {}
 
 locals {
-  name        = "dataworks-aws-ch"
+  account = { {% for key, value in accounts.items() %}
+    {{key}} = "{{value}}"{% endfor %}
+  }
+
   environment = terraform.workspace == "default" ? "development" : terraform.workspace
 
-  account = {
-    {%- for key, value in accounts.items() %}
-      {{key}} = "{{value}}"
-    {%- endfor %}
+  tags = {
+  {% for key, value in common_tags.items() %}
+    {{key}} = "{{value}}"{% endfor %}
+    Environment  = local.environment
+    Application  = "aws-analytical-dataset-generation"
+  }
+
+  env_prefix = {
+    development = "dev."
+    qa          = "qa."
+    stage       = "stg."
+    integration = "int."
+    preprod     = "pre."
+    production  = ""
   }
 
   dataworks_domain_name = "{{dataworks_domain_name}}"
-
-  persistence_tag_value = {
-    development = "Ignore"
-    qa          = "Ignore"
-    integration = "Ignore"
-    preprod     = "Ignore"
-    production  = "Ignore"
-  }
-
-  auto_shutdown_tag_value = {
-    development = "False"
-    qa          = "False"
-    integration = "True"
-    preprod     = "False"
-    production  = "False"
-  }
-
-  overridden_tags = {
-    Role         = "repo_template_terraform"
-    Owner        = "dataworks-aws-ch"
-    Persistence  = local.persistence_tag_value[local.environment]
-    AutoShutdown = local.auto_shutdown_tag_value[local.environment]
-  }
-
-  common_repo_tags = "${merge(module.dataworks_common.common_tags, local.overridden_tags)}"
-
-  cidr_block = {
-  {%- for environment, ranges in cidr_block.items() %}
-      {{ environment }} = {
-        {%- for key, value in ranges.items() %}
-          {{ key }} = "{{ value }}"{% endfor %}
-      } {%- endfor %}
-  }
 }
-

@@ -10,7 +10,7 @@ spruce:
       - with_in: ci/jobs/ami-test/
     to: aviator_pipeline.yml
 fly:
-  name: aws-ch
+  name: dataworks-aws-ch
   target: aws-concourse
   config: aviator_pipeline.yml
   expose: true
