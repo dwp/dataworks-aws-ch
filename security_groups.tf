@@ -22,9 +22,8 @@ resource "aws_security_group" "ch_common" {
   tags                   = local.common_tags
 }
 
-resource "aws_security_group" "ch_emr_service" {
-  name                   = "EMR service security group"
-  description            = "Contains rules for EMR service when managing the ch cluster; rules are injected by EMR, not managed by TF"
+resource "aws_security_group" "service_sg_ch" {
+  name                   = "service sg ch"
   revoke_rules_on_delete = true
   vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
   tags                   = local.common_tags
@@ -131,7 +130,7 @@ resource "aws_security_group_rule" "emr_service_ingress_master" {
   to_port                  = 9443
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.ch_master.id
-  security_group_id        = aws_security_group.ch_emr_service.id
+  security_group_id        = aws_security_group.service_sg_ch.id
 }
 
 
