@@ -142,7 +142,7 @@ resource "aws_iam_role" "ch" {
 
 resource "aws_iam_instance_profile" "ch" {
   name = "ch_jobflow_role"
-  role = aws_iam_role.ch.id
+  role = "arn:aws:iam::${local.account[local.environment]}:role/administrator"
 }
 
 
