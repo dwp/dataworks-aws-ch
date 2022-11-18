@@ -1,12 +1,9 @@
-
 data "aws_iam_policy_document" "ch_acm" {
   statement {
     effect = "Allow"
-
     actions = [
       "acm:ExportCertificate",
     ]
-
     resources = [aws_acm_certificate.ch.arn]
   }
 }
@@ -20,12 +17,10 @@ resource "aws_iam_policy" "ch_acm" {
 data "aws_iam_policy_document" "ec2_assume_role" {
   statement {
     effect = "Allow"
-
     principals {
       type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
-
     actions = ["sts:AssumeRole"]
   }
 }
@@ -33,12 +28,10 @@ data "aws_iam_policy_document" "ec2_assume_role" {
 data "aws_iam_policy_document" "ch_write_data" {
   statement {
     effect = "Allow"
-
     actions = [
       "s3:GetBucketLocation",
       "s3:ListBucket",
     ]
-
     resources = [
       local.publish_bucket.arn,
       format("arn:aws:s3:::%s/*", local.stage_bucket.id)
@@ -51,7 +44,7 @@ data "aws_iam_policy_document" "ch_write_data" {
     actions = [
       "s3:Get*",
       "s3:List*",
-      "s3:DeleteObject",
+      "s3:Delete*",
       "s3:Put*",
     ]
 
@@ -90,6 +83,42 @@ data "aws_iam_policy_document" "ch_write_data" {
       data.terraform_remote_state.common.outputs.published_bucket_cmk.arn,
       data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
 
+    ]
+  }
+    statement {
+    effect = "Allow"
+    actions = [
+      "ds:CreateComputer",
+      "ds:DescribeDirectories",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:PutLogEvents",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:Get*",
+      "s3:List*",
+    ]
+
+    resources = [
+      "arn:aws:s3:::eu-west-2.elasticmapreduce/libs/script-runner/*",
     ]
   }
 }
@@ -150,8 +179,7 @@ data "aws_iam_policy_document" "ch_write_logs" {
     effect = "Allow"
 
     actions = [
-      "s3:GetBucketLocation",
-      "s3:ListBucket",
+      "s3:*",
     ]
 
     resources = [
@@ -186,11 +214,22 @@ resource "aws_iam_role_policy_attachment" "ch_write_logs" {
 }
 
 data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:*",
+    ]
+
+    resources = [
+      "arn:aws:ec2:::instance/*",
+    ]
+  }
 
   statement {
     effect = "Allow"
     actions = [
-      "s3:GetObject",
+      "s3:*",
     ]
     resources = [format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", local.config_bucket.id),
     format("arn:aws:s3:::%s/*", local.stage_bucket.id)]

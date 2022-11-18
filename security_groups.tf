@@ -221,3 +221,23 @@ resource "aws_security_group_rule" "hive_metastore_v2_from_ch" {
   security_group_id        = aws_security_group.ch_common.id
   source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
 }
+
+resource "aws_security_group_rule" "ch_to_hive_metastore_v2" {
+  description              = "ch to Hive Metastore v2"
+  type                     = "egress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ch_common.id
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
+}
+
+resource "aws_security_group_rule" "hive_metastore_v2_from_ch" {
+  description              = "Hive Metastore v2  from ch"
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ch_common.id
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
+}
