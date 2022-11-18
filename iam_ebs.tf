@@ -91,7 +91,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
     effect = "Allow"
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.aws_ch_emr_servie.arn, aws_iam_role.ch.arn]
+      identifiers = [aws_iam_role.aws_ch_emr_service.arn, aws_iam_role.ch.arn]
     }
 
     actions = [
@@ -109,7 +109,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
     effect = "Allow"
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.aws_ch_emr_servie.arn, aws_iam_role.ch.arn]
+      identifiers = [aws_iam_role.aws_ch_emr_service.arn, aws_iam_role.ch.arn]
     }
     actions   = ["kms:CreateGrant"]
     resources = ["*"]
