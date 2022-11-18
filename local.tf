@@ -209,14 +209,6 @@ locals {
     production  = "3000"
   }
 
-  hive_tez_sessions_per_queue = {
-    development = "10"
-    qa          = "10"
-    integration = "10"
-    preprod     = "35"
-    production  = "35"
-  }
-
 
   retry_max_attempts = {
     development = "10"
@@ -289,21 +281,8 @@ locals {
     preprod     = "35"
     production  = "35"
   }
-  hive_max_reducers = {
-    development = "1099"
-    qa          = "1099"
-    integration = "1099"
-    preprod     = "2000"
-    production  = "2000"
-  }
 
-  tez_am_resource_memory_mb = {
-    development = "1024"
-    qa          = "1024"
-    integration = "1024"
-    preprod     = "1024"
-    production  = "1024"
-  }
+
   hash_key                  = "Correlation_Id"
   range_key                 = "DataProduct"
   hash_id                   = ""
