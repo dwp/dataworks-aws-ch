@@ -162,12 +162,17 @@ locals {
   }
 
   environment = terraform.workspace == "default" ? "development" : terraform.workspace
-
+  common_tags = {
+    CreatedBy    = "terraform"
+    Owner        = "dataworks platform"
+    Persistence  = "Ignore"
+    AutoShutdown = "False"
+  }
   tags = {
   {% for key, value in common_tags.items() %}
     {{key}} = "{{value}}"{% endfor %}
     Environment  = local.environment
-    Application  = "aws-analytical-dataset-generation"
+    Application  = "ch"
   }
 
   env_prefix = {
