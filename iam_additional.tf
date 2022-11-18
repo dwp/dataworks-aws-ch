@@ -65,6 +65,20 @@ data "aws_iam_policy_document" "ch_write_data" {
     effect = "Allow"
 
     actions = [
+      "s3:Get*",
+      "s3:List*",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${local.mgt_certificate_bucket}*",
+      "arn:aws:s3:::${local.env_certificate_bucket}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
       "kms:Encrypt",
       "kms:Decrypt",
       "kms:ReEncrypt",
