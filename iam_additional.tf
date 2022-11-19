@@ -38,10 +38,14 @@ data "aws_iam_policy_document" "ch_write_data" {
   statement {
     effect = "Allow"
     actions = [
-      "kms:*",
+      "kms:Encrypt*",
+      "kms:Decrypt*",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Describe*",
+      "kms:Generate*",
     ]
-    resources = [
-      "*"]
+    resources = ["*"]
   }
   statement {
     effect = "Allow"
