@@ -42,7 +42,7 @@ resource "aws_iam_role" "aws_ch_emr_service" {
 # This is deprecated and needs a ticket to remove it
 resource "aws_iam_role_policy_attachment" "emr_attachment_old" {
   role       = aws_iam_role.aws_ch_emr_service.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEMRServicePolicy_v2"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
 }
 
 resource "aws_iam_policy" "emr_capacity_reservations" {
