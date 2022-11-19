@@ -68,9 +68,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
       identifiers = [data.aws_iam_role.aws_config.arn]
     }
     actions = [
-      "kms:Describe*",
-      "kms:Get*",
-      "kms:List*"
+      "kms:*",
     ]
     resources = ["*"]
   }
@@ -100,13 +98,8 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
       type        = "AWS"
       identifiers = [aws_iam_role.aws_ch_emr_service.arn, aws_iam_role.ch.arn]
     }
-    actions   = ["kms:CreateGrant"]
+    actions   = ["kms:*"]
     resources = ["*"]
-    condition {
-      test     = "Bool"
-      variable = "kms:GrantIsForAWSResource"
-      values   = ["true"]
-    }
   }
 }
 
@@ -127,13 +120,8 @@ data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
 
   statement {
     effect    = "Allow"
-    actions   = ["kms:CreateGrant"]
+    actions   = ["kms:*"]
     resources = [aws_kms_key.ch_ebs_cmk.arn]
-    condition {
-      test     = "Bool"
-      variable = "kms:GrantIsForAWSResource"
-      values   = ["true"]
-    }
   }
 }
 
