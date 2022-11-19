@@ -95,15 +95,6 @@ Configurations:
     "hive.exec.orc.default.stripe.size": "268435456"
     "hive.exec.orc.compression.strategy": "SPEED"
 
-- Classification: "mapred-site"
-  Properties:
-    "mapreduce.map.resource.vcores": "${map_reduce_vcores_per_task}"
-    "mapreduce.reduce.resource.vcores": "${map_reduce_vcores_per_task}"
-    "mapred.job.queue.name": "mrqueue"
-    "mapreduce.job.queuename": "mrqueue"
-    "yarn.app.mapreduce.am.resource.vcores": "${map_reduce_vcores_per_node}"
-    "mapred.reduce.tasks": "-1"
-
 - Classification: "tez-site"
   Properties:
     "tez.grouping.min-size": "${tez_grouping_min_size}"
