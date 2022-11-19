@@ -18,6 +18,6 @@ Steps:
     - "yarn"
     - "--conf"
     - "spark.yarn.submit.waitAppCompletion=true"
-    - "/opt/emr/steps/etl.py"
+    - "/opt/emr/etl.py"
     Jar: "command-runner.jar"
   ActionOnFailure: "${action_on_failure}"
