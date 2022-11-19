@@ -92,19 +92,18 @@ resource "aws_iam_policy" "ch_write_data" {
 
 
 resource "aws_iam_role" "ch" {
-  lifecycle { ignore_changes = [tags] }
-  name               = "chrole"
+  name               = "chRole"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
   tags = merge(
     local.common_tags,
     {
-      Name = "ch_role"
+      Name = "chRole"
     }
   )
 }
 
 resource "aws_iam_instance_profile" "ch" {
-  name = "jobflow"
+  name = "newname"
   role = aws_iam_role.ch.name
 }
 
