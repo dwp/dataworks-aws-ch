@@ -296,7 +296,7 @@ locals {
   e2e_log_group_name        = "/app/dataworks-aws-ch/e2e_logs"
   partitioning_column       = "date_sent"
   ch_writer                 = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer
-  s3_log_prefix             = "emr/dataworks-aws-ch-test"
+  s3_log_prefix             = "emr/dataworks-aws-ch"
   stage_bucket              = data.terraform_remote_state.common.outputs.data_ingress_stage_bucket
   config_bucket             = data.terraform_remote_state.common.outputs.config_bucket
   full_proxy                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url

@@ -20,7 +20,7 @@ Instances:
             SizeInGB: 100
             VolumeType: "gp2"
           VolumesPerInstance: 1
-      InstanceType: "m5.4xlarge"
+      InstanceType: "m5.2xlarge"
   - InstanceFleetType: "CORE"
     Name: CORE
     TargetOnDemandCapacity: 1
@@ -31,4 +31,4 @@ Instances:
             SizeInGB: 100
             VolumeType: "gp2"
           VolumesPerInstance: 1
-      InstanceType: "m5.4xlarge"
+      InstanceType: "m5.2xlarge"
