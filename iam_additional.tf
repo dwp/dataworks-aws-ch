@@ -105,7 +105,7 @@ resource "aws_iam_role" "ch" {
 
 resource "aws_iam_instance_profile" "ch_instance_profile" {
   name = "jobflow"
-  role = aws_iam_role.ch.arn
+  role = aws_iam_role.ch.name
 }
 
 
