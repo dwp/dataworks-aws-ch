@@ -85,7 +85,7 @@ resource "aws_s3_bucket_object" "configurations" {
       map_reduce_vcores_per_task                    = local.map_reduce_vcores_per_task[local.environment]
       map_reduce_vcores_per_node                    = local.map_reduce_vcores_per_node[local.environment]
       spark_executor_cores                          = 1
-      spark_executor_cores                          = local.spark_executor_cores[local.environment]
+      spark_executor_cores                          = local.spark_executor_cores
       spark_executor_memory                         = local.spark_executor_memory
       spark_executor_memoryOverhead                 = 2
       spark_driver_memory                           = local.spark_driver_memory
