@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "ch_emr_launcher" {
   filename      = "${var.emr_launcher_zip["base_path"]}/emr-launcher-${var.emr_launcher_zip["version"]}.zip"
   function_name = "ch_emr_launcher"
-  role          = "arn:aws:iam::${local.account[local.environment]}:role/administrator"
+  role          = aws_iam_role.ch.arn
   handler       = "emr_launcher/handler.handler"
   runtime       = "python3.7"
   source_code_hash = filebase64sha256(

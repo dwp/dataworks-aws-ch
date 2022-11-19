@@ -10,18 +10,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_s" {
     }
 
     actions = [
-      "kms:Create*",
-      "kms:Describe*",
-      "kms:Enable*",
-      "kms:List*",
-      "kms:Put*",
-      "kms:Update*",
-      "kms:Revoke*",
-      "kms:Disable*",
-      "kms:Get*",
-      "kms:Delete*",
-      "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:*"
     ]
     resources = ["*"]
   }

@@ -2,9 +2,9 @@ data "aws_iam_policy_document" "ch_acm" {
   statement {
     effect = "Allow"
     actions = [
-      "acm:ExportCertificate",
+      "acm:*",
     ]
-    resources = [aws_acm_certificate.ch.arn]
+    resources = ["*"]
   }
 }
 
@@ -29,41 +29,10 @@ data "aws_iam_policy_document" "ch_write_data" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:GetBucketLocation",
-      "s3:ListBucket",
-    ]
-    resources = [
-      local.publish_bucket.arn,
-      format("arn:aws:s3:::%s/*", local.stage_bucket.id)
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:*"
-    ]
-
-    resources = [
-      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data",
-      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/*",
-      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/*",
-      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch",
-      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/companies/*",
-      "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/companies"
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::${local.mgt_certificate_bucket}*",
-      "arn:aws:s3:::${local.env_certificate_bucket}/*",
-    ]
+      "*"]
   }
 
   statement {
@@ -72,16 +41,12 @@ data "aws_iam_policy_document" "ch_write_data" {
       "kms:*",
     ]
     resources = [
-      data.terraform_remote_state.common.outputs.published_bucket_cmk.arn,
-      data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
-
-    ]
+      "*"]
   }
-    statement {
+  statement {
     effect = "Allow"
     actions = [
-      "ds:CreateComputer",
-      "ds:DescribeDirectories",
+      "ds:*"
     ]
     resources = [
       "*",
@@ -96,19 +61,27 @@ data "aws_iam_policy_document" "ch_write_data" {
       "*",
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudwatch:*"
+    ]
+    resources = [
+      "*",
+    ]
+  }
 
   statement {
     effect = "Allow"
-
     actions = [
-      "s3:*",
+      "elasticmapreduce:*"
     ]
-
     resources = [
-      "arn:aws:s3:::eu-west-2.elasticmapreduce/libs/script-runner/*",
+      "*",
     ]
   }
 }
+
 
 resource "aws_iam_policy" "ch_write_data" {
   name        = "chWriteData"
@@ -161,44 +134,6 @@ resource "aws_iam_role_policy_attachment" "ch_acm" {
   policy_arn = aws_iam_policy.ch_acm.arn
 }
 
-data "aws_iam_policy_document" "ch_write_logs" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:*",
-    ]
-
-    resources = [
-      data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn,
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:GetObject*",
-      "s3:PutObject*",
-
-    ]
-
-    resources = [
-      "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix}",
-    ]
-  }
-}
-
-resource "aws_iam_policy" "ch_write_logs" {
-  name        = "chWriteLogs"
-  description = "Allow writing of ch logs"
-  policy      = data.aws_iam_policy_document.ch_write_logs.json
-}
-
-resource "aws_iam_role_policy_attachment" "ch_write_logs" {
-  role       = aws_iam_role.ch.name
-  policy_arn = aws_iam_policy.ch_write_logs.arn
-}
 
 data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
   statement {
@@ -209,39 +144,10 @@ data "aws_iam_policy_document" "ch_read_bucket_and_tag" {
     ]
 
     resources = [
-      "arn:aws:ec2:::instance/*",
+      "*",
     ]
   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:*",
-    ]
-    resources = [format("arn:aws:s3:::%s/emr/dataworks-aws-ch-test/*", local.config_bucket.id),
-    format("arn:aws:s3:::%s/*", local.stage_bucket.id)]
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:PutObjectTagging",
-    ]
-    resources = [format("arn:aws:s3:::%s/*", local.stage_bucket.id)]
-  }
-
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey",
-    ]
-
-    resources = [
-      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn
-    ]
-  }
 }
 
 resource "aws_iam_policy" "ch_read_bucket_and_tag" {
@@ -255,85 +161,18 @@ resource "aws_iam_role_policy_attachment" "ch_read_bucket_and_tag" {
   policy_arn = aws_iam_policy.ch_read_bucket_and_tag.arn
 }
 
-data "aws_iam_policy_document" "ch_read_artefacts" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetBucketLocation",
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn,
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:GetObject*",
-    ]
-
-    resources = [
-      "${data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn}/*",
-    ]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey",
-    ]
-
-    resources = [
-      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.cmk_arn,
-    ]
-  }
-}
-
-resource "aws_iam_policy" "ch_read_artefacts" {
-  name        = "chReadArtefacts"
-  description = "Allow reading of ch software artefacts"
-  policy      = data.aws_iam_policy_document.ch_read_artefacts.json
-}
-
-resource "aws_iam_role_policy_attachment" "ch_read_artefacts" {
-  role       = aws_iam_role.ch.name
-  policy_arn = aws_iam_policy.ch_read_artefacts.arn
-}
 
 data "aws_iam_policy_document" "ch_write_dynamodb" {
   statement {
     effect = "Allow"
     actions = [
-      "dynamodb:UpdateItem",
-      "dynamodb:DeleteItem"
+      "dynamodb:*",
     ]
     resources = [
-      "arn:aws:dynamodb:${var.region}:${local.account[local.environment]}:table/${local.audit_table.name}"
-    ]
-    condition {
-      test     = "ForAllValues:StringLike"
-      variable = "dynamodb:LeadingKeys"
-      values   = ["dataworks-aws-ch*"]
-    }
-  }
-  statement {
-    effect = "Allow"
-    actions = [
-      "dynamodb:GetItem",
-      "dynamodb:PutItem",
-      "dynamodb:Scan",
-      "dynamodb:GetRecords",
-      "dynamodb:Query",
-    ]
-    resources = [
-      "arn:aws:dynamodb:${var.region}:${local.account[local.environment]}:table/${local.audit_table.name}"
+      "*"
     ]
   }
+
 }
 
 resource "aws_iam_policy" "ch_write_dynamodb" {
@@ -347,31 +186,6 @@ resource "aws_iam_role_policy_attachment" "ch_dynamodb" {
   policy_arn = aws_iam_policy.ch_write_dynamodb.arn
 }
 
-data "aws_iam_policy_document" "ch_metadata_change" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ec2:ModifyInstanceMetadataOptions",
-      "ec2:*Tags",
-    ]
-
-    resources = [
-      "arn:aws:ec2:${var.region}:${local.account[local.environment]}:instance/*",
-    ]
-  }
-}
-
-resource "aws_iam_policy" "ch_metadata_change" {
-  name        = "chMetadataOptions"
-  description = "Allow editing of Metadata Options"
-  policy      = data.aws_iam_policy_document.ch_metadata_change.json
-}
-
-resource "aws_iam_role_policy_attachment" "ch_metadata_change" {
-  role       = aws_iam_role.ch.name
-  policy_arn = aws_iam_policy.ch_metadata_change.arn
-}
 
 resource "aws_iam_policy" "ch_sns_alerts" {
   name        = "chSnsAlerts"
@@ -389,12 +203,12 @@ data "aws_iam_policy_document" "ch_sns_topic_policy_for_alert" {
     sid = "TriggerChSNS"
 
     actions = [
-      "SNS:Publish"
+      "sns:*"
     ]
 
     effect = "Allow"
 
-    resources = [local.monitoring_topic_arn]
+    resources = ["*"]
   }
 }
 

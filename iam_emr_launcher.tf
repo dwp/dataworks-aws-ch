@@ -21,17 +21,17 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:GetObject",
+      "s3:*",
     ]
-    resources = [format("arn:aws:s3:::%s/*", local.config_bucket.id)]
+    resources = ["*"]
   }
   statement {
     effect = "Allow"
     actions = [
-      "kms:Decrypt",
+      "kms:*",
     ]
     resources = [
-      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn
+      "*"
     ]
   }
 }
@@ -40,8 +40,7 @@ data "aws_iam_policy_document" "ch_emr_launcher_runjobflow_policy" {
   statement {
     effect = "Allow"
     actions = [
-      "elasticmapreduce:RunJobFlow",
-      "elasticmapreduce:AddTags",
+      "elasticmapreduce:*",
     ]
     resources = [
       "*"
@@ -110,11 +109,11 @@ data "aws_iam_policy_document" "ch_emr_launcher_getsecrets" {
     effect = "Allow"
 
     actions = [
-      "secretsmanager:GetSecretValue",
+      "secretsmanager:*",
     ]
 
     resources = [
-      data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer.secret_arn,
+      "*",
     ]
   }
 }
