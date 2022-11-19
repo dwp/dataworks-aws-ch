@@ -30,3 +30,5 @@ Tags:
   Value: "ch"
 - Key: "Name"
   Value: "dataworks-aws-ch"
+- Key: "for-use-with-amazon-emr-managed-policies"
+  Value: "true"
