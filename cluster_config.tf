@@ -92,6 +92,7 @@ resource "aws_s3_bucket_object" "configurations" {
       spark_driver_cores                            = local.spark_driver_cores
       spark_executor_instances                      = 50
       spark_default_parallelism                     = local.spark_default_parallelism
+      spark_kyro_buffer                             = "128m"
     }
   )
 }
