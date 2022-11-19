@@ -61,6 +61,7 @@ meta:
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init
+              terraform apply -destroy -target="aws_iam_instance_profile.ch_jobflow_role" -auto-approve
               terraform plan -out terraform.plan
               terraform apply -auto-approve terraform.plan
           dir: dataworks-aws-ch

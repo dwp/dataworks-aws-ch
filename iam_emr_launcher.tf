@@ -1,6 +1,6 @@
 
 resource "aws_iam_role" "ch_emr_launcher_lambda_role" {
-  name               = "ch_emr_launcher_lambda_role"
+  name               = "ch_emr_launcher"
   assume_role_policy = data.aws_iam_policy_document.ch_emr_launcher_assume_policy.json
 }
 

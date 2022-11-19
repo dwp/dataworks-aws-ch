@@ -3,7 +3,7 @@ resource "aws_lambda_function" "ch_emr_launcher" {
   function_name = "ch_emr_launcher"
   role          = aws_iam_role.ch_emr_launcher_lambda_role.arn
   handler       = "emr_launcher/handler.handler"
-  runtime       = "python3.8"
+  runtime       = "python3.7"
   source_code_hash = filebase64sha256(
     format(
       "%s/emr-launcher-%s.zip",
