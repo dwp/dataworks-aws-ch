@@ -8,31 +8,7 @@ Configurations:
     "yarn.nodemanager.pmem-check-enabled": "false"
     "yarn.acl.enable": "true"
     "yarn.resourcemanager.scheduler.monitor.enable": "true"
-    "yarn.resourcemanager.scheduler.class": "org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler"
 
-- Classification: "capacity-scheduler"
-  Properties:
-    "yarn.scheduler.capacity.root.queues": "default,appqueue,mrqueue"
-    "yarn.scheduler.capacity.maximum-am-resource-percent": "0.9"
-    "yarn.scheduler.capacity.resource-calculator": "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator"
-    "yarn.scheduler.capacity.root.default.capacity": "5"
-    "yarn.scheduler.capacity.root.default.maximum-capacity": "10"
-    "yarn.scheduler.capacity.root.default.acl_submit_applications": ""
-    "yarn.scheduler.capacity.root.appqueue.capacity": "25"
-    "yarn.scheduler.capacity.root.appqueue.acl_submit_applications": "*"
-    "yarn.scheduler.capacity.root.appqueue.maximum-capacity": "90"
-    "yarn.scheduler.capacity.root.appqueue.state": "RUNNING"
-    "yarn.scheduler.capacity.root.appqueue.ordering-policy": "fair"
-    "yarn.scheduler.capacity.root.appqueue.ordering-policy.fair.enable-size-based-weight": "true"
-    "yarn.scheduler.capacity.root.appqueue.default-application-priority": "1"
-    "yarn.scheduler.capacity.root.mrqueue.ordering-policy.fair.enable-size-based-weight": "true"
-    "yarn.scheduler.capacity.root.mrqueue.capacity": "70"
-    "yarn.scheduler.capacity.root.mrqueue.acl_submit_applications": "*"
-    "yarn.scheduler.capacity.root.mrqueue.maximum-capacity": "90"
-    "yarn.scheduler.capacity.root.mrqueue.state": "RUNNING"
-    "yarn.scheduler.capacity.root.mrqueue.ordering-policy": "fair"
-    "yarn.scheduler.capacity.root.mrqueue.ordering-policy.fair.enable-size-based-weight": "true"
-    "yarn.scheduler.capacity.root.mrqueue.default-application-priority": "2"
 
 - Classification: "hive-site"
   Properties:
@@ -117,9 +93,3 @@ Configurations:
   Properties:
     "fs.s3.maxConnections": "10000"
     "fs.s3.maxRetries": "20"
-
-- Classification: "hadoop-env"
-  Configurations:
-  - Classification: "export"
-    Properties:
-      "HADOOP_HEAPSIZE": "2048"
