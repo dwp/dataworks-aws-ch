@@ -69,7 +69,7 @@ resource "aws_s3_bucket_object" "configurations" {
       tez_am_launch_cmd_opts                        = local.tez_am_launch_cmd_opts[local.environment]
       tez_runtime_io_sort_mb                        = local.tez_runtime_io_sort_mb[local.environment]
       tez_runtime_unordered_output_buffer_size_mb   = local.tez_runtime_unordered_output_buffer_size_mb[local.environment]
-      hive_metsatore_username                       = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.clive_writer.username
+      hive_metastore_username                       = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.clive_writer.username
       hive_metastore_pwd                            = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.clive_writer.secret_name
       hive_metastore_endpoint                       = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.endpoint
       hive_metastore_database_name                  = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.database_name
