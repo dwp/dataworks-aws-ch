@@ -88,8 +88,8 @@ resource "aws_s3_bucket_object" "configurations" {
       spark_executor_cores                          = local.spark_executor_cores[local.environment]
       spark_executor_memory                         = local.spark_executor_memory
       spark_yarn_executor_memory_overhead           = 2
-      spark_driver_memory                           = local.spark_driver_memory[local.environment]
-      spark_driver_cores                            = local.spark_driver_cores[local.environment]
+      spark_driver_memory                           = local.spark_driver_memory
+      spark_driver_cores                            = local.spark_driver_cores
       spark_executor_instances                      = 50
       spark_default_parallelism                     = local.spark_default_parallelism
     }
