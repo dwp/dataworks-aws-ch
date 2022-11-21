@@ -38,7 +38,7 @@ chmod u+x /opt/emr/cloudwatch.sh
     sudo /opt/emr/cloudwatch.sh \
     "${cwa_metrics_collection_interval}" "${cwa_namespace}"  "${cwa_log_group_name}" \
     "${aws_default_region}" "${cwa_bootstrap_loggrp_name}" "${cwa_steps_loggrp_name}" \
-    "${cwa_yarnspark_loggrp_name}" "${cwa_tests_loggrp_name}" "${cwa_chrony_loggrp_name}"
+    "${cwa_yarnspark_loggrp_name}" "${cwa_tests_loggrp_name}"
     
     log_wrapper_message "Getting the DKS Certificate Details "
     
