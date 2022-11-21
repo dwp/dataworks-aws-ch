@@ -17,7 +17,7 @@ variable "emr_release" {
 
 variable "emr_ami_id" {
   description = "AMI ID to use for the EMR nodes"
-  default     = "ami-050b863a496b98587"
+  default     = "ami-088b0a83763e28809"
 }
 
 variable "emr_instance_type_master" {
@@ -35,18 +35,18 @@ variable "emr_instance_type_core" {
     development = "m5.4xlarge"
     qa          = "m5.4xlarge"
     integration = "m5.4xlarge"
-    preprod     = "r5.4xlarge"
-    production  = "r5.4xlarge"
+    preprod     = "m5.4xlarge"
+    production  = "m5.4xlarge"
   }
 }
 
 variable "emr_core_instance_count" {
   default = {
-    development = "10"
-    qa          = "10"
-    integration = "10"
-    preprod     = "39"
-    production  = "39"
+    development = "5"
+    qa          = "5"
+    integration = "5"
+    preprod     = "5"
+    production  = "5"
   }
 }
 
@@ -56,7 +56,7 @@ variable "spark_kyro_buffer" {
     qa          = "128m"
     integration = "128m"
     preprod     = "2047m"
-    production  = "2047m" # Max amount allowed
+    production  = "2047m"
   }
 }
 
@@ -65,8 +65,8 @@ variable "spark_executor_instances" {
     development = 50
     qa          = 50
     integration = 50
-    preprod     = 116
-    production  = 600 # More than possible as it won't create them if no core or memory available
+    preprod     = 50
+    production  = 50
   }
 }
 

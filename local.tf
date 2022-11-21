@@ -237,14 +237,6 @@ locals {
     production  = "5"
   }
 
-  retry_enabled = {
-    development = "true"
-    qa          = "true"
-    integration = "true"
-    preprod     = "true"
-    production  = "true"
-  }
-
   ch_processes = {
     development = "10"
     qa          = "10"
