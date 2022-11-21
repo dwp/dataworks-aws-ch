@@ -230,14 +230,6 @@ locals {
     production  = "-Xmx6556m"
   }
 
-  use_capacity_reservation = {
-    development = false
-    qa          = false
-    integration = false
-    preprod     = false
-    production  = false
-  }
-
 
   # See https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/
   spark_executor_cores = {
