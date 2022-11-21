@@ -11,7 +11,7 @@ resource "aws_s3_bucket_object" "download_scripts_sh" {
   content = templatefile("${path.module}/bootstrap_actions/download-scripts.sh",
     {
       VERSION                 = local.ch_version[local.environment]
-      CH_LOG_LEVEL           = local.ch_log_level[local.environment]
+      CH_LOG_LEVEL            = local.ch_log_level[local.environment]
       ENVIRONMENT_NAME        = local.environment
       S3_COMMON_LOGGING_SHELL = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, data.terraform_remote_state.common.outputs.application_logging_common_file.s3_id)
       S3_LOGGING_SHELL        = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.logging_script.key)

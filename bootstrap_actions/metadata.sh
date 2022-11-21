@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+(
 RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://169.254.169.254/latest/meta-data)
 
 if [[ "$RESPONSE" == "200" ]]; then
@@ -13,3 +15,5 @@ if [[ "$RESPONSE" == "200" ]]; then
     --http-tokens optional \
     --http-endpoint enabled
 fi
+
+) >> /var/log/dataworks-aws-ch/metadata.log 2>&1

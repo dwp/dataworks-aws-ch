@@ -62,6 +62,12 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
             "timezone": "UTC"
           },
           {
+            "file_path": "/var/log/dataworks-aws-ch/metadata.log",
+            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
+            "log_stream_name": "{instance_id}-metadata.log",
+            "timezone": "UTC"
+          },
+          {
             "file_path": "/var/log/dataworks-aws-ch/installer.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-installer.log",
