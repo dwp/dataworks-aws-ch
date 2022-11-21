@@ -30,10 +30,6 @@ variable "emr_instance_type_master" {
   }
 }
 
-variable "region" {
-  default = "eu-west-2"
-}
-
 variable "emr_instance_type_core" {
   default = {
     development = "m5.4xlarge"
