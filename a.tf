@@ -343,7 +343,7 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
       "s3:GetObject*",
     ]
     resources = [
-      format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", data.terraform_remote_state.common.outputs.config_bucket.id)
+      data.terraform_remote_state.common.outputs.config_bucket.id
     ]
   }
   statement {
