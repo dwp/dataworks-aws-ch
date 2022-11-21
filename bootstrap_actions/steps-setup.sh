@@ -20,10 +20,14 @@ set -euo pipefail
     touch /opt/emr/steps/__init__.py
 
     log_wrapper_message "Moving python steps files to steps folder"
-    aws s3 cp "${etl_script}" /opt/emr/steps/.
-    aws s3 cp "${etl_e2e}" /opt/emr/steps.
-    aws s3 cp "${etl_e2e_conf}" /opt/emr/steps.
-    aws s3 cp "${etl_conf}" /opt/emr/steps.
+    aws s3 cp "${etl_script}" /opt/emr/steps/etl.py
+    aws s3 cp "${etl_e2e}" /opt/emr/steps/e2e.py
+    aws s3 cp "${etl_e2e_conf}" /opt/emr/steps/e2e_test_conf.tpl
+    aws s3 cp "${etl_conf}" /opt/emr/steps/conf.tpl
+    sudo chown -R hadoop:hadoop /opt/emr/steps
+
+    log_wrapper_message "Scripts in steps folder:"
+    ls  /opt/emr/steps
 
 ) >> /var/log/dataworks-aws-ch/steps-setup.log 2>&1
 
