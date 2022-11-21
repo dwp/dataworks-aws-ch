@@ -21,9 +21,9 @@ set -euo pipefail
 
     log_wrapper_message "Moving python steps files to steps folder"
     aws s3 cp "${etl_script}" /opt/emr/steps/.
-    aws s3 cp "${etl_e2e}" /opt/emr/.
-    aws s3 cp "${etl_e2e_conf}" /opt/emr/.
-    aws s3 cp "${etl_conf}" /opt/emr/.
+    aws s3 cp "${etl_e2e}" /opt/emr/steps.
+    aws s3 cp "${etl_e2e_conf}" /opt/emr/steps.
+    aws s3 cp "${etl_conf}" /opt/emr/steps.
 
 ) >> /var/log/dataworks-aws-ch/steps-setup.log 2>&1
 
