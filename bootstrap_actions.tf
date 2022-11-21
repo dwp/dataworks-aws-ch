@@ -11,7 +11,7 @@ resource "aws_s3_bucket_object" "download_scripts_sh" {
   content = templatefile("${path.module}/bootstrap_actions/download-scripts.sh",
     {
       VERSION                 = local.ch_version[local.environment]
-      ADG_LOG_LEVEL           = local.ch_log_level[local.environment]
+      CH_LOG_LEVEL           = local.ch_log_level[local.environment]
       ENVIRONMENT_NAME        = local.environment
       S3_COMMON_LOGGING_SHELL = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, data.terraform_remote_state.common.outputs.application_logging_common_file.s3_id)
       S3_LOGGING_SHELL        = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.logging_script.key)
@@ -24,7 +24,7 @@ resource "aws_s3_bucket_object" "emr_setup_sh" {
   key    = "component/dataworks-aws-ch/emr-setup.sh"
   content = templatefile("${path.module}/bootstrap_actions/emr-setup.sh",
     {
-      ADG_LOG_LEVEL                   = local.ch_log_level[local.environment]
+      CH_LOG_LEVEL                   = local.ch_log_level[local.environment]
       aws_default_region              = "eu-west-2"
       full_proxy                      = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url
       full_no_proxy                   = local.no_proxy
@@ -48,8 +48,8 @@ resource "aws_s3_bucket_object" "emr_setup_sh" {
 
 resource "aws_s3_bucket_object" "ssm_script" {
   bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
-  key     = "component/dataworks-aws-ch/start_ssm.sh"
-  content = file("${path.module}/bootstrap_actions/start_ssm.sh")
+  key     = "component/dataworks-aws-ch/start-ssm.sh"
+  content = file("${path.module}/bootstrap_actions/start-ssm.sh")
 }
 
 resource "aws_s3_bucket_object" "installer_sh" {
@@ -85,7 +85,7 @@ resource "aws_s3_bucket_object" "cloudwatch_sh" {
 resource "aws_s3_bucket_object" "hive_setup_sh" {
   bucket = data.terraform_remote_state.common.outputs.config_bucket.id
   key    = "component/dataworks-aws-ch/steps-setup.sh"
-  content = templatefile("${path.module}/bootstrap_actions/hive-setup.sh",
+  content = templatefile("${path.module}/bootstrap_actions/steps-setup.sh",
     {
       etl_script      = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.etl.key)
       etl_e2e         = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.e2e.key)

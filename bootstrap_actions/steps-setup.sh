@@ -8,7 +8,7 @@ set -euo pipefail
     source /opt/emr/resume_step.sh
 
     function log_wrapper_message() {
-        log_ch_message "$1" "hive-setup.sh" "$$" "Running as: $USER"
+        log_ch_message "$1" "steps-setup.sh" "$$" "Running as: $USER"
     }
 
     log_wrapper_message "Moving maria db jar to spark jars folder"
@@ -28,6 +28,6 @@ set -euo pipefail
     aws s3 cp "${etl_e2e_conf}" /opt/emr/.
     aws s3 cp "${etl_conf}" /opt/emr/.
 
-) >> /var/log/adg/hive-setup.log 2>&1
+) >> /var/log/dataworks-aws-ch/steps-setup.log 2>&1
 
 

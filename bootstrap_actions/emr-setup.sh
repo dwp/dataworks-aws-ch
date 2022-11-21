@@ -19,7 +19,7 @@ chmod u+x /opt/emr/status_metrics.sh
     source /opt/emr/logging.sh
     
     function log_wrapper_message() {
-        log_adg_message "$${1}" "emr-setup.sh" "$${PID}" "$${@:2}" "Running as: ,$USER"
+        log_ch_message "$${1}" "emr-setup.sh" "$${PID}" "$${@:2}" "Running as: ,$USER"
     }
     
     log_wrapper_message "Setting up the Proxy"
@@ -37,7 +37,7 @@ chmod u+x /opt/emr/status_metrics.sh
     export HTTPS_PROXY="$FULL_PROXY"
     export no_proxy="$FULL_NO_PROXY"
     export NO_PROXY="$FULL_NO_PROXY"
-    export ADG_LOG_LEVEL="${ADG_LOG_LEVEL}"
+    export CH_LOG_LEVEL="${ADG_LOG_LEVEL}"
     
     PUB_BUCKET_ID="${publish_bucket_id}"
     echo "export PUBLISH_BUCKET_ID=$PUB_BUCKET_ID" | sudo tee /etc/profile.d/buckets.sh
@@ -90,7 +90,7 @@ EOF
     --truststore-password "$TRUSTSTORE_PASSWORD" \
     --truststore-aliases "${truststore_aliases}" \
     --truststore-certs "${truststore_certs}" \
-    --jks-only true >> /var/log/adg/acm-cert-retriever.log 2>&1
+    --jks-only true >> /var/log/dataworks-aws-ch/acm-cert-retriever.log 2>&1
     
     #shellcheck disable=SC2024
     sudo -E acm-cert-retriever \
@@ -98,7 +98,7 @@ EOF
     --acm-key-passphrase "$ACM_KEY_PASSWORD" \
     --private-key-alias "${private_key_alias}" \
     --truststore-aliases "${truststore_aliases}" \
-    --truststore-certs "${truststore_certs}"  >> /var/log/adg/acm-cert-retriever.log 2>&1 # No sudo needed to write to file, so redirect is fine
+    --truststore-certs "${truststore_certs}"  >> /var/log/dataworks-aws-ch/acm-cert-retriever.log 2>&1 # No sudo needed to write to file, so redirect is fine
     
     cd /etc/pki/ca-trust/source/anchors/ || exit
 

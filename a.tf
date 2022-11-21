@@ -116,7 +116,7 @@ resource "aws_iam_role_policy_attachment" "emr_attachment_old" {
 }
 
 resource "aws_iam_policy" "emr_capacity_reservations" {
-  name        = "ADGCapacityReservations"
+  name        = "CHCapacityReservations"
   description = "Allow usage of capacity reservations"
   policy      = data.aws_iam_policy_document.emr_capacity_reservations.json
 }
@@ -184,7 +184,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
   }
 }
 
-resource "aws_iam_policy" "analytical_dataset_ebs_cmk_encrypt" {
+resource "aws_iam_policy" "ch_ebs_cmk_encrypt" {
   name        = "CHEbsCmkEncrypt"
   description = "Allow encryption and decryption using the CH EBS CMK"
   policy      = data.aws_iam_policy_document.ch_ebs_cmk_encrypt.json
@@ -192,7 +192,7 @@ resource "aws_iam_policy" "analytical_dataset_ebs_cmk_encrypt" {
 
 resource "aws_iam_role_policy_attachment" "ch_emr_service_ebs_cmk" {
   role       = aws_iam_role.ch_emr_service.name
-  policy_arn = aws_iam_policy.analytical_dataset_ebs_cmk_encrypt.arn
+  policy_arn = aws_iam_policy.ch_ebs_cmk_encrypt.arn
 }
 
 data "aws_iam_policy_document" "ch_ebs_cmk" {
@@ -297,7 +297,7 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
   }
 
   statement {
-    sid    = "AllowADGServiceGrant"
+    sid    = "AllowCHServiceGrant"
     effect = "Allow"
 
     principals {
