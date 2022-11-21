@@ -1,14 +1,23 @@
 ---
 BootstrapActions:
+- Name: "download-scripts"
+  ScriptBootstrapAction:
+    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/download-scripts.sh"
+- Name: "start-ssm"
+  ScriptBootstrapAction:
+    Path: "file:/var/ci/start-ssm.sh"
+- Name: "metadata"
+  ScriptBootstrapAction:
+    Path: "file:/var/ci/metadata.sh"
 - Name: "emr-setup"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/emr-setup.sh"
+    Path: "file:/var/ci/emr-setup.sh"
 - Name: "installer"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/installer.sh"
-- Name: "download_steps_code"
+    Path: "file:/var/ci/installer.sh"
+- Name: "steps-setup"
   ScriptBootstrapAction:
-    Path: "s3://${s3_config_bucket}/component/dataworks-aws-ch/download_steps_code.sh"
+    Path: "file:/var/ci/steps-setup.sh"
 Steps:
 - Name: "etl"
   HadoopJarStep:
@@ -18,6 +27,6 @@ Steps:
     - "yarn"
     - "--conf"
     - "spark.yarn.submit.waitAppCompletion=true"
-    - "/opt/emr/etl.py"
+    - "/opt/emr/steps/etl.py"
     Jar: "command-runner.jar"
   ActionOnFailure: "${action_on_failure}"

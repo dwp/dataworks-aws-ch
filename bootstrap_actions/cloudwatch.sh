@@ -9,6 +9,8 @@ cwa_bootstrap_loggrp_name="$5"
 cwa_steps_loggrp_name="$6"
 cwa_yarnspark_loggrp_name="$7"
 cwa_tests_loggrp_name="$8"
+cwa_chrony_loggrp_name="$9"
+
 
 export AWS_DEFAULT_REGION="$${4}"
 
@@ -27,13 +29,13 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
           {
             "file_path": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
             "log_group_name": "$${cwa_log_group_name}",
-            "log_stream_name": "amazon-cloudwatch-agent.log",
+            "log_stream_name": "{instance_id}-amazon-cloudwatch-agent.log",
             "timezone": "UTC"
           },
           {
             "file_path": "/var/log/messages",
             "log_group_name": "$${cwa_log_group_name}",
-            "log_stream_name": "messages",
+            "log_stream_name": "{instance_id}-messages",
             "timezone": "UTC"
           },
           {
@@ -51,31 +53,49 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
           {
             "file_path": "/var/log/dataworks-aws-ch/acm-cert-retriever.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
-            "log_stream_name": "acm-cert-retriever.log",
+            "log_stream_name": "{instance_id}-acm-cert-retriever.log",
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/dataworks-aws-ch/nohup.log",
+            "file_path": "/var/log/dataworks-aws-ch/hive-setup.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
-            "log_stream_name": "{instance_id}-nohup.log",
+            "log_stream_name": "{instance_id}-hive-setup.log",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/dataworks-aws-ch/installer.log",
+            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
+            "log_stream_name": "{instance_id}-installer.log",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/dataworks-aws-ch/emr-setup.log",
+            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
+            "log_stream_name": "{instance_id}-emr-setup.log",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/dataworks-aws-ch/install-pycrypto.log",
+            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
+            "log_stream_name": "{instance_id}-install-pycrypto.log",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/dataworks-aws-ch/download-scripts.log",
+            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
+            "log_stream_name": "{instance_id}-download-scripts.log",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/dataworks-aws-ch/install-requests.log",
+            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
+            "log_stream_name": "{instance_id}-install-requests.log",
             "timezone": "UTC"
           },
           {
             "file_path": "/var/log/dataworks-aws-ch/install-boto3.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
             "log_stream_name": "{instance_id}-install-boto3.log",
-            "timezone": "UTC"
-          },
-          {
-            "file_path": "/var/log/dataworks-aws-ch/download_steps_code.log",
-            "log_group_name": "$${cwa_bootstrap_loggrp_name}",
-            "log_stream_name": "{instance_id}-download_steps_code.log",
-            "timezone": "UTC"
-          },
-          {
-            "file_path": "/var/log/dataworks-aws-ch/e2e-tests.log",
-            "log_group_name": "$${cwa_tests_loggrp_name}",
-            "log_stream_name": "{instance_id}-e2e-tests.log",
             "timezone": "UTC"
           },
           {
@@ -87,19 +107,25 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
           {
             "file_path": "/var/log/hadoop-yarn/containers/application_*/container_*/stdout**",
             "log_group_name": "$${cwa_yarnspark_loggrp_name}",
-            "log_stream_name": "spark-stdout.log",
+            "log_stream_name": "{instance_id}-spark-stdout.log",
             "timezone": "UTC"
           },
           {
             "file_path": "/var/log/hadoop-yarn/containers/application_*/container_*/stderr**",
             "log_group_name": "$${cwa_yarnspark_loggrp_name}",
-            "log_stream_name": "spark-stderror.log",
+            "log_stream_name": "{instance_id}-spark-stderror.log",
             "timezone": "UTC"
           },
           {
             "file_path": "/var/log/hadoop-yarn/yarn-yarn-nodemanager**.log",
             "log_group_name": "$${cwa_yarnspark_loggrp_name}",
-            "log_stream_name": "yarn_nodemanager.log",
+            "log_stream_name": "{instance_id}-yarn-nodemanager.log",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/dataworks-aws-ch/e2e-tests.log",
+            "log_group_name": "$${cwa_tests_loggrp_name}",
+            "log_stream_name": "{instance_id}-e2e-tests.log",
             "timezone": "UTC"
           }
         ]
@@ -121,5 +147,5 @@ usermod -s /sbin/nologin cwagent
 start amazon-cloudwatch-agent
 %{ else ~}
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-sudo systemctl start amazon-cloudwatch-agent
+systemctl start amazon-cloudwatch-agent
 %{ endif ~}

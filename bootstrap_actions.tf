@@ -1,17 +1,34 @@
-resource "aws_s3_bucket_object" "emr_setup_sh" {
-  bucket = local.config_bucket.id
-  key    = "component/dataworks-aws-ch/emr-setup.sh"
-  content = templatefile("bootstrap_actions/emr-setup.sh",
+resource "aws_s3_bucket_object" "metadata_script" {
+  bucket     = data.terraform_remote_state.common.outputs.config_bucket.id
+  key        = "component/dataworks-aws-ch/metadata.sh"
+  content    = file("${path.module}/bootstrap_actions/metadata.sh")
+  kms_key_id = data.terraform_remote_state.common.outputs.config_bucket_cmk.arn
+}
+
+resource "aws_s3_bucket_object" "download_scripts_sh" {
+  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
+  key    = "component/dataworks-aws-ch/download-scripts.sh"
+  content = templatefile("${path.module}/bootstrap_actions/download-scripts.sh",
     {
-      VERSION                         = local.ch_version[local.environment]
-      LOG_LEVEL                       = local.ch_log_level[local.environment]
-      ENVIRONMENT_NAME                = local.environment
-      S3_COMMON_LOGGING_SHELL         = format("s3://%s/%s", local.config_bucket.id, data.terraform_remote_state.common.outputs.application_logging_common_file.s3_id)
-      S3_LOGGING_SHELL                = format("s3://%s/%s", local.config_bucket.id, aws_s3_bucket_object.logging_script.key)
-      aws_default_region              = var.region
-      full_proxy                      = local.full_proxy
+      VERSION                 = local.ch_version[local.environment]
+      ADG_LOG_LEVEL           = local.ch_log_level[local.environment]
+      ENVIRONMENT_NAME        = local.environment
+      S3_COMMON_LOGGING_SHELL = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, data.terraform_remote_state.common.outputs.application_logging_common_file.s3_id)
+      S3_LOGGING_SHELL        = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.logging_script.key)
+      scripts_location        = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, "component/dataworks-aws-ch")
+  })
+}
+
+resource "aws_s3_bucket_object" "emr_setup_sh" {
+  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
+  key    = "component/dataworks-aws-ch/emr-setup.sh"
+  content = templatefile("${path.module}/bootstrap_actions/emr-setup.sh",
+    {
+      ADG_LOG_LEVEL                   = local.ch_log_level[local.environment]
+      aws_default_region              = "eu-west-2"
+      full_proxy                      = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url
       full_no_proxy                   = local.no_proxy
-      acm_cert_arn                    = aws_acm_certificate.ch.arn
+      acm_cert_arn                    = aws_acm_certificate.ch_cert.arn
       private_key_alias               = "private_key"
       truststore_aliases              = join(",", var.truststore_aliases)
       truststore_certs                = "s3://${local.env_certificate_bucket}/ca_certificates/dataworks/dataworks_root_ca.pem,s3://${data.terraform_remote_state.mgmt_ca.outputs.public_cert_bucket.id}/ca_certificates/dataworks/dataworks_root_ca.pem"
@@ -19,49 +36,61 @@ resource "aws_s3_bucket_object" "emr_setup_sh" {
       cwa_metrics_collection_interval = 60
       cwa_namespace                   = local.cw_agent_namespace
       cwa_log_group_name              = local.cw_agent_log_group_name
-      S3_CLOUDWATCH_SHELL             = format("s3://%s/%s", local.config_bucket.id, aws_s3_bucket_object.cloudwatch_sh.key)
+      S3_CLOUDWATCH_SHELL             = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.cloudwatch_sh.key)
       cwa_bootstrap_loggrp_name       = local.bootstrap_log_group_name
       cwa_steps_loggrp_name           = local.steps_log_group_name
-      cwa_yarnspark_loggrp_name       = local.yarn_spark_log_group_name
       cwa_tests_loggrp_name           = local.e2e_log_group_name
+      cwa_yarnspark_loggrp_name       = local.yarn_spark_log_group_name
       name                            = local.emr_cluster_name
+      publish_bucket_id               = data.terraform_remote_state.common.outputs.published_bucket.id
   })
 }
 
+resource "aws_s3_bucket_object" "ssm_script" {
+  bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
+  key     = "component/dataworks-aws-ch/start_ssm.sh"
+  content = file("${path.module}/bootstrap_actions/start_ssm.sh")
+}
+
 resource "aws_s3_bucket_object" "installer_sh" {
-  bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/installer.sh"
-  content = templatefile("bootstrap_actions/installer.sh",
+  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
+  key    = "component/dataworks-aws-ch/installer.sh"
+  content = templatefile("${path.module}/bootstrap_actions/installer.sh",
     {
-      full_proxy    = local.full_proxy
+      full_proxy    = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url
       full_no_proxy = local.no_proxy
     }
   )
 }
 
+
 resource "aws_s3_bucket_object" "logging_script" {
-  bucket  = local.config_bucket.id
-  key     = "${local.ch_s3_prefix}/logging.sh"
-  content = file("bootstrap_actions/logging.sh")
+  bucket  = data.terraform_remote_state.common.outputs.config_bucket.id
+  key     = "component/dataworks-aws-ch/logging.sh"
+  content = file("${path.module}/bootstrap_actions/logging.sh")
 }
 
+
 resource "aws_s3_bucket_object" "cloudwatch_sh" {
-  bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/cloudwatch.sh"
-  content = templatefile("bootstrap_actions/cloudwatch.sh",
+  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
+  key    = "component/dataworks-aws-ch/cloudwatch.sh"
+  content = templatefile("${path.module}/bootstrap_actions/cloudwatch.sh",
     {
       emr_release = var.emr_release[local.environment]
     }
   )
 }
 
-resource "aws_s3_bucket_object" "download_steps_code" {
-  bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/download_steps_code.sh"
-  content = templatefile("bootstrap_actions/download_steps_code.sh",
+
+resource "aws_s3_bucket_object" "hive_setup_sh" {
+  bucket = data.terraform_remote_state.common.outputs.config_bucket.id
+  key    = "component/dataworks-aws-ch/steps-setup.sh"
+  content = templatefile("${path.module}/bootstrap_actions/hive-setup.sh",
     {
-      s3_bucket_id     = local.config_bucket.id
-      s3_bucket_prefix = local.ch_s3_prefix
+      etl_script      = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.etl.key)
+      etl_e2e         = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.e2e.key)
+      etl_e2e_conf    = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.e2e_conf.key)
+      etl_conf        = format("s3://%s/%s", data.terraform_remote_state.common.outputs.config_bucket.id, aws_s3_bucket_object.steps_conf.key)
     }
   )
 }

@@ -44,23 +44,3 @@ resource "aws_s3_bucket_object" "e2e" {
     }
   )
 }
-
-resource "aws_s3_bucket_object" "test_etl" {
-  bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/tests/test_etl.py"
-  content = templatefile("tests/test_etl.py",
-    {
-    }
-  )
-}
-
-resource "aws_s3_bucket_object" "test_conf" {
-  bucket = local.config_bucket.id
-  key    = "${local.ch_s3_prefix}/tests/unit_test_conf.tpl"
-  content = templatefile("tests/unit_test_conf.tpl",
-    {
-      partitioning_column = local.partitioning_column
-      column_names        = local.column_names
-    }
-  )
-}

@@ -54,6 +54,17 @@ locals {
     "ssmmessages",
   "sts"]
   no_proxy = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
+  emr_subnet_non_capacity_reserved_environments = data.terraform_remote_state.common.outputs.aws_ec2_non_capacity_reservation_region
+
+  emr_capacity_reservation_preference     = local.use_capacity_reservation[local.environment] == true ? "open" : "none"
+  emr_capacity_reservation_usage_strategy = local.use_capacity_reservation[local.environment] == true ? "use-capacity-reservations-first" : ""
+  hive_metastore_backend = {
+    development = "aurora"
+    qa          = "aurora"
+    integration = "aurora"
+    preprod     = "aurora"
+    production  = "aurora"
+  }
 
   ebs_emrfs_em = {
     EncryptionConfiguration = {
@@ -282,6 +293,14 @@ locals {
     production  = "35"
   }
 
+  env_prefix = {
+    development = "dev."
+    qa          = "qa."
+    stage       = "stg."
+    integration = "int."
+    preprod     = "pre."
+    production  = ""
+  }
 
   hash_key                  = "Correlation_Id"
   range_key                 = "DataProduct"
@@ -315,19 +334,51 @@ locals {
   ch_s3_prefix                     = "component/dataworks-aws-ch"
   publish_bucket                   = data.terraform_remote_state.common.outputs.published_bucket
   logstore_bucket                  = data.terraform_remote_state.security-tools.outputs.logstore_bucket
-  spark_num_cores_per_node         = var.emr_num_cores_per_core_instance[local.environment] - 1
-  spark_num_nodes                  = local.core_instance_count + local.task_instance_count + local.master_instance_count
-  spark_executor_cores             = var.num_cores_per_executor[local.environment]
-  spark_total_avaliable_cores      = local.spark_num_cores_per_node * local.spark_num_nodes
-  spark_total_avaliable_executors  = ceil(local.spark_total_avaliable_cores / local.spark_executor_cores) - 1
-  spark_num_executors_per_instance = ceil(local.spark_total_avaliable_executors / local.spark_num_nodes)
-  spark_executor_total_memory      = floor(var.ram_memory_per_node[local.environment] / local.spark_num_executors_per_instance) - 10
-  spark_executor_memoryOverhead    = ceil(local.spark_executor_total_memory * 0.10)
-  spark_executor_memory            = floor(local.spark_executor_total_memory - local.spark_executor_memoryOverhead)
-  spark_driver_memory              = 1
-  spark_driver_cores               = 1
-  spark_default_parallelism        = local.spark_num_executors_per_instance * local.spark_executor_cores * 2
   spark_kyro_buffer                = var.spark_kyro_buffer[local.environment]
+
+  spark_executor_cores = {
+    development = 1
+    qa          = 1
+    integration = 1
+    preprod     = 1
+    production  = 1
+  }
+
+  spark_executor_memory = {
+    development = 10
+    qa          = 10
+    integration = 10
+    preprod     = 37
+    production  = 35 # At least 20 or more per executor core
+  }
+
+  spark_yarn_executor_memory_overhead = {
+    development = 2
+    qa          = 2
+    integration = 2
+    preprod     = 5
+    production  = 7
+  }
+
+  spark_driver_memory = {
+    development = 5
+    qa          = 5
+    integration = 5
+    preprod     = 37
+    production  = 10 # Doesn't need as much as executors
+  }
+
+  spark_driver_cores = {
+    development = 1
+    qa          = 1
+    integration = 1
+    preprod     = 1
+    production  = 1
+  }
+  spark_executor_instances  = var.spark_executor_instances[local.environment]
+  spark_default_parallelism = local.spark_executor_instances * local.spark_executor_cores[local.environment] * 2
+  spark_kyro_buffer         = var.spark_kyro_buffer[local.environment]
+
   column_names                     = <<EOF
   {"CompanyName":"string","CompanyNumber":"int","RegAddress.CareOf":"string","RegAddress.POBox":"string","RegAddress.AddressLine1":"string", "RegAddress.AddressLine2":"string","RegAddress.PostTown":"string","RegAddress.County":"string","RegAddress.Country":"string","RegAddress.PostCode":"string","CompanyCategory":"string","CompanyStatus":"string","CountryOfOrigin":"string","DissolutionDate":"string","IncorporationDate":"string","Accounts.AccountRefDay":"string","Accounts.AccountRefMonth":"string","Accounts.NextDueDate":"string","Accounts.LastMadeUpDate":"string","Accounts.AccountCategory":"string","Returns.NextDueDate":"string","Returns.LastMadeUpDate":"string","Mortgages.NumMortCharges":"int","Mortgages.NumMortOutstanding":"int","Mortgages.NumMortPartSatisfied":"int","Mortgages.NumMortSatisfied":"int","SICCode.SicText_1":"string","SICCode.SicText_2":"string","SICCode.SicText_3":"string","SICCode.SicText_4":"string","LimitedPartnerships.NumGenPartners":"int","LimitedPartnerships.NumLimPartners":"int","URI":"string","PreviousName_1.CONDATE":"string", "PreviousName_1.CompanyName":"string", "PreviousName_2.CONDATE":"string", "PreviousName_2.CompanyName":"string","PreviousName_3.CONDATE":"string", "PreviousName_3.CompanyName":"string","PreviousName_4.CONDATE":"string", "PreviousName_4.CompanyName":"string","PreviousName_5.CONDATE":"string", "PreviousName_5.CompanyName":"string","PreviousName_6.CONDATE":"string", "PreviousName_6.CompanyName":"string","PreviousName_7.CONDATE":"string", "PreviousName_7.CompanyName":"string","PreviousName_8.CONDATE":"string", "PreviousName_8.CompanyName":"string","PreviousName_9.CONDATE":"string", "PreviousName_9.CompanyName":"string","PreviousName_10.CONDATE":"string", "PreviousName_10.CompanyName":"string","ConfStmtNextDueDate":"string", "ConfStmtLastMadeUpDate":"string"}
   EOF

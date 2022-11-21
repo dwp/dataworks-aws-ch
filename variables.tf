@@ -20,26 +20,55 @@ variable "emr_ami_id" {
   default     = "ami-050b863a496b98587"
 }
 
-variable "emr_instance_type" {
+variable "emr_instance_type_master" {
   default = {
-    development = "m5.2xlarge"
-    qa          = "m5.2xlarge"
-    integration = "m5.2xlarge"
+    development = "m5.4xlarge"
+    qa          = "m5.4xlarge"
+    integration = "m5.4xlarge"
     preprod     = "m5.4xlarge"
     production  = "m5.4xlarge"
   }
 }
 
-variable "emr_core_instance_count" {
+variable "emr_instance_type_core" {
   default = {
-    development = "1"
-    qa          = "1"
-    integration = "1"
-    preprod     = "2"
-    production  = "2"
+    development = "m5.4xlarge"
+    qa          = "m5.4xlarge"
+    integration = "m5.4xlarge"
+    preprod     = "r5.4xlarge"
+    production  = "r5.4xlarge"
   }
 }
 
+variable "emr_core_instance_count" {
+  default = {
+    development = "10"
+    qa          = "10"
+    integration = "10"
+    preprod     = "39"
+    production  = "39"
+  }
+}
+
+variable "spark_kyro_buffer" {
+  default = {
+    development = "128m"
+    qa          = "128m"
+    integration = "128m"
+    preprod     = "2047m"
+    production  = "2047m" # Max amount allowed
+  }
+}
+
+variable "spark_executor_instances" {
+  default = {
+    development = 50
+    qa          = 50
+    integration = 50
+    preprod     = 116
+    production  = 600 # More than possible as it won't create them if no core or memory available
+  }
+}
 
 variable "num_cores_per_executor" {
   default = {
@@ -78,16 +107,6 @@ variable "emr_num_cores_per_core_instance" {
     integration = "8"
     preprod     = "8"
     production  = "8"
-  }
-}
-
-variable "spark_kyro_buffer" {
-  default = {
-    development = "128"
-    qa          = "128"
-    integration = "128"
-    preprod     = "2047m"
-    production  = "2047m"
   }
 }
 
