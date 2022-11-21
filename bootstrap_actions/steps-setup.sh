@@ -3,9 +3,6 @@ set -euo pipefail
 (
     # Import the logging functions
     source /opt/emr/logging.sh
-    
-    # Import and execute resume step function
-    source /opt/emr/resume_step.sh
 
     function log_wrapper_message() {
         log_ch_message "$1" "steps-setup.sh" "$$" "Running as: $USER"
