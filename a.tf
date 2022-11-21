@@ -703,3 +703,13 @@ resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
+
+resource "aws_iam_role_policy_attachment" "emr_attachment" {
+  role       = aws_iam_role.ch_emr_service.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
+}
+
+resource "aws_iam_role_policy_attachment" "kickstart_adg_emr_service_ebs_cmk" {
+  role       = aws_iam_role.ch_emr_service.name
+  policy_arn = aws_iam_policy.ch_ebs_cmk_encrypt.arn
+}
