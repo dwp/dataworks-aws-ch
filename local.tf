@@ -1,11 +1,5 @@
 locals {
   emr_cluster_name        = "ch"
-  master_instance_type    = "m5.2xlarge"
-  master_instance_count   = 1
-  core_instance_type      = "m5.2xlarge"
-  core_instance_count     = 1
-  task_instance_type      = "m5.2xlarge"
-  task_instance_count     = 0
   dks_port                = 8443
   env_certificate_bucket  = "dw-${local.environment}-public-certificates"
   mgt_certificate_bucket  = "dw-${local.management_account[local.environment]}-public-certificates"
@@ -52,7 +46,7 @@ locals {
     "secretsmanager",
     "ssm",
     "ssmmessages",
-  "sts"]
+    "sts"]
   no_proxy = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
   emr_subnet_non_capacity_reserved_environments = data.terraform_remote_state.common.outputs.aws_ec2_non_capacity_reservation_region
 
@@ -86,165 +80,6 @@ locals {
     }
   }
 
-  hive_tez_container_size = {
-    development = "2688"
-    qa          = "2688"
-    integration = "2688"
-    preprod     = "15360"
-    production  = "15360"
-  }
-
-  # 0.8 of hive_tez_container_size
-  hive_tez_java_opts = {
-    development = "-Xmx2150m"
-    qa          = "-Xmx2150m"
-    integration = "-Xmx2150m"
-    preprod     = "-Xmx12288m"
-    production  = "-Xmx12288m"
-  }
-
-  # 0.33 of hive_tez_container_size
-  hive_auto_convert_join_noconditionaltask_size = {
-    development = "896"
-    qa          = "896"
-    integration = "896"
-    preprod     = "5068"
-    production  = "5068"
-  }
-
-  hive_bytes_per_reducer = {
-    development = "13421728"
-    qa          = "13421728"
-    integration = "13421728"
-    preprod     = "13421728"
-    production  = "13421728"
-  }
-
-  tez_runtime_unordered_output_buffer_size_mb = {
-    development = "268"
-    qa          = "268"
-    integration = "268"
-    preprod     = "2148"
-    production  = "2148"
-  }
-
-  # 0.4 of hive_tez_container_size
-  tez_runtime_io_sort_mb = {
-    development = "1075"
-    qa          = "1075"
-    integration = "1075"
-    preprod     = "6144"
-    production  = "6144"
-  }
-
-  tez_grouping_min_size = {
-    development = "1342177"
-    qa          = "1342177"
-    integration = "1342177"
-    preprod     = "52428800"
-    production  = "52428800"
-  }
-
-  tez_grouping_max_size = {
-    development = "268435456"
-    qa          = "268435456"
-    integration = "268435456"
-    preprod     = "1073741824"
-    production  = "1073741824"
-  }
-
-  tez_am_resource_memory_mb = {
-    development = "1024"
-    qa          = "1024"
-    integration = "1024"
-    preprod     = "12288"
-    production  = "12288"
-  }
-
-  # 0.8 of hive_tez_container_size
-  tez_task_resource_memory_mb = {
-    development = "1024"
-    qa          = "1024"
-    integration = "1024"
-    preprod     = "8196"
-    production  = "8196"
-  }
-
-  # 0.8 of tez_am_resource_memory_mb
-  tez_am_launch_cmd_opts = {
-    development = "-Xmx819m"
-    qa          = "-Xmx819m"
-    integration = "-Xmx819m"
-    preprod     = "-Xmx6556m"
-    production  = "-Xmx6556m"
-  }
-
-  // This value should be the same as yarn.scheduler.maximum-allocation-mb
-  llap_daemon_yarn_container_mb = {
-    development = "57344"
-    qa          = "57344"
-    integration = "57344"
-    preprod     = "385024"
-    production  = "385024"
-  }
-
-  llap_number_of_instances = {
-    development = "5"
-    qa          = "5"
-    integration = "5"
-    preprod     = "20"
-    production  = "29"
-  }
-
-  map_reduce_vcores_per_node = {
-    development = "5"
-    qa          = "5"
-    integration = "5"
-    preprod     = "15"
-    production  = "15"
-  }
-
-  map_reduce_vcores_per_task = {
-    development = "1"
-    qa          = "1"
-    integration = "1"
-    preprod     = "5"
-    production  = "5"
-  }
-
-  hive_max_reducers = {
-    development = "1099"
-    qa          = "1099"
-    integration = "1099"
-    preprod     = "3000"
-    production  = "3000"
-  }
-
-
-  retry_max_attempts = {
-    development = "10"
-    qa          = "10"
-    integration = "10"
-    preprod     = "12"
-    production  = "12"
-  }
-
-  retry_attempt_delay_seconds = {
-    development = "5"
-    qa          = "5"
-    integration = "5"
-    preprod     = "5"
-    production  = "5"
-  }
-
-  ch_processes = {
-    development = "10"
-    qa          = "10"
-    integration = "10"
-    preprod     = "20"
-    production  = "20"
-  }
-
   keep_cluster_alive = {
     development = true
     qa          = true
@@ -264,25 +99,9 @@ locals {
   step_fail_action = {
     development = "CONTINUE"
     qa          = "CONTINUE"
-    integration = "CONTINUE"
+    integration = "TERMINATE_CLUSTER"
     preprod     = "CONTINUE"
-    production  = "CONTINUE"
-  }
-  hive_compaction_threads = {
-    development = "1"
-    qa          = "1"
-    integration = "1"
-    preprod     = "12"
-    production  = "12"
-    # vCPU in the instance / 8
-  }
-
-  hive_tez_sessions_per_queue = {
-    development = "10"
-    qa          = "10"
-    integration = "10"
-    preprod     = "35"
-    production  = "35"
+    production  = "TERMINATE_CLUSTER"
   }
 
   hash_key                  = "Correlation_Id"
@@ -318,11 +137,114 @@ locals {
   publish_bucket                   = data.terraform_remote_state.common.outputs.published_bucket
   logstore_bucket                  = data.terraform_remote_state.security-tools.outputs.logstore_bucket
 
+  emr_engine_version = {
+    development = "5.7.mysql_aurora.2.10.2"
+    qa          = "5.7.mysql_aurora.2.10.2"
+    integration = "5.7.mysql_aurora.2.10.2"
+    preprod     = "5.7.mysql_aurora.2.10.2"
+    production  = "5.7.mysql_aurora.2.10.2"
+  }
+
+  hive_tez_container_size = {
+    development = "2688"
+    qa          = "2688"
+    integration = "2688"
+    preprod     = "2688"
+    production  = "15360"
+  }
+
+  # 0.8 of hive_tez_container_size
+  hive_tez_java_opts = {
+    development = "-Xmx2150m"
+    qa          = "-Xmx2150m"
+    integration = "-Xmx2150m"
+    preprod     = "-Xmx2150m"
+    production  = "-Xmx12288m"
+  }
+
+  # 0.33 of hive_tez_container_size
+  hive_auto_convert_join_noconditionaltask_size = {
+    development = "896"
+    qa          = "896"
+    integration = "896"
+    preprod     = "896"
+    production  = "5068"
+  }
+
+  tez_runtime_unordered_output_buffer_size_mb = {
+    development = "268"
+    qa          = "268"
+    integration = "268"
+    preprod     = "268"
+    production  = "2148"
+  }
+
+  # 0.4 of hive_tez_container_size
+  tez_runtime_io_sort_mb = {
+    development = "1075"
+    qa          = "1075"
+    integration = "1075"
+    preprod     = "1075"
+    production  = "6144"
+  }
+
+  tez_grouping_min_size = {
+    development = "1342177"
+    qa          = "1342177"
+    integration = "1342177"
+    preprod     = "1342177"
+    production  = "52428800"
+  }
+
+  tez_grouping_max_size = {
+    development = "268435456"
+    qa          = "268435456"
+    integration = "268435456"
+    preprod     = "268435456"
+    production  = "1073741824"
+  }
+
+  tez_am_resource_memory_mb = {
+    development = "1024"
+    qa          = "1024"
+    integration = "1024"
+    preprod     = "1024"
+    production  = "12288"
+  }
+
+  # 0.8 of hive_tez_container_size
+  tez_task_resource_memory_mb = {
+    development = "1024"
+    qa          = "1024"
+    integration = "1024"
+    preprod     = "1024"
+    production  = "8196"
+  }
+
+  # 0.8 of tez_am_resource_memory_mb
+  tez_am_launch_cmd_opts = {
+    development = "-Xmx819m"
+    qa          = "-Xmx819m"
+    integration = "-Xmx819m"
+    preprod     = "-Xmx819m"
+    production  = "-Xmx6556m"
+  }
+
+  use_capacity_reservation = {
+    development = false
+    qa          = false
+    integration = false
+    preprod     = false
+    production  = false
+  }
+
+
+  # See https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/
   spark_executor_cores = {
     development = 1
     qa          = 1
     integration = 1
-    preprod     = 1
+    preprod     = 5
     production  = 1
   }
 
@@ -330,15 +252,15 @@ locals {
     development = 10
     qa          = 10
     integration = 10
-    preprod     = 35
-    production  = 35
+    preprod     = 37
+    production  = 35 # At least 20 or more per executor core
   }
 
   spark_yarn_executor_memory_overhead = {
     development = 2
     qa          = 2
     integration = 2
-    preprod     = 7
+    preprod     = 5
     production  = 7
   }
 
@@ -346,19 +268,22 @@ locals {
     development = 5
     qa          = 5
     integration = 5
-    preprod     = 10
-    production  = 10
+    preprod     = 37
+    production  = 10 # Doesn't need as much as executors
   }
 
   spark_driver_cores = {
     development = 1
     qa          = 1
     integration = 1
-    preprod     = 1
+    preprod     = 5
     production  = 1
   }
+
   spark_executor_instances  = var.spark_executor_instances[local.environment]
   spark_default_parallelism = local.spark_executor_instances * local.spark_executor_cores[local.environment] * 2
+  spark_kyro_buffer         = var.spark_kyro_buffer[local.environment]
+
 
   column_names                     = <<EOF
   {"CompanyName":"string","CompanyNumber":"int","RegAddress.CareOf":"string","RegAddress.POBox":"string","RegAddress.AddressLine1":"string", "RegAddress.AddressLine2":"string","RegAddress.PostTown":"string","RegAddress.County":"string","RegAddress.Country":"string","RegAddress.PostCode":"string","CompanyCategory":"string","CompanyStatus":"string","CountryOfOrigin":"string","DissolutionDate":"string","IncorporationDate":"string","Accounts.AccountRefDay":"string","Accounts.AccountRefMonth":"string","Accounts.NextDueDate":"string","Accounts.LastMadeUpDate":"string","Accounts.AccountCategory":"string","Returns.NextDueDate":"string","Returns.LastMadeUpDate":"string","Mortgages.NumMortCharges":"int","Mortgages.NumMortOutstanding":"int","Mortgages.NumMortPartSatisfied":"int","Mortgages.NumMortSatisfied":"int","SICCode.SicText_1":"string","SICCode.SicText_2":"string","SICCode.SicText_3":"string","SICCode.SicText_4":"string","LimitedPartnerships.NumGenPartners":"int","LimitedPartnerships.NumLimPartners":"int","URI":"string","PreviousName_1.CONDATE":"string", "PreviousName_1.CompanyName":"string", "PreviousName_2.CONDATE":"string", "PreviousName_2.CompanyName":"string","PreviousName_3.CONDATE":"string", "PreviousName_3.CompanyName":"string","PreviousName_4.CONDATE":"string", "PreviousName_4.CompanyName":"string","PreviousName_5.CONDATE":"string", "PreviousName_5.CompanyName":"string","PreviousName_6.CONDATE":"string", "PreviousName_6.CompanyName":"string","PreviousName_7.CONDATE":"string", "PreviousName_7.CompanyName":"string","PreviousName_8.CONDATE":"string", "PreviousName_8.CompanyName":"string","PreviousName_9.CONDATE":"string", "PreviousName_9.CompanyName":"string","PreviousName_10.CONDATE":"string", "PreviousName_10.CompanyName":"string","ConfStmtNextDueDate":"string", "ConfStmtLastMadeUpDate":"string"}

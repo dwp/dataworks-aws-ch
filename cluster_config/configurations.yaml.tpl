@@ -98,6 +98,7 @@ Configurations:
   Properties:
     "fs.s3.maxConnections": "10000"
     "fs.s3.maxRetries": "20"
+
 - Classification: "spark-env"
   Configurations:
   - Classification: "export"
