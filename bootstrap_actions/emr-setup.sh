@@ -1,18 +1,9 @@
 #!/usr/bin/env bash
 echo "Installing scripts"
 $(which aws) s3 cp "${S3_CLOUDWATCH_SHELL}"            /opt/emr/cloudwatch.sh
-$(which aws) s3 cp "${S3_SEND_SNS_NOTIFICATION}"       /opt/emr/send_notification.py
-$(which aws) s3 cp "${RESUME_STEP_SHELL}"              /opt/emr/resume_step.sh
-$(which aws) s3 cp "${update_dynamo_sh}"               /opt/emr/update_dynamo.sh
-$(which aws) s3 cp "${dynamo_schema_json}"             /opt/emr/dynamo_schema.json
-$(which aws) s3 cp "${status_metrics_sh}"              /opt/emr/status_metrics.sh
 
 echo "Changing the Permissions"
 chmod u+x /opt/emr/cloudwatch.sh
-chmod u+x /opt/emr/send_notification.py
-chmod u+x /opt/emr/resume_step.sh
-chmod u+x /opt/emr/update_dynamo.sh
-chmod u+x /opt/emr/status_metrics.sh
 
 (
     # Import the logging functions
@@ -61,9 +52,8 @@ chmod u+x /opt/emr/status_metrics.sh
     export KEYSTORE_PASSWORD="$key_store_pass"
     export PRIVATE_KEY_PASSWORD="$key_pass"
     export ACM_KEY_PASSWORD="$acm_pass"
-    
-    #sudo mkdir -p /opt/emr
-    #sudo chown hadoop:hadoop /opt/emr
+    sudo mkdir -p /opt/emr
+    sudo chown hadoop:hadoop /opt/emr
     touch /opt/emr/dks.properties
 cat >> /opt/emr/dks.properties <<EOF
 identity.store.alias=${private_key_alias}
@@ -130,7 +120,5 @@ EOF
     
     log_wrapper_message "Completed the emr-setup.sh step of the EMR Cluster"
 
-    /opt/emr/update_dynamo.sh &
-    /opt/emr/status_metrics.sh &
 
 ) >> /var/log/dataworks-aws-ch/emr-setup.log 2>&1
