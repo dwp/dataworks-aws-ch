@@ -30,33 +30,7 @@ resource "aws_security_group" "ch_emr_service" {
   tags                   = local.common_tags
 }
 
-resource "aws_security_group" "metastore_rds_user_lambda" {
-  name                   = "Metastore RDS password rotator"
-  description            = "Contains rules for the lambda used for rotating Aurora passwords"
-  revoke_rules_on_delete = true
-  vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
-  tags                   = local.common_tags
-}
 
-resource "aws_security_group_rule" "egress_lambda_https_to_vpc_endpoints" {
-  description              = "Allow HTTPS traffic to VPC endpoints"
-  from_port                = 443
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.metastore_rds_user_lambda.id
-  to_port                  = 443
-  type                     = "egress"
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.interface_vpce_sg_id
-}
-
-resource "aws_security_group_rule" "ingress_lambda_https_vpc_endpoints_from_emr" {
-  description              = "Allow HTTPS traffic from rds password rotator lambda"
-  from_port                = 443
-  protocol                 = "tcp"
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.interface_vpce_sg_id
-  to_port                  = 443
-  type                     = "ingress"
-  source_security_group_id = aws_security_group.metastore_rds_user_lambda.id
-}
 
 resource "aws_security_group_rule" "egress_https_to_vpc_endpoints" {
   description              = "Allow HTTPS traffic to VPC endpoints"
@@ -364,4 +338,24 @@ resource "aws_security_group_rule" "emr_server_ingress_workspaces_slave_region_s
   protocol          = "tcp"
   cidr_blocks       = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.cidr_block]
   security_group_id = aws_security_group.ch_slave.id
+}
+
+resource "aws_security_group_rule" "ingress_adg_metastore_v2" {
+  description              = "Allow mysql traffic to Aurora RDS from ch"
+  from_port                = 3306
+  protocol                 = "tcp"
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
+  to_port                  = 3306
+  type                     = "ingress"
+  source_security_group_id = aws_security_group.ch_common.id
+}
+
+resource "aws_security_group_rule" "egress_adg_metastore_v2" {
+  description              = "Allow mysql traffic to Aurora RDS to ch"
+  from_port                = 3306
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ch_common.id
+  to_port                  = 3306
+  type                     = "egress"
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.security_group.id
 }
