@@ -607,6 +607,7 @@ data "aws_iam_policy_document" "ch_metadata_change" {
       "arn:aws:ec2:::instance/*",
     ]
   }
+
   statement {
     effect = "Allow"
     actions = [
@@ -617,6 +618,7 @@ data "aws_iam_policy_document" "ch_metadata_change" {
       "*",
     ]
   }
+
   statement {
     effect = "Allow"
     actions = [
