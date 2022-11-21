@@ -293,15 +293,6 @@ locals {
     production  = "35"
   }
 
-  env_prefix = {
-    development = "dev."
-    qa          = "qa."
-    stage       = "stg."
-    integration = "int."
-    preprod     = "pre."
-    production  = ""
-  }
-
   hash_key                  = "Correlation_Id"
   range_key                 = "DataProduct"
   hash_id                   = ""
