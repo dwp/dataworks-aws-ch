@@ -32,7 +32,6 @@ resource "aws_cloudwatch_log_group" "ch_steps_log_group" {
 }
 
 resource "aws_cloudwatch_log_group" "ch_yarn_spark_log_group" {
-  lifecycle { ignore_changes = [tags] }
   name              = local.yarn_spark_log_group_name
   retention_in_days = 180
   tags = merge(

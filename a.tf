@@ -232,8 +232,8 @@ data "aws_iam_policy_document" "ch_ebs_cmk" {
     }
 
     actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
+      "kms:Encrypt*",
+      "kms:Decrypt*",
       "kms:ImportKeyMaterial",
       "kms:ReEncryptFrom",
     ]

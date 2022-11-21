@@ -1,5 +1,4 @@
 resource "aws_kms_key" "ch_ebs_cmk" {
-  lifecycle { ignore_changes = [tags, policy] }
   description             = "Encrypts ch EBS volumes"
   deletion_window_in_days = 7
   is_enabled              = true
