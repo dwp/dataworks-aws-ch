@@ -334,7 +334,6 @@ locals {
   ch_s3_prefix                     = "component/dataworks-aws-ch"
   publish_bucket                   = data.terraform_remote_state.common.outputs.published_bucket
   logstore_bucket                  = data.terraform_remote_state.security-tools.outputs.logstore_bucket
-  spark_kyro_buffer                = var.spark_kyro_buffer[local.environment]
 
   spark_executor_cores = {
     development = 1
@@ -377,7 +376,6 @@ locals {
   }
   spark_executor_instances  = var.spark_executor_instances[local.environment]
   spark_default_parallelism = local.spark_executor_instances * local.spark_executor_cores[local.environment] * 2
-  spark_kyro_buffer         = var.spark_kyro_buffer[local.environment]
 
   column_names                     = <<EOF
   {"CompanyName":"string","CompanyNumber":"int","RegAddress.CareOf":"string","RegAddress.POBox":"string","RegAddress.AddressLine1":"string", "RegAddress.AddressLine2":"string","RegAddress.PostTown":"string","RegAddress.County":"string","RegAddress.Country":"string","RegAddress.PostCode":"string","CompanyCategory":"string","CompanyStatus":"string","CountryOfOrigin":"string","DissolutionDate":"string","IncorporationDate":"string","Accounts.AccountRefDay":"string","Accounts.AccountRefMonth":"string","Accounts.NextDueDate":"string","Accounts.LastMadeUpDate":"string","Accounts.AccountCategory":"string","Returns.NextDueDate":"string","Returns.LastMadeUpDate":"string","Mortgages.NumMortCharges":"int","Mortgages.NumMortOutstanding":"int","Mortgages.NumMortPartSatisfied":"int","Mortgages.NumMortSatisfied":"int","SICCode.SicText_1":"string","SICCode.SicText_2":"string","SICCode.SicText_3":"string","SICCode.SicText_4":"string","LimitedPartnerships.NumGenPartners":"int","LimitedPartnerships.NumLimPartners":"int","URI":"string","PreviousName_1.CONDATE":"string", "PreviousName_1.CompanyName":"string", "PreviousName_2.CONDATE":"string", "PreviousName_2.CompanyName":"string","PreviousName_3.CONDATE":"string", "PreviousName_3.CompanyName":"string","PreviousName_4.CONDATE":"string", "PreviousName_4.CompanyName":"string","PreviousName_5.CONDATE":"string", "PreviousName_5.CompanyName":"string","PreviousName_6.CONDATE":"string", "PreviousName_6.CompanyName":"string","PreviousName_7.CONDATE":"string", "PreviousName_7.CompanyName":"string","PreviousName_8.CONDATE":"string", "PreviousName_8.CompanyName":"string","PreviousName_9.CONDATE":"string", "PreviousName_9.CompanyName":"string","PreviousName_10.CONDATE":"string", "PreviousName_10.CompanyName":"string","ConfStmtNextDueDate":"string", "ConfStmtLastMadeUpDate":"string"}
