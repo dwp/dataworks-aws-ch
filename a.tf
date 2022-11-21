@@ -340,7 +340,7 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:GetObject",
+      "s3:GetObject*",
     ]
     resources = [
       format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", data.terraform_remote_state.common.outputs.config_bucket.id)
@@ -512,7 +512,7 @@ data "aws_iam_policy_document" "ch_metadata_change" {
     ]
 
     resources = [
-      "arn:aws:ec2:${data.aws_region.current.name}:${local.account[local.environment]}:instance/*",
+      "arn:aws:ec2::${local.account[local.environment]}:instance/*",
     ]
   }
 }
@@ -523,7 +523,23 @@ resource "aws_iam_policy" "ch_metadata_change" {
   policy      = data.aws_iam_policy_document.ch_metadata_change.json
 }
 
-resource "aws_iam_role_policy_attachment" "analytical_dataset_generator_metadata_change" {
+resource "aws_iam_role_policy_attachment" "ch_instance_profile_role_metadata_change" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = aws_iam_policy.ch_metadata_change.arn
+}
+
+
+resource "aws_iam_role_policy_attachment" "ch_emr_launcher_policy_execution" {
+  role       = aws_iam_role.ch_emr_launcher_lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
+resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
