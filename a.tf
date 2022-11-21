@@ -500,3 +500,30 @@ resource "aws_iam_policy" "ch_write_parquet" {
   description = "Allow writing of CH parquet files"
   policy      = data.aws_iam_policy_document.ch_write_parquet.json
 }
+
+
+data "aws_iam_policy_document" "ch_metadata_change" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:ModifyInstanceMetadataOptions",
+      "ec2:*Tags",
+    ]
+
+    resources = [
+      "arn:aws:ec2:${data.aws_region.current.name}:${local.account[local.environment]}:instance/*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ch_metadata_change" {
+  name        = "CHMetadataOptions"
+  description = "Allow editing of Metadata Options"
+  policy      = data.aws_iam_policy_document.ch_metadata_change.json
+}
+
+resource "aws_iam_role_policy_attachment" "analytical_dataset_generator_metadata_change" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_metadata_change.arn
+}
