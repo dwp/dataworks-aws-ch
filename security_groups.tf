@@ -38,26 +38,6 @@ resource "aws_security_group" "metastore_rds_user_lambda" {
   tags                   = local.common_tags
 }
 
-resource "aws_security_group_rule" "egress_aurora_lambda_sql" {
-  description              = "Allow traffic to Aurora RDS from mysql manager lambda"
-  from_port                = 3306
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.metastore_rds_user_lambda.id
-  to_port                  = 3306
-  type                     = "egress"
-  source_security_group_id = aws_security_group.hive_metastore.id
-}
-
-resource "aws_security_group_rule" "ingress_aurora_lambda_sql" {
-  description              = "Allow traffic to Aurora RDS from mysql manager lambda"
-  from_port                = 3306
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.hive_metastore.id
-  to_port                  = 3306
-  type                     = "ingress"
-  source_security_group_id = aws_security_group.metastore_rds_user_lambda.id
-}
-
 resource "aws_security_group_rule" "egress_lambda_https_to_vpc_endpoints" {
   description              = "Allow HTTPS traffic to VPC endpoints"
   from_port                = 443
