@@ -336,6 +336,60 @@ data "aws_iam_policy_document" "ch_emr_launcher_assume_policy" {
   }
 }
 
+
+data "aws_iam_policy_document" "ch_read_config" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      data.terraform_remote_state.common.outputs.config_bucket.arn,
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject*",
+    ]
+
+    resources = [
+      "${data.terraform_remote_state.common.outputs.config_bucket.arn}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+    ]
+
+    resources = [
+      data.terraform_remote_state.common.outputs.config_bucket_cmk.arn,
+    ]
+  }
+}
+
+
+resource "aws_iam_policy" "ch_read_config" {
+  name        = "chReadConfig"
+  description = "Allow reading of ch config files"
+  policy      = data.aws_iam_policy_document.ch_read_config.json
+}
+
+resource "aws_iam_role_policy_attachment" "analytical_dataset_generator_read_config" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_read_config.arn
+}
+
+
 data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
   statement {
     effect = "Allow"
@@ -501,6 +555,46 @@ resource "aws_iam_policy" "ch_write_parquet" {
   policy      = data.aws_iam_policy_document.ch_write_parquet.json
 }
 
+
+data "aws_iam_policy_document" "ch_write_logs" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn,
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject*",
+      "s3:PutObject*",
+
+    ]
+
+    resources = [
+      "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix}",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ch_write_logs" {
+  name        = "cHWriteLogs"
+  description = "Allow writing of CH logs"
+  policy      = data.aws_iam_policy_document.ch_write_logs.json
+}
+
+resource "aws_iam_role_policy_attachment" "ch_write_logs" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_write_logs.arn
+}
 
 data "aws_iam_policy_document" "ch_metadata_change" {
   statement {
