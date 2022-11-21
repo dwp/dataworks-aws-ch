@@ -24,7 +24,7 @@ set -euo pipefail
     aws s3 cp "${etl_e2e}" /opt/emr/steps/e2e.py
     aws s3 cp "${etl_e2e_conf}" /opt/emr/steps/e2e_test_conf.tpl
     aws s3 cp "${etl_conf}" /opt/emr/steps/conf.tpl
-    sudo chown -R hadoop:hadoop /opt/emr/steps
+    sudo chmod --recursive a+rx /opt/emr/steps
 
     log_wrapper_message "Scripts in steps folder:"
     ls  /opt/emr/steps

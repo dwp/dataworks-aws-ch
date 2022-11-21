@@ -1,7 +1,7 @@
 ---
 Applications:
-- Name: "Ganglia"
 - Name: "Spark"
+- Name: "Ganglia"
 - Name: "Hive"
 CustomAmiId: "${ami_id}"
 EbsRootVolumeSize: 100

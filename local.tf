@@ -330,15 +330,15 @@ locals {
     development = 10
     qa          = 10
     integration = 10
-    preprod     = 37
-    production  = 35 # At least 20 or more per executor core
+    preprod     = 35
+    production  = 35
   }
 
   spark_yarn_executor_memory_overhead = {
     development = 2
     qa          = 2
     integration = 2
-    preprod     = 5
+    preprod     = 7
     production  = 7
   }
 
@@ -346,8 +346,8 @@ locals {
     development = 5
     qa          = 5
     integration = 5
-    preprod     = 37
-    production  = 10 # Doesn't need as much as executors
+    preprod     = 10
+    production  = 10
   }
 
   spark_driver_cores = {

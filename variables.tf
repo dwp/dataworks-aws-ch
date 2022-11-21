@@ -42,8 +42,8 @@ variable "emr_instance_type_core" {
 
 variable "emr_core_instance_count" {
   default = {
-    development = "5"
-    qa          = "5"
+    development = "1"
+    qa          = "1"
     integration = "5"
     preprod     = "5"
     production  = "5"
