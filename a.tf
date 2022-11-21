@@ -600,11 +600,12 @@ data "aws_iam_policy_document" "ch_metadata_change" {
     effect = "Allow"
 
     actions = [
-      "ec2:*"
+      "ec2:ModifyInstanceMetadataOptions",
+      "ec2:*Tags",
     ]
 
     resources = [
-      "arn:aws:ec2:::instance/*",
+      "arn:aws:ec2:${var.region}:${local.account[local.environment]}:instance/*",
     ]
   }
 

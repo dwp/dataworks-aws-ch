@@ -10,7 +10,7 @@ chmod u+x /opt/emr/cloudwatch.sh
     source /opt/emr/logging.sh
     
     function log_wrapper_message() {
-        log_ch_message "$${1}" "emr-setup.sh" "$${PID}" "$${@:2}" "Running as: ,$USER"
+        log_ch_message "$${1}" "emr-setup.sh" "$${PID}" "$${@:2}" "Running as: $USER"
     }
     
     log_wrapper_message "Setting up the Proxy"
@@ -112,7 +112,7 @@ EOF
     export INSTANCE_ROLE="$role"
     export HOSTNAME="$host"
 
-    hostnamectl set-hostname "$HOSTNAME"
+    sudo hostnamectl set-hostname "$HOSTNAME"
     aws ec2 create-tags --resources "$INSTANCE_ID" --tags Key=Name,Value="$HOSTNAME"
 
     log_wrapper_message "Completed the emr-setup.sh step of the EMR Cluster"
