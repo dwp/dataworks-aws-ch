@@ -607,6 +607,77 @@ data "aws_iam_policy_document" "ch_metadata_change" {
       "arn:aws:ec2:::instance/*",
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudwatch:PutMetricData",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeInstanceStatus",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ds:CreateComputer",
+      "ds:DescribeDirectories",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:PutLogEvents",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "arn:aws:s3:::eu-west-2.elasticmapreduce",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:Get*",
+      "s3:List*",
+    ]
+
+    resources = [
+      "arn:aws:s3:::eu-west-2.elasticmapreduce/libs/script-runner/*",
+    ]
+  }
 }
 
 resource "aws_iam_policy" "ch_metadata_change" {
