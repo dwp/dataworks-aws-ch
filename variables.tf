@@ -24,7 +24,7 @@ variable "emr_instance_type_master" {
   }
 }
 
-variable "emr_instance_type_core_one" {
+variable "emr_instance_type_core" {
   default = {
     development = "m5.4xlarge"
     qa          = "m5.4xlarge"
