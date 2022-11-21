@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "Installing scripts"
-$(which aws) s3 cp "${S3_CLOUDWATCH_SHELL}"            /opt/emr/cloudwatch.sh
+$(which aws) s3 cp "${S3_CLOUDWATCH_SHELL}" /opt/emr/cloudwatch.sh
 
 echo "Changing the Permissions"
 chmod u+x /opt/emr/cloudwatch.sh
