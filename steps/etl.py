@@ -95,6 +95,7 @@ def schema_spark(schema: dict):
         return StructType([StructField(k, get_spark_type(v), True) for k,v in schema.items()])
     except Exception as ex:
         logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
+        sys.exit(-1)
 
 
 def get_new_key(keys, filename):
@@ -120,6 +121,7 @@ def get_new_key(keys, filename):
             sys.exit(1)
     except Exception as ex:
         logger.error(f"failed to get new key added after latest imported file due to {ex}")
+        sys.exit(-1)
 
 
 def get_spark_type(type):
@@ -286,6 +288,7 @@ def write_parquet(df, s3_destination, partitioning_column):
           .parquet(s3_destination)
     except Exception as ex:
         logger.error(f"failed to write the transformed dataframe due to {ex}")
+        sys.exit(-1)
 
 
 def add_partitioning_column(df, val, partitioning_column):
@@ -294,6 +297,7 @@ def add_partitioning_column(df, val, partitioning_column):
         return df.withColumn(partitioning_column, lit(val).cast(StringType()))
     except Exception as ex:
         logger.error(f"failed to add partitioning column due to {ex}")
+        sys.exit(-1)
 
 
 def build_hive_schema(df, partitioning_column):
@@ -303,6 +307,7 @@ def build_hive_schema(df, partitioning_column):
         return schema
     except Exception as ex:
         logger.error(f"failed to build hive schema from df due to {ex}")
+        sys.exit(-1)
 
 
 def dynamo_table(region):
@@ -362,7 +367,7 @@ def recreate_hive_table(df, path, db_name, table_name, sp, partitioning_column):
 
     except Exception as ex:
         logger.error(f"failed to recreate hive tables with error {ex}")
-
+        sys.exit(-1)
 
 def runtime_args():
     try:
