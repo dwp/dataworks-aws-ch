@@ -545,9 +545,14 @@ data "aws_iam_policy_document" "ch_write_parquet" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "ch_write_parquet" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_write_parquet.arn
+}
+
 resource "aws_iam_policy" "ch_write_parquet" {
   name        = "CHWriteParquet"
-  description = "Allow writing of CH parquet files"
+  description = "Allow writing of CH parquet files to published"
   policy      = data.aws_iam_policy_document.ch_write_parquet.json
 }
 
