@@ -189,7 +189,7 @@ def extract_csv(key, schema, spark):
         df.show(0)
     except Exception as ex:
         trigger_rule('incorrect file format')
-        logger.error(f"Failed to tag s3 objects due to {ex}")
+        logger.error(f"Failed to extract csv. {ex}")
         sys.exit(-1)
 
     return df

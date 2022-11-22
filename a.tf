@@ -396,7 +396,8 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
       "s3:GetObject",
     ]
     resources = [
-      format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", data.terraform_remote_state.common.outputs.config_bucket.id)
+      format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", data.terraform_remote_state.common.outputs.config_bucket.id),
+      format("arn:aws:s3:::%s/*", data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.id)
     ]
   }
   statement {
@@ -526,7 +527,7 @@ data "aws_iam_policy_document" "ch_write_parquet" {
 
     resources = [
       "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/*",
-      data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.arn
+      "${data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.arn}/*"
     ]
   }
 
