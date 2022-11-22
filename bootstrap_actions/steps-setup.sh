@@ -8,10 +8,6 @@ set -euo pipefail
         log_ch_message "$1" "steps-setup.sh" "$$" "Running as: $USER"
     }
 
-#    log_wrapper_message "Moving maria db jar to spark jars folder"
-#    sudo mkdir -p /usr/lib/spark/jars/
-#    sudo cp /usr/share/java/mariadb-connector-java.jar /usr/lib/spark/jars/
-
     log_wrapper_message "Setting up EMR steps folder"
     sudo mkdir -p /opt/emr/steps
     sudo chown -R hadoop:hadoop /opt/emr/steps

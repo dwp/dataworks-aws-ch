@@ -52,8 +52,7 @@ chmod u+x /opt/emr/cloudwatch.sh
     export KEYSTORE_PASSWORD="$key_store_pass"
     export PRIVATE_KEY_PASSWORD="$key_pass"
     export ACM_KEY_PASSWORD="$acm_pass"
-#    sudo mkdir -p /opt/emr
-#    sudo chown hadoop:hadoop /opt/emr
+
     touch /opt/emr/dks.properties
 cat >> /opt/emr/dks.properties <<EOF
 identity.store.alias=${private_key_alias}
