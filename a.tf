@@ -805,6 +805,7 @@ data "aws_iam_policy_document" "ch_events" {
       "events:EnableRule",
       "events:PutRule",
       "events:PutTargets",
+      "events:PutEvents",
       "events:ListRules",
       "events:DeleteRule",
       "events:ListTargetsByRule",
