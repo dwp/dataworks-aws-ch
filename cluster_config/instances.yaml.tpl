@@ -25,7 +25,7 @@ Instances:
     - EbsConfiguration:
         EbsBlockDeviceConfigs:
         - VolumeSpecification:
-            SizeInGB: 250
+            SizeInGB: 100
             VolumeType: "gp2"
           VolumesPerInstance: 1
       InstanceType: "${instance_type_master}"
@@ -44,7 +44,7 @@ Instances:
     - EbsConfiguration:
         EbsBlockDeviceConfigs:
         - VolumeSpecification:
-            SizeInGB: 250
+            SizeInGB: 100
             VolumeType: "gp2"
           VolumesPerInstance: 1
       InstanceType: "${instance_type_core_one}"
