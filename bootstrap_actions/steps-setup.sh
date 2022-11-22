@@ -14,6 +14,7 @@ set -euo pipefail
 
     log_wrapper_message "Setting up EMR steps folder"
     sudo mkdir -p /opt/emr/steps
+    sudo chown -R hadoop:hadoop /opt/emr/steps
 
     log_wrapper_message "Creating init py file"
     touch /opt/emr/steps/__init__.py
