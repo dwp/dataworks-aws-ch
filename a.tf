@@ -713,3 +713,55 @@ resource "aws_iam_role_policy_attachment" "kickstart_adg_emr_service_ebs_cmk" {
   role       = aws_iam_role.ch_emr_service.name
   policy_arn = aws_iam_policy.ch_ebs_cmk_encrypt.arn
 }
+
+
+data "aws_iam_policy_document" "ch_read_artefacts" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn,
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject*",
+    ]
+
+    resources = [
+      "${data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+    ]
+
+    resources = [
+      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.cmk_arn,
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ch_read_artefacts" {
+  name        = "chReadArtefacts"
+  description = "Allow reading of ch software artefacts"
+  policy      = data.aws_iam_policy_document.ch_read_artefacts.json
+}
+
+resource "aws_iam_role_policy_attachment" "ch_read_artefacts" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_read_artefacts.arn
+}

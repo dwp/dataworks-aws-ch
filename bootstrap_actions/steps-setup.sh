@@ -14,7 +14,6 @@ set -euo pipefail
 
     log_wrapper_message "Setting up EMR steps folder"
     sudo mkdir -p /opt/emr/steps
-    sudo chown -R hadoop:hadoop /opt/emr/steps
 
     log_wrapper_message "Creating init py file"
     touch /opt/emr/steps/__init__.py
@@ -24,11 +23,8 @@ set -euo pipefail
     aws s3 cp "${etl_e2e}" /opt/emr/steps/e2e.py
     aws s3 cp "${etl_e2e_conf}" /opt/emr/steps/e2e_test_conf.tpl
     aws s3 cp "${etl_conf}" /opt/emr/steps/conf.tpl
-    sudo chmod --recursive 777 /opt/emr/steps
 
     log_wrapper_message "Scripts in steps folder:"
     ls  /opt/emr/steps
 
 ) >> /var/log/dataworks-aws-ch/steps-setup.log 2>&1
-
-
