@@ -43,7 +43,7 @@ resource "aws_security_group_rule" "egress_https_to_vpc_endpoints" {
 }
 
 resource "aws_security_group_rule" "ingress_https_vpc_endpoints_from_emr" {
-  description              = "Allow HTTPS traffic from Analytical Dataset Generator"
+  description              = "Allow HTTPS traffic from ch"
   from_port                = 443
   protocol                 = "tcp"
   security_group_id        = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.interface_vpce_sg_id

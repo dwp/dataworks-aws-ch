@@ -397,7 +397,6 @@ data "aws_iam_policy_document" "ch_emr_launcher_read_s3_policy" {
     ]
     resources = [
       format("arn:aws:s3:::%s/emr/dataworks-aws-ch/*", data.terraform_remote_state.common.outputs.config_bucket.id),
-      format("arn:aws:s3:::%s/*", data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.id)
     ]
   }
   statement {
@@ -512,7 +511,6 @@ data "aws_iam_policy_document" "ch_write_parquet" {
 
     resources = [
       data.terraform_remote_state.common.outputs.published_bucket.arn,
-      data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.arn,
     ]
   }
 
@@ -527,7 +525,6 @@ data "aws_iam_policy_document" "ch_write_parquet" {
 
     resources = [
       "${data.terraform_remote_state.common.outputs.published_bucket.arn}/data/uc_ch/*",
-      "${data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.arn}/*"
     ]
   }
 
@@ -544,7 +541,6 @@ data "aws_iam_policy_document" "ch_write_parquet" {
 
     resources = [
       data.terraform_remote_state.common.outputs.published_bucket_cmk.arn,
-      data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
     ]
   }
 }
@@ -554,6 +550,61 @@ resource "aws_iam_policy" "ch_write_parquet" {
   description = "Allow writing of CH parquet files"
   policy      = data.aws_iam_policy_document.ch_write_parquet.json
 }
+
+data "aws_iam_policy_document" "ch_data_ingress" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.arn,
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:*Object*",
+    ]
+
+    resources = [
+      "${data.terraform_remote_state.common.outputs.data_ingress_stage_bucket.arn}/*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+
+    resources = [
+      data.terraform_remote_state.common.outputs.stage_data_ingress_bucket_cmk.arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ch_data_ingress" {
+  name        = "CHDataIngress"
+  description = "Allow reading and writing to stage bucket"
+  policy      = data.aws_iam_policy_document.ch_data_ingress.json
+}
+
+resource "aws_iam_role_policy_attachment" "ch_data_ingress" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_data_ingress.arn
+}
+
 
 
 data "aws_iam_policy_document" "ch_write_logs" {
