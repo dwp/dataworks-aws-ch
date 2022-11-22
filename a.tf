@@ -765,3 +765,34 @@ resource "aws_iam_role_policy_attachment" "ch_read_artefacts" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = aws_iam_policy.ch_read_artefacts.arn
 }
+
+data "aws_iam_policy_document" "ch_write_dynamodb" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:DescribeTable",
+      "dynamodb:GetItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:PutItem",
+      "dynamodb:Scan",
+      "dynamodb:GetRecords",
+      "dynamodb:Query",
+    ]
+
+    resources = [
+      data.terraform_remote_state.internal_compute.outputs.data_pipeline_metadata_dynamo.arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ch_write_dynamodb" {
+  name        = "ChDynamoDB"
+  description = "Allows read and write access to ch's EMRFS DynamoDB table"
+  policy      = data.aws_iam_policy_document.ch_write_dynamodb.json
+}
+
+resource "aws_iam_role_policy_attachment" "ch_dynamodb" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_write_dynamodb.arn
+}
