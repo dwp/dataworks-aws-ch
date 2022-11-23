@@ -45,7 +45,7 @@ def add_latest_file(latest_file, cum_size):
                 }
         table.put_item(Item=json.loads(json.dumps(item), parse_float=Decimal))
     except Exception as ex:
-        logger.error(f"failed to add item to dynamodb due to {ex}")
+        logger.error(f"failed to add item to dynamodb. {ex}")
         sys.exit(-1)
 
 
@@ -60,7 +60,7 @@ def get_latest_file(table, hash_key, hash_id):
             logger.info(f'latest item: {str(response["Items"][0]["Latest_File"])}')
             return response["Items"][0]["Latest_File"]
     except Exception as ex:
-        logger.error(f"failed to fetch last filename imported due to {ex}")
+        logger.error(f"failed to fetch last filename imported. {ex}")
         sys.exit(-1)
 
 
@@ -71,7 +71,7 @@ def date_regex_extract(filename: str):
         match = re.findall(pattern, filename)
         return match[0]
     except Exception as ex:
-        logger.error(f"failed to extract date from file name {filename} due to {ex}")
+        logger.error(f"failed to extract date from file name {filename}. {ex}")
         sys.exit(-1)
 
 
@@ -85,16 +85,16 @@ def filter_files(keys, filenames_prefix, type, exit_if_no_keys=True):
             sys.exit(0)
         return matches
     except Exception as ex:
-        logger.error(f"failed to extract s3 keys with regex due to {ex}")
+        logger.error(f"failed to extract s3 keys with regex. {ex}")
         sys.exit(-1)
 
 
 def schema_spark(schema: dict):
-    logger.info("build spark schema from list of cols")
+    logger.info("build spark schema from schema found in conf")
     try:
         return StructType([StructField(k, get_spark_type(v), True) for k,v in schema.items()])
     except Exception as ex:
-        logger.error(f"failed to build spark schema from given columns {schema} due to {ex}")
+        logger.error(f"failed to build spark schema from given columns {schema}. {ex}")
         sys.exit(-1)
 
 
@@ -120,7 +120,7 @@ def get_new_key(keys, filename):
             logger.error("unable to get the new file key. exiting...")
             sys.exit(1)
     except Exception as ex:
-        logger.error(f"failed to get new key added after latest imported file due to {ex}")
+        logger.error(f"failed to get new key added after latest imported file. {ex}")
         sys.exit(-1)
 
 
@@ -136,7 +136,7 @@ def get_spark_type(type):
             logger.error(f"unable to convert given type: {type}")
             sys.exit(-1)
     except Exception as ex:
-        logger.error(f"failed to to get spark type from {type} due to {ex}")
+        logger.error(f"failed to to get spark type from {type}. {ex}")
         sys.exit(-1)
 
 
@@ -145,7 +145,7 @@ def union_all(df_list):
     try:
         return reduce(DataFrame.union, df_list)
     except Exception as ex:
-        logger.error(f"failed to union all dfs due to {ex}")
+        logger.error(f"failed to union all dfs. {ex}")
         sys.exit(-1)
 
 
@@ -169,12 +169,12 @@ def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
             status = response['ResponseMetadata']['HTTPStatusCode']
             logger.info(f"Tagging: s3 client response status: {status}, table: {tbl}, filename: {filename}")
     except Exception as ex:
-        logger.error(f"Failed to tag s3 objects due to {ex}")
+        logger.error(f"Failed to tag s3 objects. {ex}")
         sys.exit(-1)
 
 
 def extract_csv(key, schema, spark):
-    logger.info("reading csv files into spark dataframe")
+    logger.info(f"reading {key}")
     try:
         df = spark.read.format("csv") \
                   .option("header", True) \
@@ -208,7 +208,7 @@ def create_spark_df(sp, key, schema):
         df = extract_csv(key, schema, sp)
         df = rename_cols(df)
     except Exception as ex:
-        logger.error(f"failed creating spark df due to {ex}")
+        logger.error(f"failed creating spark df. {ex}")
         sys.exit(-1)
     return df
 
@@ -231,7 +231,7 @@ def s3_keys(s3_client, bucket_id, prefix, exit_if_no_keys=True):
 
         return keys
     except Exception as ex:
-        logger.error(f"failed to list keys in bucket due to {ex}")
+        logger.error(f"failed to list keys in bucket. {ex}")
         sys.exit(-1)
 
 
@@ -258,7 +258,7 @@ def get_s3_client():
     try:
         return boto3.client("s3")
     except Exception as ex:
-        logger.error(f"failed to get an s3 client due to {ex}")
+        logger.error(f"failed to get an s3 client. {ex}")
         sys.exit(-1)
 
 
@@ -274,7 +274,7 @@ def spark_session():
         spark.conf.set("spark.sql.csv.parser.columnPruning.enabled", False)
 
     except Exception as ex:
-        logger.error(f"failed to create spark session due to {ex}")
+        logger.error(f"failed to create spark session. {ex}")
         sys.exit(-1)
     return spark
 
@@ -287,7 +287,7 @@ def write_parquet(df, s3_destination, partitioning_column):
           .partitionBy(partitioning_column) \
           .parquet(s3_destination)
     except Exception as ex:
-        logger.error(f"failed to write the transformed dataframe due to {ex}")
+        logger.error(f"failed to write the transformed dataframe. {ex}")
         sys.exit(-1)
 
 
@@ -296,7 +296,7 @@ def add_partitioning_column(df, val, partitioning_column):
     try:
         return df.withColumn(partitioning_column, lit(val).cast(StringType()))
     except Exception as ex:
-        logger.error(f"failed to add partitioning column due to {ex}")
+        logger.error(f"failed to add partitioning column. {ex}")
         sys.exit(-1)
 
 
@@ -306,7 +306,7 @@ def build_hive_schema(df, partitioning_column):
         schema = ',\n'.join([f"{item[0]} {item[1]}" for item in df.dtypes if partitioning_column not in item])
         return schema
     except Exception as ex:
-        logger.error(f"failed to build hive schema from df due to {ex}")
+        logger.error(f"failed to build hive schema from df. {ex}")
         sys.exit(-1)
 
 
@@ -315,7 +315,7 @@ def dynamo_table(region):
     try:
         dynamodb = boto3.resource("dynamodb", region_name=region)
     except Exception as ex:
-        logger.error(f"failed to get dynamo table due to {ex}")
+        logger.error(f"failed to get dynamo table. {ex}")
         sys.exit(-1)
     return dynamodb.Table(args['audit-table']['name'])
 
@@ -339,7 +339,7 @@ def get_existing_df(spark, prefix, partitioning_column):
         logger.info("temp remove partitioning colum to exclude for new rows evaluation")
         df = df.drop(partitioning_column)
     except Exception as ex:
-        logger.error("failed to get existing spark dataframe due to: %s", str(ex))
+        logger.error("failed to get existing spark dataframe.: %s", str(ex))
         sys.exit(-1)
     return df
 
@@ -380,7 +380,7 @@ def runtime_args():
             logger.info("e2e set on True so appropriate e2e s3 folders will be set")
         return args
     except Exception as ex:
-        logger.error(f"Failed to read runtime args due to {ex}")
+        logger.error(f"Failed to read runtime args. {ex}")
         sys.exit(-1)
 
 
@@ -405,7 +405,7 @@ def get_new_df(extraction_df, existing_df, partitioning_column, val):
         new_df = add_partitioning_column(new_df, val, partitioning_column)
         return new_df
     except Exception as ex:
-        logger.error(f"Failed to get new df due to {ex}")
+        logger.error(f"Failed to get new df. {ex}")
         sys.exit(-1)
 
 
@@ -415,7 +415,7 @@ def convert_to_gigabytes(bytes):
         gb = round(bytes / constant, 4)
         return gb
     except Exception as ex:
-        logger.error(f"failed to convert bytes to gigabytes due to {ex}")
+        logger.error(f"failed to convert bytes to gigabytes. {ex}")
         sys.exit(-1)
 
 
@@ -427,7 +427,7 @@ def file_size_in_expected_range(min, max, file_size):
         logger.info(f"file size/delta size: {file_size}. check passed")
         return True
     except Exception as ex:
-        logger.error(f"Failed to check if file size is as expected due to {ex}")
+        logger.error(f"Failed to check if file size is as expected. {ex}")
         sys.exit(-1)
 
 
@@ -437,7 +437,7 @@ def trigger_rule(detail_type):
         logger.info(f"sending event {detail_type}")
         client.put_events(Entries=[{'DetailType': f'{detail_type}', 'Source': 'filechecks', 'Detail': '{"file":"checks"}'}])
     except Exception as ex:
-        logger.error(f"Failed to trigger rule due to {ex}")
+        logger.error(f"Failed to trigger rule. {ex}")
         sys.exit(-1)
 
 

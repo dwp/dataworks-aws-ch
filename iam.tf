@@ -384,7 +384,7 @@ resource "aws_iam_policy" "ch_read_config" {
   policy      = data.aws_iam_policy_document.ch_read_config.json
 }
 
-resource "aws_iam_role_policy_attachment" "analytical_dataset_generator_read_config" {
+resource "aws_iam_role_policy_attachment" "ch_read_config" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = aws_iam_policy.ch_read_config.arn
 }
@@ -766,7 +766,7 @@ resource "aws_iam_role_policy_attachment" "emr_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
 }
 
-resource "aws_iam_role_policy_attachment" "kickstart_adg_emr_service_ebs_cmk" {
+resource "aws_iam_role_policy_attachment" "ch_emr_service_ebs_cmk" {
   role       = aws_iam_role.ch_emr_service.name
   policy_arn = aws_iam_policy.ch_ebs_cmk_encrypt.arn
 }

@@ -31,7 +31,6 @@ resource "aws_security_group" "ch_emr_service" {
 }
 
 
-
 resource "aws_security_group_rule" "egress_https_to_vpc_endpoints" {
   description              = "Allow HTTPS traffic to VPC endpoints"
   from_port                = 443
@@ -102,66 +101,6 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
   security_group_id        = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
 }
 
-resource "aws_security_group_rule" "egress_hbase_zookeeper" {
-  description              = "Allow Ingest-HBase Zookeeper requests"
-  type                     = "egress"
-  from_port                = 2181
-  to_port                  = 2181
-  protocol                 = "tcp"
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
-  security_group_id        = aws_security_group.ch_common.id
-}
-
-resource "aws_security_group_rule" "ingress_hbase_zookeeper" {
-  description              = "Allow CH requests to ZooKeeper"
-  type                     = "ingress"
-  from_port                = 2181
-  to_port                  = 2181
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
-}
-
-resource "aws_security_group_rule" "egress_hbase_master" {
-  description              = "Allow Ingest-HBase Master requests"
-  type                     = "egress"
-  from_port                = 16000
-  to_port                  = 16000
-  protocol                 = "tcp"
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
-  security_group_id        = aws_security_group.ch_common.id
-}
-
-resource "aws_security_group_rule" "ingress_hbase_master" {
-  description              = "Allow CH requests to HBase Master"
-  type                     = "ingress"
-  from_port                = 16000
-  to_port                  = 16000
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
-}
-
-resource "aws_security_group_rule" "egress_hbase_regionserver" {
-  description              = "Allow Ingest-HBase RegionServer traffic"
-  type                     = "egress"
-  from_port                = 16020
-  to_port                  = 16020
-  protocol                 = "tcp"
-  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
-  security_group_id        = aws_security_group.ch_common.id
-}
-
-resource "aws_security_group_rule" "ingress_hbase_regionserver" {
-  description              = "Allow CH requests to HBase Region Server"
-  type                     = "ingress"
-  from_port                = 16020
-  to_port                  = 16020
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.ch_common.id
-  security_group_id        = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
-}
-
 resource "aws_security_group_rule" "egress_ch_to_dks" {
   description       = "Allow requests to the DKS"
   type              = "egress"
@@ -185,7 +124,6 @@ resource "aws_security_group_rule" "ingress_to_dks" {
   security_group_id = data.terraform_remote_state.crypto.outputs.dks_sg_id[local.environment]
 }
 
-# https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-man-sec-groups.html#emr-sg-elasticmapreduce-sa-private
 resource "aws_security_group_rule" "emr_service_ingress_master" {
   description              = "Allow EMR master nodes to reach the EMR service"
   type                     = "ingress"
@@ -197,8 +135,7 @@ resource "aws_security_group_rule" "emr_service_ingress_master" {
 }
 
 
-# The EMR service will automatically add the ingress equivalent of this rule,
-# but doesn't inject this egress counterpart
+
 resource "aws_security_group_rule" "emr_master_to_core_egress_tcp" {
   description              = "Allow master nodes to send TCP traffic to core nodes"
   type                     = "egress"
@@ -209,8 +146,7 @@ resource "aws_security_group_rule" "emr_master_to_core_egress_tcp" {
   security_group_id        = aws_security_group.ch_master.id
 }
 
-# The EMR service will automatically add the ingress equivalent of this rule,
-# but doesn't inject this egress counterpart
+
 resource "aws_security_group_rule" "emr_core_to_master_egress_tcp" {
   description              = "Allow core nodes to send TCP traffic to master nodes"
   type                     = "egress"
@@ -221,8 +157,7 @@ resource "aws_security_group_rule" "emr_core_to_master_egress_tcp" {
   security_group_id        = aws_security_group.ch_slave.id
 }
 
-# The EMR service will automatically add the ingress equivalent of this rule,
-# but doesn't inject this egress counterpart
+
 resource "aws_security_group_rule" "emr_core_to_core_egress_tcp" {
   description       = "Allow core nodes to send TCP traffic to other core nodes"
   type              = "egress"
@@ -233,8 +168,7 @@ resource "aws_security_group_rule" "emr_core_to_core_egress_tcp" {
   security_group_id = aws_security_group.ch_slave.id
 }
 
-# The EMR service will automatically add the ingress equivalent of this rule,
-# but doesn't inject this egress counterpart
+
 resource "aws_security_group_rule" "emr_master_to_core_egress_udp" {
   description              = "Allow master nodes to send UDP traffic to core nodes"
   type                     = "egress"
@@ -245,8 +179,7 @@ resource "aws_security_group_rule" "emr_master_to_core_egress_udp" {
   security_group_id        = aws_security_group.ch_master.id
 }
 
-# The EMR service will automatically add the ingress equivalent of this rule,
-# but doesn't inject this egress counterpart
+
 resource "aws_security_group_rule" "emr_core_to_master_egress_udp" {
   description              = "Allow core nodes to send UDP traffic to master nodes"
   type                     = "egress"
@@ -257,8 +190,7 @@ resource "aws_security_group_rule" "emr_core_to_master_egress_udp" {
   security_group_id        = aws_security_group.ch_slave.id
 }
 
-# The EMR service will automatically add the ingress equivalent of this rule,
-# but doesn't inject this egress counterpart
+
 resource "aws_security_group_rule" "emr_core_to_core_egress_udp" {
   description       = "Allow core nodes to send UDP traffic to other core nodes"
   type              = "egress"
@@ -269,7 +201,6 @@ resource "aws_security_group_rule" "emr_core_to_core_egress_udp" {
   security_group_id = aws_security_group.ch_slave.id
 }
 
-# DW-4134 - Rule for the dev Workspaces, gated to dev - "Ganglia"
 resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_80" {
   count             = local.environment == "development" ? 1 : 0
   description       = "Allow WorkSpaces (internal-compute VPC) access to Ganglia"
@@ -281,19 +212,6 @@ resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_80" {
   security_group_id = aws_security_group.ch_master.id
 }
 
-# DW-4134 - Rule for the dev Workspaces, gated to dev - "Hbase"
-resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_hbase" {
-  count             = local.environment == "development" ? 1 : 0
-  description       = "Allow WorkSpaces (internal-compute VPC) access to Hbase"
-  type              = "ingress"
-  from_port         = 16010
-  to_port           = 16010
-  protocol          = "tcp"
-  cidr_blocks       = [data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.cidr_block]
-  security_group_id = aws_security_group.ch_master.id
-}
-
-# DW-4134 - Rule for the dev Workspaces, gated to dev - "Spark"
 resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_spark" {
   count             = local.environment == "development" ? 1 : 0
   description       = "Allow WorkSpaces (internal-compute VPC) access to Spark"
@@ -305,7 +223,6 @@ resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_spark" 
   security_group_id = aws_security_group.ch_master.id
 }
 
-# DW-4134 - Rule for the dev Workspaces, gated to dev - "Yarn NodeManager"
 resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_yarn_nm" {
   count             = local.environment == "development" ? 1 : 0
   description       = "Allow WorkSpaces (internal-compute VPC) access to Yarn NodeManager"
@@ -317,7 +234,6 @@ resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_yarn_nm
   security_group_id = aws_security_group.ch_master.id
 }
 
-# DW-4134 - Rule for the dev Workspaces, gated to dev - "Yarn ResourceManager"
 resource "aws_security_group_rule" "emr_server_ingress_workspaces_master_yarn_rm" {
   count             = local.environment == "development" ? 1 : 0
   description       = "Allow WorkSpaces (internal-compute VPC) access to Yarn ResourceManager"
@@ -340,7 +256,7 @@ resource "aws_security_group_rule" "emr_server_ingress_workspaces_slave_region_s
   security_group_id = aws_security_group.ch_slave.id
 }
 
-resource "aws_security_group_rule" "ingress_adg_metastore_v2" {
+resource "aws_security_group_rule" "ingress_ch_metastore_v2" {
   description              = "Allow mysql traffic to Aurora RDS from ch"
   from_port                = 3306
   protocol                 = "tcp"
@@ -350,7 +266,7 @@ resource "aws_security_group_rule" "ingress_adg_metastore_v2" {
   source_security_group_id = aws_security_group.ch_common.id
 }
 
-resource "aws_security_group_rule" "egress_adg_metastore_v2" {
+resource "aws_security_group_rule" "egress_ch_metastore_v2" {
   description              = "Allow mysql traffic to Aurora RDS to ch"
   from_port                = 3306
   protocol                 = "tcp"
