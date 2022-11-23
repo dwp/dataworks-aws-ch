@@ -25,7 +25,7 @@ Tags:
 - Key: "SSMEnabled"
   Value: "True"
 - Key: "Environment"
-  Value: "qa"
+  Value: "${environment}"
 - Key: "Application"
   Value: "ch"
 - Key: "Name"
