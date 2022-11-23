@@ -190,10 +190,7 @@ resource "aws_iam_policy" "ch_ebs_cmk_encrypt" {
   policy      = data.aws_iam_policy_document.ch_ebs_cmk_encrypt.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_emr_service_ebs_cmk" {
-  role       = aws_iam_role.ch_emr_service.name
-  policy_arn = aws_iam_policy.ch_ebs_cmk_encrypt.arn
-}
+
 
 data "aws_iam_policy_document" "ch_ebs_cmk" {
   statement {
