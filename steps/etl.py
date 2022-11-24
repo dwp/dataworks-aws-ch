@@ -334,8 +334,6 @@ def get_existing_df(spark, prefix, partitioning_column):
     try:
         logger.info(f'getting existing dataframe under prefix {os.path.join(prefix, "*/*.parquet")}')
         df = spark.read.option("basePath", prefix).format("parquet").load(os.path.join(prefix, "*/*.parquet"))
-        rows = df.count()
-        logger.info(f"rowcount existing dataframe: {rows}")
         logger.info("temp remove partitioning colum to exclude for new rows evaluation")
         df = df.drop(partitioning_column)
     except Exception as ex:
@@ -394,16 +392,21 @@ def all_args():
 
 def get_new_df(extraction_df, existing_df, partitioning_column, val):
     try:
-        logger.info(f"extraction df schema: {extraction_df.schema}")
-        logger.info(f"existing df schema: {existing_df.schema}")
         new_df = extraction_df.subtract(existing_df)
-        rows = new_df.count()
-        if rows == 0:
+        rows_existing = existing_df.count()
+        rows_extraction = extraction_df.count()
+        rows_new = new_df.count()
+        logger.info(f"extraction df - schema: {extraction_df.schema}; row count: {str(rows_extraction)}.")
+        logger.info(f"existing df - schema: {existing_df.schema}; row count: {str(rows_existing)}.")
+        logger.info(f"new df - schema: {new_df.schema}; row count: {str(rows_new)}.")
+        if rows_new == 0:
             logger.warning("file does not contain any new rows")
             sys.exit(0)
-        logger.info(f"found {rows} new rows")
-        new_df = add_partitioning_column(new_df, val, partitioning_column)
-        return new_df
+        logger.info(f"found {rows_new} new rows")
+        if rows_extraction < rows_existing:
+            logger.warning("some rows have been removed from existing df")
+        new_df_pc = add_partitioning_column(new_df, val, partitioning_column)
+        return new_df_pc
     except Exception as ex:
         logger.error(f"Failed to get new df. {ex}")
         sys.exit(-1)
