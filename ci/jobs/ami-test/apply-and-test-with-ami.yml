@@ -1,6 +1,7 @@
 jobs:
   - name: apply-and-test-with-ami
     max_in_flight: 1
+    serial_groups: [qa-applies]
     plan:
       - in_parallel:
           - put: meta
