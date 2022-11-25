@@ -14,5 +14,3 @@ fly:
   config: aviator_pipeline.yml
   expose: true
   check_creds: true
-  load_vars_from:
-    - ci/vars.yml
