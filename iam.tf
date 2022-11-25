@@ -629,7 +629,6 @@ data "aws_iam_policy_document" "ch_write_logs" {
     actions = [
       "s3:GetObject*",
       "s3:PutObject*",
-
     ]
 
     resources = [
@@ -747,6 +746,7 @@ resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
   role = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
+
 resource "aws_iam_role_policy_attachment" "ch_instance_profile_role_metadata_change" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = aws_iam_policy.ch_metadata_change.arn
@@ -766,7 +766,6 @@ resource "aws_iam_role_policy_attachment" "ch_emr_service_ebs_cmk" {
   role       = aws_iam_role.ch_emr_service.name
   policy_arn = aws_iam_policy.ch_ebs_cmk_encrypt.arn
 }
-
 
 data "aws_iam_policy_document" "ch_read_artefacts" {
   statement {
