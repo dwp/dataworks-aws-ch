@@ -131,6 +131,9 @@ provider "aws" {
   assume_role {
     role_arn = "arn:aws:iam::${local.account[local.management_account[local.environment]]}:role/${var.assume_role}"
   }
+  default_tags {
+    tags = local.common_repo_tags
+  }
 }
 
 provider "aws" {
