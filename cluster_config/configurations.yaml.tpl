@@ -43,7 +43,7 @@ Configurations:
     "hive.support.concurrency": "true"
     "javax.jdo.option.ConnectionURL": "jdbc:mysql://${hive_metastore_endpoint}:3306/${hive_metastore_database_name}"
     "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver"
-    "javax.jdo.option.ConnectionUserName": "${hive_metsatore_username}"
+    "javax.jdo.option.ConnectionUserName": "${hive_metastore_username}"
     "javax.jdo.option.ConnectionPassword": "${hive_metastore_pwd}"
     "hive.metastore.client.socket.timeout": "7200"
 
@@ -58,8 +58,7 @@ Configurations:
     "hive.support.concurrency": "true"
     "javax.jdo.option.ConnectionURL": "jdbc:mysql://${hive_metastore_endpoint}:3306/${hive_metastore_database_name}?createDatabaseIfNotExist=true"
     "javax.jdo.option.ConnectionDriverName": "org.mariadb.jdbc.Driver"
-    "javax.jdo.option.ConnectionUserName": "${hive_metsatore_username}"
-    "javax.jdo.option.ConnectionPassword": "${hive_metastore_pwd}"
+    "javax.jdo.option.ConnectionUserName": "${hive_metastore_username}"
     "javax.jdo.option.ConnectionPassword": "${hive_metastore_pwd}"
     "hive.metastore.client.socket.timeout": "7200"
     "hive.mapred.mode": "nonstrict"

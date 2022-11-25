@@ -748,10 +748,6 @@ resource "aws_iam_role_policy_attachment" "ch_instance_profile_role_metadata_cha
   policy_arn = aws_iam_policy.ch_metadata_change.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
-  role       = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-}
 
 resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {
   role       = aws_iam_role.ch_role_for_instance_profile.name

@@ -66,7 +66,6 @@ variable "spark_executor_instances" {
 
 variable "emr_ami_id" {
   description = "AMI ID to use for the EMR nodes"
-  default     = ""
 }
 
 
