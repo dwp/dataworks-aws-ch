@@ -10,7 +10,7 @@ resources:
   - name: dataworks-aws-ch
     type: git
     source:
-      branch: master
+      branch: fix-spark-yarn
       uri: https://github.com/dwp/dataworks-aws-ch.git
       access_token: ((dataworks-secrets.concourse_github_pat))
     webhook_token: ((dataworks.concourse_github_webhook_token))

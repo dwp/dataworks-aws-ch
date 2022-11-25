@@ -99,9 +99,9 @@ locals {
   step_fail_action = {
     development = "CONTINUE"
     qa          = "CONTINUE"
-    integration = "TERMINATE_CLUSTER"
+    integration = "CONTINUE"
     preprod     = "CONTINUE"
-    production  = "TERMINATE_CLUSTER"
+    production  = "CONTINUE"
   }
 
   hash_key                  = "Correlation_Id"
