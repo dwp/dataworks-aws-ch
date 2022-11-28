@@ -876,7 +876,51 @@ resource "aws_iam_role_policy_attachment" "ch_events" {
   policy_arn = aws_iam_policy.ch_events.arn
 }
 
-data "aws_iam_policy_document" "ch_extra" {
+data "aws_iam_policy_document" "ch_ssm" {
+
+    statement {
+    effect = "Allow"
+    actions = [
+    "ssm:DescribeAssociation",
+    "ssm:GetDeployablePatchSnapshotForInstance",
+    "ssm:GetDocument",
+    "ssm:DescribeDocument",
+    "ssm:GetManifest",
+    "ssm:GetParameters",
+    "ssm:ListAssociations",
+    "ssm:ListInstanceAssociations",
+    "ssm:PutInventory",
+    "ssm:PutComplianceItems",
+    "ssm:PutConfigurePackageResult",
+    "ssm:UpdateAssociationStatus",
+    "ssm:UpdateInstanceAssociationStatus",
+    "ssm:UpdateInstanceInformation"
+    ]
+    resources = ["*"]
+    }
+
+    statement {
+      effect = "Allow"
+      actions = [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ]
+    }
+
+  statement {
+    effect = "Allow"
+    actions = [
+    "ec2messages:AcknowledgeMessage",
+    "ec2messages:DeleteMessage",
+    "ec2messages:FailMessage",
+    "ec2messages:GetEndpoint",
+    "ec2messages:GetMessages",
+    "ec2messages:SendReply"
+    ]
+    resources = ["*"]
+  }
 
   statement {
     effect = "Allow"
@@ -914,14 +958,14 @@ data "aws_iam_policy_document" "ch_extra" {
 
 }
 
-resource "aws_iam_policy" "ch_extra" {
+resource "aws_iam_policy" "ch_ssm" {
   name        = "ChSsm"
   description = "Needed to be able to start spark application"
-  policy      = data.aws_iam_policy_document.ch_extra.json
+  policy      = data.aws_iam_policy_document.ch_ssm.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_extra" {
+resource "aws_iam_role_policy_attachment" "ch_ssm" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = aws_iam_policy.ch_extra.arn
+  policy_arn = aws_iam_policy.ch_ssm.arn
 }
 
