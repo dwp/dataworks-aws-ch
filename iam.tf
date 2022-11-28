@@ -743,10 +743,6 @@ resource "aws_iam_policy" "ch_metadata_change" {
   policy      = data.aws_iam_policy_document.ch_metadata_change.json
 }
 
-//resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
-//  role = aws_iam_role.ch_role_for_instance_profile.name
-//  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-//}
 
 resource "aws_iam_role_policy_attachment" "ch_instance_profile_role_metadata_change" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
@@ -880,54 +876,92 @@ resource "aws_iam_role_policy_attachment" "ch_events" {
   policy_arn = aws_iam_policy.ch_events.arn
 }
 
-data "aws_iam_policy_document" "ch_read_artefacts" {
+data "aws_iam_policy_document" "ch_ssm" {
+
+    statement {
+    effect = "Allow"
+    actions = [
+    "ssm:DescribeAssociation",
+//    "ssm:GetDeployablePatchSnapshotForInstance",
+//    "ssm:GetDocument",
+//    "ssm:DescribeDocument",
+//    "ssm:GetManifest",
+//    "ssm:GetParameters",
+//    "ssm:ListAssociations",
+//    "ssm:ListInstanceAssociations",
+//    "ssm:PutInventory",
+//    "ssm:PutComplianceItems",
+//    "ssm:PutConfigurePackageResult",
+//    "ssm:UpdateAssociationStatus",
+//    "ssm:UpdateInstanceAssociationStatus",
+//    "ssm:UpdateInstanceInformation"
+    ]
+    resources = ["*"]
+    },
+    statement {
+      effect = "Allow"
+      actions = [
+//        "ssmmessages:CreateControlChannel",
+//        "ssmmessages:CreateDataChannel",
+//        "ssmmessages:OpenControlChannel",
+//        "ssmmessages:OpenDataChannel"
+      ]
+    },
   statement {
     effect = "Allow"
-
     actions = [
-      "s3:GetBucketLocation",
-      "s3:ListBucket",
+    "ec2messages:AcknowledgeMessage",
+//    "ec2messages:DeleteMessage",
+//    "ec2messages:FailMessage",
+//    "ec2messages:GetEndpoint",
+//    "ec2messages:GetMessages",
+//    "ec2messages:SendReply"
     ]
-
-    resources = [
-      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn,
-    ]
-  }
-
+    resources = ["*"]
+  },
   statement {
     effect = "Allow"
-
     actions = [
-      "s3:GetObject*",
+                "cloudwatch:PutMetricData"
     ]
-
-    resources = [
-      "${data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn}/*",
-    ]
-  }
-
-  statement {
+    resources = ["*"]
+  },
+    statement {
     effect = "Allow"
-
     actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey",
+//      "ds:CreateComputer",
+      "ds:DescribeDirectories"
+                                ]
+    resources = ["*"]
+  },
+    statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:PutLogEvents"
     ]
-
-    resources = [
-      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.cmk_arn,
-    ]
+    resources = ["*"]
+  },
+    statement {
+    effect = "Allow"
+    actions = [
+                "ec2:DescribeInstanceStatus"
+                                ]
+    resources = ["*"]
   }
+
 }
 
-resource "aws_iam_policy" "ch_read_artefacts" {
-  name        = "ChReadArtefacts"
-  description = "Allows read artefacts bucket"
-  policy      = data.aws_iam_policy_document.ch_read_artefacts.json
+resource "aws_iam_policy" "ch_ssm" {
+  name        = "ChSsm"
+  description = "Needed to be able to start spark application"
+  policy      = data.aws_iam_policy_document.ch_ssm.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_read_artefacts" {
+resource "aws_iam_role_policy_attachment" "ch_ssm" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = aws_iam_policy.ch_read_artefacts.arn
+  policy_arn = aws_iam_policy.ch_ssm.arn
 }
-
