@@ -923,7 +923,7 @@ data "aws_iam_policy_document" "ch_read_artefacts" {
 resource "aws_iam_policy" "ch_read_artefacts" {
   name        = "ChReadArtefacts"
   description = "Allows read artefacts bucket"
-  policy      = data.aws_iam_policy_document.ch_events.json
+  policy      = data.aws_iam_policy_document.ch_read_artefacts.json
 }
 
 resource "aws_iam_role_policy_attachment" "ch_read_artefacts" {
