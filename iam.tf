@@ -880,7 +880,7 @@ resource "aws_iam_role_policy_attachment" "ch_events" {
   policy_arn = aws_iam_policy.ch_events.arn
 }
 
-data "aws_iam_policy_document" "kickstart_analytical_dataset_generator_read_artefacts" {
+data "aws_iam_policy_document" "ch_read_artefacts" {
   statement {
     effect = "Allow"
 
@@ -919,3 +919,15 @@ data "aws_iam_policy_document" "kickstart_analytical_dataset_generator_read_arte
     ]
   }
 }
+
+resource "aws_iam_policy" "ch_read_artefacts" {
+  name        = "ChReadArtefacts"
+  description = "Allows read artefacts bucket"
+  policy      = data.aws_iam_policy_document.ch_events.json
+}
+
+resource "aws_iam_role_policy_attachment" "ch_read_artefacts" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_read_artefacts.arn
+}
+
