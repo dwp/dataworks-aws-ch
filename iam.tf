@@ -633,6 +633,7 @@ data "aws_iam_policy_document" "ch_write_logs" {
 
     resources = [
       "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix}",
+      "${data.terraform_remote_state.security-tools.outputs.logstore_bucket.arn}/${local.s3_log_prefix}/*",
     ]
   }
 }
@@ -742,10 +743,10 @@ resource "aws_iam_policy" "ch_metadata_change" {
   policy      = data.aws_iam_policy_document.ch_metadata_change.json
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
-  role = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-}
+//resource "aws_iam_role_policy_attachment" "ec2_for_ssm_attachment" {
+//  role = aws_iam_role.ch_role_for_instance_profile.name
+//  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+//}
 
 resource "aws_iam_role_policy_attachment" "ch_instance_profile_role_metadata_change" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
@@ -877,4 +878,44 @@ resource "aws_iam_policy" "ch_events" {
 resource "aws_iam_role_policy_attachment" "ch_events" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = aws_iam_policy.ch_events.arn
+}
+
+data "aws_iam_policy_document" "kickstart_analytical_dataset_generator_read_artefacts" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn,
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject*",
+    ]
+
+    resources = [
+      "${data.terraform_remote_state.management_artefact.outputs.artefact_bucket.arn}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+    ]
+
+    resources = [
+      data.terraform_remote_state.management_artefact.outputs.artefact_bucket.cmk_arn,
+    ]
+  }
 }
