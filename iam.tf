@@ -878,50 +878,50 @@ resource "aws_iam_role_policy_attachment" "ch_events" {
 
 data "aws_iam_policy_document" "ch_ssm" {
 
-    statement {
-    effect = "Allow"
-    actions = [
-    "ssm:DescribeAssociation",
-    "ssm:GetDeployablePatchSnapshotForInstance",
-    "ssm:GetDocument",
-    "ssm:DescribeDocument",
-    "ssm:GetManifest",
-    "ssm:GetParameters",
-    "ssm:ListAssociations",
-    "ssm:ListInstanceAssociations",
-    "ssm:PutInventory",
-    "ssm:PutComplianceItems",
-    "ssm:PutConfigurePackageResult",
-    "ssm:UpdateAssociationStatus",
-    "ssm:UpdateInstanceAssociationStatus",
-    "ssm:UpdateInstanceInformation"
-    ]
-    resources = ["*"]
-    }
-
-    statement {
-      effect = "Allow"
-      actions = [
-        "ssmmessages:CreateControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:OpenDataChannel"
-      ]
-      resources = ["*"]
-    }
-
-  statement {
-    effect = "Allow"
-    actions = [
-    "ec2messages:AcknowledgeMessage",
-    "ec2messages:DeleteMessage",
-    "ec2messages:FailMessage",
-    "ec2messages:GetEndpoint",
-    "ec2messages:GetMessages",
-    "ec2messages:SendReply"
-    ]
-    resources = ["*"]
-  }
+//    statement {
+//    effect = "Allow"
+//    actions = [
+//    "ssm:DescribeAssociation",
+//    "ssm:GetDeployablePatchSnapshotForInstance",
+//    "ssm:GetDocument",
+//    "ssm:DescribeDocument",
+//    "ssm:GetManifest",
+//    "ssm:GetParameters",
+//    "ssm:ListAssociations",
+//    "ssm:ListInstanceAssociations",
+//    "ssm:PutInventory",
+//    "ssm:PutComplianceItems",
+//    "ssm:PutConfigurePackageResult",
+//    "ssm:UpdateAssociationStatus",
+//    "ssm:UpdateInstanceAssociationStatus",
+//    "ssm:UpdateInstanceInformation"
+//    ]
+//    resources = ["*"]
+//    }
+//
+//    statement {
+//      effect = "Allow"
+//      actions = [
+//        "ssmmessages:CreateControlChannel",
+//        "ssmmessages:CreateDataChannel",
+//        "ssmmessages:OpenControlChannel",
+//        "ssmmessages:OpenDataChannel"
+//      ]
+//      resources = ["*"]
+//    }
+//
+//  statement {
+//    effect = "Allow"
+//    actions = [
+//    "ec2messages:AcknowledgeMessage",
+//    "ec2messages:DeleteMessage",
+//    "ec2messages:FailMessage",
+//    "ec2messages:GetEndpoint",
+//    "ec2messages:GetMessages",
+//    "ec2messages:SendReply"
+//    ]
+//    resources = ["*"]
+//  }
 
   statement {
     effect = "Allow"
@@ -963,12 +963,12 @@ resource "aws_iam_policy" "ch_ssm" {
   policy      = data.aws_iam_policy_document.ch_ssm.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_certificates" {
+resource "aws_iam_role_policy_attachment" "ch_certificates_s3" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = aws_iam_policy.ch_certificates.arn
+  policy_arn = aws_iam_policy.ch_certificates_s3.arn
 }
 
-data "aws_iam_policy_document" "ch_certificates" {
+data "aws_iam_policy_document" "ch_certificates_s3" {
   statement {
     effect = "Allow"
 
@@ -984,10 +984,10 @@ data "aws_iam_policy_document" "ch_certificates" {
   }
 }
 
-resource "aws_iam_policy" "ch_certificates" {
+resource "aws_iam_policy" "ch_certificates_s3" {
   name        = "CHGetCertificates"
   description = "Allow read access to read certificates on s3"
-  policy      = data.aws_iam_policy_document.ch_certificates.json
+  policy      = data.aws_iam_policy_document.ch_certificates_s3.json
   tags = {
     Name = "ch_certificates"
   }
@@ -995,5 +995,5 @@ resource "aws_iam_policy" "ch_certificates" {
 
 resource "aws_iam_role_policy_attachment" "ch_certificates" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = aws_iam_policy.ch_certificates.arn
+  policy_arn = aws_iam_policy.ch_certificates_s3.arn
 }
