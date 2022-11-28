@@ -876,20 +876,7 @@ resource "aws_iam_role_policy_attachment" "ch_events" {
   policy_arn = aws_iam_policy.ch_events.arn
 }
 
-data "aws_iam_policy_document" "ch_ssm" {
-
-  statement {
-    effect = "Allow"
-    actions = [
-    "ec2messages:AcknowledgeMessage",
-//    "ec2messages:DeleteMessage",
-//    "ec2messages:FailMessage",
-//    "ec2messages:GetEndpoint",
-//    "ec2messages:GetMessages",
-//    "ec2messages:SendReply"
-    ]
-    resources = ["*"]
-  }
+data "aws_iam_policy_document" "ch_extra" {
 
   statement {
     effect = "Allow"
@@ -901,7 +888,7 @@ data "aws_iam_policy_document" "ch_ssm" {
     statement {
     effect = "Allow"
     actions = [
-//      "ds:CreateComputer",
+      "ds:CreateComputer",
       "ds:DescribeDirectories"
                                 ]
     resources = ["*"]
@@ -927,14 +914,14 @@ data "aws_iam_policy_document" "ch_ssm" {
 
 }
 
-resource "aws_iam_policy" "ch_ssm" {
+resource "aws_iam_policy" "ch_extra" {
   name        = "ChSsm"
   description = "Needed to be able to start spark application"
-  policy      = data.aws_iam_policy_document.ch_ssm.json
+  policy      = data.aws_iam_policy_document.ch_extra.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_ssm" {
+resource "aws_iam_role_policy_attachment" "ch_extra" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = aws_iam_policy.ch_ssm.arn
+  policy_arn = aws_iam_policy.ch_extra.arn
 }
 
