@@ -878,35 +878,6 @@ resource "aws_iam_role_policy_attachment" "ch_events" {
 
 data "aws_iam_policy_document" "ch_ssm" {
 
-    statement {
-    effect = "Allow"
-    actions = [
-    "ssm:DescribeAssociation",
-//    "ssm:GetDeployablePatchSnapshotForInstance",
-//    "ssm:GetDocument",
-//    "ssm:DescribeDocument",
-//    "ssm:GetManifest",
-//    "ssm:GetParameters",
-//    "ssm:ListAssociations",
-//    "ssm:ListInstanceAssociations",
-//    "ssm:PutInventory",
-//    "ssm:PutComplianceItems",
-//    "ssm:PutConfigurePackageResult",
-//    "ssm:UpdateAssociationStatus",
-//    "ssm:UpdateInstanceAssociationStatus",
-//    "ssm:UpdateInstanceInformation"
-    ]
-    resources = ["*"]
-    },
-    statement {
-      effect = "Allow"
-      actions = [
-//        "ssmmessages:CreateControlChannel",
-//        "ssmmessages:CreateDataChannel",
-//        "ssmmessages:OpenControlChannel",
-//        "ssmmessages:OpenDataChannel"
-      ]
-    },
   statement {
     effect = "Allow"
     actions = [
@@ -918,14 +889,15 @@ data "aws_iam_policy_document" "ch_ssm" {
 //    "ec2messages:SendReply"
     ]
     resources = ["*"]
-  },
+  }
+
   statement {
     effect = "Allow"
     actions = [
                 "cloudwatch:PutMetricData"
     ]
     resources = ["*"]
-  },
+  }
     statement {
     effect = "Allow"
     actions = [
@@ -933,7 +905,7 @@ data "aws_iam_policy_document" "ch_ssm" {
       "ds:DescribeDirectories"
                                 ]
     resources = ["*"]
-  },
+  }
     statement {
     effect = "Allow"
     actions = [
@@ -944,7 +916,7 @@ data "aws_iam_policy_document" "ch_ssm" {
       "logs:PutLogEvents"
     ]
     resources = ["*"]
-  },
+  }
     statement {
     effect = "Allow"
     actions = [
@@ -965,3 +937,4 @@ resource "aws_iam_role_policy_attachment" "ch_ssm" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
   policy_arn = aws_iam_policy.ch_ssm.arn
 }
+
