@@ -485,7 +485,6 @@ data "aws_iam_policy_document" "ch_emr_launcher_getsecrets" {
     ]
 
     resources = [
-//      aws_secretsmanager_secret.metadata_store_ch_writer.arn, does this needs to be created?
       data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer.secret_arn,
     ]
   }
@@ -877,51 +876,6 @@ resource "aws_iam_role_policy_attachment" "ch_events" {
 }
 
 data "aws_iam_policy_document" "ch_ssm" {
-
-//    statement {
-//    effect = "Allow"
-//    actions = [
-//    "ssm:DescribeAssociation",
-//    "ssm:GetDeployablePatchSnapshotForInstance",
-//    "ssm:GetDocument",
-//    "ssm:DescribeDocument",
-//    "ssm:GetManifest",
-//    "ssm:GetParameters",
-//    "ssm:ListAssociations",
-//    "ssm:ListInstanceAssociations",
-//    "ssm:PutInventory",
-//    "ssm:PutComplianceItems",
-//    "ssm:PutConfigurePackageResult",
-//    "ssm:UpdateAssociationStatus",
-//    "ssm:UpdateInstanceAssociationStatus",
-//    "ssm:UpdateInstanceInformation"
-//    ]
-//    resources = ["*"]
-//    }
-//
-//    statement {
-//      effect = "Allow"
-//      actions = [
-//        "ssmmessages:CreateControlChannel",
-//        "ssmmessages:CreateDataChannel",
-//        "ssmmessages:OpenControlChannel",
-//        "ssmmessages:OpenDataChannel"
-//      ]
-//      resources = ["*"]
-//    }
-//
-//  statement {
-//    effect = "Allow"
-//    actions = [
-//    "ec2messages:AcknowledgeMessage",
-//    "ec2messages:DeleteMessage",
-//    "ec2messages:FailMessage",
-//    "ec2messages:GetEndpoint",
-//    "ec2messages:GetMessages",
-//    "ec2messages:SendReply"
-//    ]
-//    resources = ["*"]
-//  }
 
   statement {
     effect = "Allow"
