@@ -951,9 +951,7 @@ data "aws_iam_policy_document" "ch_ssm" {
   }
     statement {
     effect = "Allow"
-    actions = [
-                "ec2:DescribeInstanceStatus"
-                                ]
+    actions = ["ec2:DescribeInstanceStatus"]
     resources = ["*"]
   }
 
@@ -965,8 +963,37 @@ resource "aws_iam_policy" "ch_ssm" {
   policy      = data.aws_iam_policy_document.ch_ssm.json
 }
 
-resource "aws_iam_role_policy_attachment" "ch_ssm" {
+resource "aws_iam_role_policy_attachment" "ch_certificates" {
   role       = aws_iam_role.ch_role_for_instance_profile.name
-  policy_arn = aws_iam_policy.ch_ssm.arn
+  policy_arn = aws_iam_policy.ch_certificates.arn
 }
 
+data "aws_iam_policy_document" "ch_certificates" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:Get*",
+      "s3:List*",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${local.mgt_certificate_bucket}*",
+      "arn:aws:s3:::${local.env_certificate_bucket}/*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ch_certificates" {
+  name        = "CHGetCertificates"
+  description = "Allow read access to read certificates on s3"
+  policy      = data.aws_iam_policy_document.ch_certificates.json
+  tags = {
+    Name = "ch_certificates"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ch_certificates" {
+  role       = aws_iam_role.ch_role_for_instance_profile.name
+  policy_arn = aws_iam_policy.ch_certificates.arn
+}
