@@ -22,7 +22,6 @@ EOF
 }
 
 resource "aws_cloudwatch_metric_alarm" "ch_failed_with_errors" {
-  lifecycle {ignore_changes = [tags]}
   alarm_name                = "ch_failed_with_errors"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -38,7 +37,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_failed_with_errors" {
     RuleName = aws_cloudwatch_event_rule.ch_terminated_with_errors_rule.name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "ch_failed_with_errors",
       notification_type = "Error"
@@ -76,7 +75,6 @@ EOF
 
 
 resource "aws_cloudwatch_metric_alarm" "ch_success" {
-  lifecycle {ignore_changes = [tags]}
   alarm_name                = "ch_completed_all_steps"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -92,7 +90,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_success" {
     RuleName = aws_cloudwatch_event_rule.ch_success.name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "ch_completed_all_steps",
       notification_type = "Information",
@@ -119,7 +117,6 @@ EOF
 
 
 resource "aws_cloudwatch_metric_alarm" "ch_started" {
-  lifecycle {ignore_changes = [tags]}
   alarm_name                = "ch_started"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -135,7 +132,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_started" {
     RuleName = aws_cloudwatch_event_rule.ch_started.name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "ch_started",
       notification_type = "Information",
@@ -145,8 +142,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_started" {
 }
 
 resource "aws_cloudwatch_event_rule" "ch_step_error_rule" {
-  count         = length(local.steps)
-  lifecycle {ignore_changes = [tags]}
+  count = length(local.steps)
   name          = format("%s_%s_%s", "ch_step", element(local.steps, count.index), "failed_rule")
   description   = "Sends failed message to slack when ch cluster step fails"
   event_pattern = <<EOF
@@ -171,7 +167,6 @@ EOF
 
 
 resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
-  lifecycle {ignore_changes = [tags]}
   count                     = length(local.steps)
   alarm_name                = format("%s_%s_%s", "ch_step", element(local.steps, count.index), "failed")
   comparison_operator       = "GreaterThanOrEqualToThreshold"
@@ -188,7 +183,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
     RuleName = aws_cloudwatch_event_rule.ch_step_error_rule[count.index].name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "ch_step_failed",
       notification_type = "Error"
@@ -217,13 +212,8 @@ EOF
 }
 
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket      = local.publish_bucket.id
-  eventbridge = true
-}
 
 resource "aws_cloudwatch_metric_alarm" "file_landed" {
-  lifecycle {ignore_changes = [tags]}
   alarm_name                = "ch_file_created_on_published_bucket"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -239,7 +229,7 @@ resource "aws_cloudwatch_metric_alarm" "file_landed" {
     RuleName = aws_cloudwatch_event_rule.file_landed.name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "ch_file_created_on_published_bucket",
       notification_type = "Information",
@@ -249,7 +239,6 @@ resource "aws_cloudwatch_metric_alarm" "file_landed" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "file_size_check_failed" {
-  lifecycle {ignore_changes = [tags]}
   alarm_name                = "file_size_check_failed"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -265,7 +254,7 @@ resource "aws_cloudwatch_metric_alarm" "file_size_check_failed" {
     RuleName = aws_cloudwatch_event_rule.file_size_check_failed.name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "file_size_check_failed",
       notification_type = "Error",
@@ -285,7 +274,6 @@ EOF
 }
 
 resource "aws_cloudwatch_metric_alarm" "delta_file_size_check_failed" {
-  lifecycle {ignore_changes = [tags]}
   alarm_name                = "delta_file_size_check_failed"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -301,7 +289,7 @@ resource "aws_cloudwatch_metric_alarm" "delta_file_size_check_failed" {
     RuleName = aws_cloudwatch_event_rule.delta_file_size_check_failed.name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "delta_file_size_check_failed",
       notification_type = "Error",
@@ -322,7 +310,6 @@ EOF
 
 
 resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
-  lifecycle {ignore_changes = [tags]}
   alarm_name                = "file_format_check_failed"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -338,7 +325,7 @@ resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
     RuleName = aws_cloudwatch_event_rule.file_format_check_rule.name
   }
   tags = merge(
-    local.common_repo_tags,
+    local.common_tags,
     {
       Name              = "file_format_check_failed",
       notification_type = "Error",

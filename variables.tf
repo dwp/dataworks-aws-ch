@@ -1,14 +1,3 @@
-variable "assume_role" {
-  type        = string
-  default     = "ci"
-  description = "IAM role assumed by Concourse when running Terraform"
-}
-
-variable "region" {
-  type    = string
-  default = "eu-west-2"
-}
-
 variable "truststore_aliases" {
   description = "comma seperated truststore aliases"
   type        = list(string)
@@ -16,7 +5,6 @@ variable "truststore_aliases" {
 }
 
 variable "emr_release" {
-  description = "Version of AWS EMR to deploy with associated applications"
   default = {
     development = "6.3.0"
     qa          = "6.3.0"
@@ -26,33 +14,27 @@ variable "emr_release" {
   }
 }
 
-variable "emr_ami_id" {
-  description = "AMI ID to use for the EMR nodes"
-  default     = "ami-0743442f852e29cc6"
-}
-
-variable "emr_instance_type" {
+variable "emr_instance_type_master" {
   default = {
-    development = "m5.2xlarge"
-    qa          = "m5.2xlarge"
-    integration = "m5.2xlarge"
+    development = "m5.4xlarge"
+    qa          = "m5.4xlarge"
+    integration = "m5.4xlarge"
     preprod     = "m5.4xlarge"
     production  = "m5.4xlarge"
   }
 }
 
-variable "emr_core_instance_count" {
+variable "emr_instance_type_core" {
   default = {
-    development = "1"
-    qa          = "1"
-    integration = "1"
-    preprod     = "2"
-    production  = "2"
+    development = "m5.4xlarge"
+    qa          = "m5.4xlarge"
+    integration = "m5.4xlarge"
+    preprod     = "r5.4xlarge"
+    production  = "r5.4xlarge"
   }
 }
 
-
-variable "num_cores_per_executor" {
+variable "emr_core_instance_count" {
   default = {
     development = "5"
     qa          = "5"
@@ -62,60 +44,36 @@ variable "num_cores_per_executor" {
   }
 }
 
-variable "num_executors_per_node" {
-  default = {
-    development = "1"
-    qa          = "1"
-    integration = "1"
-    preprod     = "1"
-    production  = "1"
-  }
-}
-
-variable "ram_memory_per_node" {
-  default = {
-    development = "32"
-    qa          = "32"
-    integration = "32"
-    preprod     = "32"
-    production  = "32"
-  }
-}
-
-variable "emr_num_cores_per_core_instance" {
-  default = {
-    development = "8"
-    qa          = "8"
-    integration = "8"
-    preprod     = "8"
-    production  = "8"
-  }
-}
-
 variable "spark_kyro_buffer" {
   default = {
-    development = "128"
-    qa          = "128"
-    integration = "128"
+    development = "128m"
+    qa          = "128m"
+    integration = "128m"
     preprod     = "2047m"
-    production  = "2047m"
+    production  = "2047m" # Max amount allowed
   }
 }
 
-variable "emr_yarn_memory_gb_per_core_instance" {
+variable "spark_executor_instances" {
   default = {
-    development = "120"
-    qa          = "120"
-    integration = "120"
-    preprod     = "184"
-    production  = "184"
+    development = 25
+    qa          = 25
+    integration = 25
+    preprod     = 25
+    production  = 25
   }
 }
+
+variable "emr_ami_id" {
+  description = "AMI ID to use for the EMR nodes"
+}
+
 
 variable "metadata_store_ch_writer_username" {
   description = "Username for metadata store write RDS user"
   default     = "ch-writer"
 }
+
 
 variable "emr_launcher_zip" {
   type = map(string)

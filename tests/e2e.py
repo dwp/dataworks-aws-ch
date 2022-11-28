@@ -76,6 +76,7 @@ def colcount(db: str, table: str):
     except Exception as ex:
         logger.error(ex)
 
+
 if __name__ == "__main__":
 
     args = runtime_args()
