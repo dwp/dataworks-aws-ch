@@ -907,6 +907,7 @@ data "aws_iam_policy_document" "ch_ssm" {
         "ssmmessages:OpenControlChannel",
         "ssmmessages:OpenDataChannel"
       ]
+      resources = ["*"]
     }
 
   statement {
@@ -959,7 +960,7 @@ data "aws_iam_policy_document" "ch_ssm" {
 }
 
 resource "aws_iam_policy" "ch_ssm" {
-  name        = "ChSsm"
+  name        = "ChSSm"
   description = "Needed to be able to start spark application"
   policy      = data.aws_iam_policy_document.ch_ssm.json
 }
