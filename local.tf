@@ -48,10 +48,6 @@ locals {
     "ssmmessages",
     "sts"]
   no_proxy = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
-  emr_subnet_non_capacity_reserved_environments = data.terraform_remote_state.common.outputs.aws_ec2_non_capacity_reservation_region
-
-  emr_capacity_reservation_preference     = local.use_capacity_reservation[local.environment] == true ? "open" : "none"
-  emr_capacity_reservation_usage_strategy = local.use_capacity_reservation[local.environment] == true ? "use-capacity-reservations-first" : ""
   hive_metastore_backend = {
     development = "aurora"
     qa          = "aurora"
@@ -88,14 +84,6 @@ locals {
     production  = false
   }
 
-  use_capacity_reservation = {
-    development = false
-    qa          = false
-    integration = false
-    preprod     = false
-    production  = true
-  }
-
   step_fail_action = {
     development = "CONTINUE"
     qa          = "CONTINUE"
@@ -123,6 +111,7 @@ locals {
   proxy_host                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
   proxy_port                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
   proxy_sg                  = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
+  emr_subnet_non_capacity_reserved_environments = data.terraform_remote_state.common.outputs.aws_ec2_non_capacity_reservation_region
   hive_metastore_location = "data/uc_ch"
   ch_version = {
     development = "0.0.1"
