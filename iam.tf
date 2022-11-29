@@ -105,55 +105,10 @@ data "aws_iam_policy_document" "emr_assume_role" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "emr_capacity_reservations" {
-  role       = aws_iam_role.ch_emr_service.name
-  policy_arn = aws_iam_policy.emr_capacity_reservations.arn
-}
-
 resource "aws_iam_role_policy_attachment" "emr_attachment_old" {
   role       = aws_iam_role.ch_emr_service.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
 }
-
-resource "aws_iam_policy" "emr_capacity_reservations" {
-  name        = "CHCapacityReservations"
-  description = "Allow usage of capacity reservations"
-  policy      = data.aws_iam_policy_document.emr_capacity_reservations.json
-}
-
-
-data "aws_iam_policy_document" "emr_capacity_reservations" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ec2:CreateLaunchTemplateVersion"
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ec2:DescribeCapacityReservations"
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "resource-groups:ListGroupResources"
-    ]
-
-    resources = ["*"]
-  }
-}
-
 
 data "aws_iam_policy_document" "ch_ebs_cmk_encrypt" {
   statement {
@@ -337,24 +292,19 @@ data "aws_iam_policy_document" "ch_emr_launcher_assume_policy" {
 data "aws_iam_policy_document" "ch_read_config" {
   statement {
     effect = "Allow"
-
     actions = [
       "s3:GetBucketLocation",
       "s3:ListBucket",
     ]
-
     resources = [
       data.terraform_remote_state.common.outputs.config_bucket.arn,
     ]
   }
-
   statement {
     effect = "Allow"
-
     actions = [
       "s3:GetObject*",
     ]
-
     resources = [
       "${data.terraform_remote_state.common.outputs.config_bucket.arn}/*",
     ]
