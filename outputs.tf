@@ -4,6 +4,6 @@ output "ch_common_sg" {
   }
 }
 
-output "ch_launcher_lambda" {
-  value = aws_lambda_function.ch_emr_launcher
+output "ch_launcher_lambda_arn" {
+  value = aws_lambda_function.ch_emr_launcher.arn
 }
