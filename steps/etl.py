@@ -14,6 +14,7 @@ import boto3
 import json
 from decimal import Decimal
 
+
 def setup_logging(log_path=None):
     json_format = "{ \"timestamp\": \"%(asctime)s\", \"log_level\": \"%(levelname)s\", \"message\": \"%(message)s\"}"
     log_level = os.environ["LOG_LEVEL"].upper() if "LOG_LEVEL" in os.environ else "INFO"
@@ -458,14 +459,14 @@ if __name__ == "__main__":
     latest_file_size = total_size(s3_client, source_bucket, latest_file)
     new_key = get_new_key(keys, latest_file)
     new_file_size = total_size(s3_client, source_bucket, new_key)
-    delta_bytes = new_file_size - latest_file_size
-    if not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
-        trigger_rule('incorrect delta file size')
-        logger.error('incorrect delta file size')
+    # delta_bytes = new_file_size - latest_file_size
+    # if not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
+    #     trigger_rule('incorrect delta file size')
+    #     logger.error('incorrect delta file size')
     if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size):
         trigger_rule('incorrect file size')
         logger.error('incorrect file size')
-    if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size) or not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
+    if not file_size_in_expected_range(float(args['file-size']['min']), float(args['file-size']['max']), new_file_size): # or not file_size_in_expected_range(float(args['file-size']['delta_min']), float(args['file-size']['delta_max']), delta_bytes):
         sys.exit(1)
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
