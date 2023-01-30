@@ -238,76 +238,6 @@ resource "aws_cloudwatch_metric_alarm" "file_landed" {
   )
 }
 
-resource "aws_cloudwatch_metric_alarm" "file_size_check_failed" {
-  alarm_name                = "file_size_check_failed"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "TriggeredRules"
-  namespace                 = "AWS/Events"
-  period                    = "60"
-  statistic                 = "Sum"
-  threshold                 = "1"
-  alarm_description         = "Monitoring file size"
-  insufficient_data_actions = []
-  alarm_actions             = [local.monitoring_topic_arn]
-  dimensions = {
-    RuleName = aws_cloudwatch_event_rule.file_size_check_failed.name
-  }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "file_size_check_failed",
-      notification_type = "Error",
-      severity          = "Critical"
-    },
-  )
-}
-
-resource "aws_cloudwatch_event_rule" "file_size_check_failed" {
-  name          = "file_size_check_rule"
-  description   = "checks that file size is within a certain range"
-  event_pattern = <<EOF
-{
-  "detail-type": ["incorrect file size"]
-}
-EOF
-}
-
-resource "aws_cloudwatch_metric_alarm" "delta_file_size_check_failed" {
-  alarm_name                = "delta_file_size_check_failed"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "TriggeredRules"
-  namespace                 = "AWS/Events"
-  period                    = "60"
-  statistic                 = "Sum"
-  threshold                 = "1"
-  alarm_description         = "checks delta file size between current and previous file"
-  insufficient_data_actions = []
-  alarm_actions             = [local.monitoring_topic_arn]
-  dimensions = {
-    RuleName = aws_cloudwatch_event_rule.delta_file_size_check_failed.name
-  }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "delta_file_size_check_failed",
-      notification_type = "Error",
-      severity          = "Critical"
-    },
-  )
-}
-
-resource "aws_cloudwatch_event_rule" "delta_file_size_check_failed" {
-  name          = "delta_file_size_check_rule"
-  description   = "checks that delta file size is within a certain range"
-  event_pattern = <<EOF
-{
-  "detail-type": ["incorrect delta file size"]
-}
-EOF
-}
-
 
 resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
   alarm_name                = "file_format_check_failed"
@@ -336,7 +266,7 @@ resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
 
 resource "aws_cloudwatch_event_rule" "file_format_check_rule" {
   name          = "file_format_check_rule"
-  description   = "checks that delta file size is within a certain range"
+  description   = "checks that file format is as expected"
   event_pattern = <<EOF
 {
   "detail-type": ["incorrect file format"]
