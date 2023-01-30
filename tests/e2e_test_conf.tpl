@@ -16,8 +16,3 @@ hash_key : Correlation_Id
 range_key : DataProduct
 data_product_name : CH
 hash_id : dataworks-aws-ch-e2e
-[file-size]
-min : 0.01
-max : 0.055
-delta_min : -0.025
-delta_max : 0.025
