@@ -240,7 +240,7 @@ resource "aws_cloudwatch_metric_alarm" "file_landed" {
 
 
 resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
-  alarm_name                = "file_format_check_failed"
+  alarm_name                = "CH_file_format_check_failed"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   metric_name               = "TriggeredRules"
@@ -257,7 +257,7 @@ resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
   tags = merge(
     local.common_tags,
     {
-      Name              = "file_format_check_failed",
+      Name              = "CH_file_format_check_failed",
       notification_type = "Error",
       severity          = "Critical"
     },
@@ -265,7 +265,7 @@ resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
 }
 
 resource "aws_cloudwatch_event_rule" "file_format_check_rule" {
-  name          = "file_format_check_rule"
+  name          = "CH_file_format_check_rule"
   description   = "checks that file format is as expected"
   event_pattern = <<EOF
 {
