@@ -191,7 +191,7 @@ def extract_csv(key, schema, spark):
                   .load(key)
         df.show(0)
     except Exception as ex:
-        trigger_rule('incorrect file format')
+        trigger_rule('CH incorrect file format')
         logger.error(f"Failed to extract csv. {ex}")
         sys.exit(-1)
 

@@ -269,7 +269,7 @@ resource "aws_cloudwatch_event_rule" "file_format_check_rule" {
   description   = "checks that file format is as expected"
   event_pattern = <<EOF
 {
-  "detail-type": ["incorrect file format"]
+  "detail-type": ["CH incorrect file format"]
 }
 EOF
 }
