@@ -447,7 +447,7 @@ def trigger_rule(detail_type):
 def download_file(source_bucket, prefix, object):
     try:
         client = boto3.client('s3')
-        logger.info(f"downloading file from {source_bucket}")
+        logger.info(f"downloading file {object} from {source_bucket} with prefix {prefix}")
         client.download_file(source_bucket, prefix+object, "./"+object)
     except Exception as ex:
         logger.error(f"Failed to download file. {ex}")
