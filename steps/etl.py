@@ -241,7 +241,7 @@ def s3_keys(s3_client, bucket_id, prefix, filename_prefix, type, exit_if_no_keys
         logger.info(f"found {len(keys)} keys under prefix {prefix}")
         logger.info(f"key under set prefix {prefix}: {keys}")
 
-        return [filename_regex_extract(key, type, filename_prefix) for key in filter_files(keys, filename_prefix,"zip")]
+        return [filename_regex_extract(key, type, filename_prefix) for key in filter_files(keys, filename_prefix, type)]
     except Exception as ex:
         logger.error(f"failed to list keys in bucket. {ex}")
         sys.exit(-1)
@@ -477,7 +477,7 @@ if __name__ == "__main__":
     keys = s3_keys(s3_client, source_bucket, args['args']['source_prefix'], args['args']['filename'], "zip")
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     new_key = get_new_key(keys, latest_file)
-    new_file = filename_regex_extract(new_key)
+    new_file = filename_regex_extract(new_key, "zip", args['args']['filename'])
     download_file(source_bucket, new_key, new_file)
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
