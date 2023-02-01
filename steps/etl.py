@@ -483,7 +483,7 @@ if __name__ == "__main__":
     partitioning_column = args['args']['partitioning_column']
     extraction_df = create_spark_df(spark, new_file, schema_spark(columns))
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
-    parquet_files = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], "*", "parquet", exit_if_no_keys=False)
+    parquet_files = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], "", "parquet", exit_if_no_keys=False)
     day = date_regex_extract(new_key)
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination, partitioning_column)
