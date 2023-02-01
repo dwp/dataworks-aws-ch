@@ -87,7 +87,7 @@ def dynamo_fixture():
 
 
 def test_all_keys(s3_fixture):
-    expected = [os.path.join(args['args']['source_prefix'], j) for j in keys]
+    expected = keys
     s3_client = s3_fixture
     diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'], "BasicCompanyData", "zip"),
                     expected, ignore_string_case=False)
@@ -95,9 +95,9 @@ def test_all_keys(s3_fixture):
 
 
 def test_filter_files():
-    diff = DeepDiff(filter_files(keys, args['args']['filename'], 'csv'), keys_only_csv,
+    diff = DeepDiff(filter_files(keys, args['args']['filename'], 'zip'), keys_only_csv,
                     ignore_string_case=False)
-    assert diff == {}, "csv files are have not all been identified or other file types are present"
+    assert diff == {}, "zip files are have not all been identified or other file types are present"
 
 
 def test_date_regex_extract():
@@ -134,21 +134,18 @@ def test_get_new_key():
     t.test_get_new_key_exit()
 
 
-def test_date_regex_extract():
-    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01.zip") == "2019-01-01", "date was not extracted correctly"
-
 
 def test_extract_csv(spark_fixture):
     spark = spark_fixture
     cols = ast.literal_eval(args['args']['cols'])
-    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.zip", schema_spark(cols), spark)
+    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.csv", schema_spark(cols), spark)
     assert df.count() == 2, "read rows are too few or too many"
 
 
 def test_rename_cols(spark_fixture):
     spark = spark_fixture
     cols = ast.literal_eval(args['args']['cols'])
-    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.zip", schema_spark(cols), spark)
+    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.csv", schema_spark(cols), spark)
     dfn = rename_cols(df)
     print(dfn.columns)
     assert all(["." not in col for col in dfn.columns]), ". were not removed"
@@ -157,7 +154,7 @@ def test_rename_cols(spark_fixture):
 
 def test_create_spark_df(spark_fixture):
     spark = spark_fixture
-    key = "tests/files/BasicCompanyData-2019-01-01.zip"
+    key = "tests/files/BasicCompanyData-2019-01-01.csv"
     cols = ast.literal_eval(args['args']['cols'])
     df = create_spark_df(spark, key, schema_spark(cols))
     assert df.count() == 2, "total rows are not equal to rows in sample files"
@@ -166,9 +163,9 @@ def test_create_spark_df(spark_fixture):
 
 def test_get_new_df(spark_fixture):
     spark = spark_fixture
-    key = "tests/files/BasicCompanyData-2019-01-01.zip"
-    new_key = "tests/files/BasicCompanyData-2019-01-02.zip"
-    new_df_key = "tests/files/new_df.zip"
+    key = "tests/files/BasicCompanyData-2019-01-01.csv"
+    new_key = "tests/files/BasicCompanyData-2019-01-02.csv"
+    new_df_key = "tests/files/new_df.csv"
     schema = schema_spark(ast.literal_eval(args['args']['cols']))
     existing_df = create_spark_df(spark, key, schema)
     extraction_df = create_spark_df(spark, new_key, schema)
@@ -225,4 +222,4 @@ def test_convert_to_gigabytes():
 
 def test_filename_regex_extract():
 
-    assert filename_regex_extract("a/b/BasicCompanyData-2019-01-03.zip", "csv", "BasicCompanyData") == "BasicCompanyData-2019-01-03.zip", "expected filename was not extracted"
+    assert filename_regex_extract("a/b/BasicCompanyData-2019-01-03.zip", "zip", "BasicCompanyData") == "BasicCompanyData-2019-01-03.zip", "expected filename was not extracted"
