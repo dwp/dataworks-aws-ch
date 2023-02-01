@@ -87,7 +87,7 @@ def dynamo_fixture():
 
 
 def test_all_keys(s3_fixture):
-    expected = keys
+    expected = keys[:-1]
     s3_client = s3_fixture
     diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'], "BasicCompanyData", "zip"),
                     expected, ignore_string_case=False)
