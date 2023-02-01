@@ -123,7 +123,7 @@ def get_new_key(keys, filename):
             exit(0)
         elif idx == l-1:
             new_file = keys[-1]
-            logger.info("found one new file after last processing")
+            logger.info(f"found one new file after last processing: {new_file}")
             return new_file
         elif idx < l-1:
             logger.error("multiple files found since last import. exiting...")
@@ -456,6 +456,7 @@ def download_file(source_bucket, prefix, object):
 
 def unzip_file(object):
     try:
+        logger.info(f"unzipping file {object}")
         with zipfile.ZipFile(f"./{object}", 'r') as zip_ref:
             zip_ref.extractall("./")
     except Exception as ex:
