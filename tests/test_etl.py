@@ -14,8 +14,8 @@ from pyspark.sql.types import StructField, StringType, StructType
 
 test_config_path = "tests/unit_test_conf.tpl"
 
-keys = ["BasicCompanyData-2018-01-01.csv", "BasicCompanyData-2019-01-02.csv",
-        "BasicCompanyData-2019-01-03.csv", "BasicCompanyData-2019-01-04.csv", "notacsv.txt"]
+keys = ["BasicCompanyData-2018-01-01.zip", "BasicCompanyData-2019-01-02.zip",
+        "BasicCompanyData-2019-01-03.zip", "BasicCompanyData-2019-01-04.zip", "notazip.txt"]
 
 keys_only_csv = keys[:-1]
 
@@ -89,7 +89,7 @@ def dynamo_fixture():
 def test_all_keys(s3_fixture):
     expected = [os.path.join(args['args']['source_prefix'], j) for j in keys]
     s3_client = s3_fixture
-    diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix']),
+    diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'], "BasicCompanyData", "zip"),
                     expected, ignore_string_case=False)
     assert diff == {}, "objects uploaded and objects returned differ"
 
@@ -101,7 +101,7 @@ def test_filter_files():
 
 
 def test_date_regex_extract():
-    assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.csv", args['args']['filename']) == "2020-11-11", "filename unique part was not extracted"
+    assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.csv", "zip") == "2020-11-11", "filename unique part was not extracted"
 
 
 def test_get_latest_file(dynamo_fixture):
