@@ -109,14 +109,14 @@ def test_get_latest_file(dynamo_fixture):
 
 
 def test_get_new_key():
-    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]]
-    latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
-    expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
+    keys = ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]
+    latest_file = "BasicCompanyData-2019-01-02.csv"
+    expected_key = "BasicCompanyData-2019-01-03.csv"
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
-    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv"]]
-    latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
-    expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
+    keys = ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv"]
+    latest_file = "BasicCompanyData-2019-01-02.csv"
+    expected_key = "BasicCompanyData-2019-01-03.csv"
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 
@@ -222,3 +222,7 @@ def test_convert_to_gigabytes():
     bytes = 34938203484
     expected_gb = 32.5387
     assert convert_to_gigabytes(bytes) == expected_gb, "wrong gigabytes conversion"
+
+def test_filename_regex_extract():
+
+    assert filename_regex_extract("a/b/BasicCompanyData-2019-01-03.csv", "csv", "BasicCompanyData") == "BasicCompanyData-2019-01-03.csv", "expected filename was not extracted"

@@ -13,7 +13,7 @@ from pyspark.sql import SparkSession, DataFrame
 import boto3
 import json
 from decimal import Decimal
-
+import zipfile
 
 def setup_logging(log_path=None):
     json_format = "{ \"timestamp\": \"%(asctime)s\", \"log_level\": \"%(levelname)s\", \"message\": \"%(message)s\"}"
@@ -65,10 +65,21 @@ def get_latest_file(table, hash_key, hash_id):
         sys.exit(-1)
 
 
-def date_regex_extract(filename: str):
+def date_regex_extract(filename: str, type: str):
     logger.info(f"extracting date from file name {filename}")
     try:
-        pattern = ".*-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\.csv"
+        pattern = ".*-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\."+type
+        match = re.findall(pattern, filename)
+        return match[0]
+    except Exception as ex:
+        logger.error(f"failed to extract date from file name {filename}. {ex}")
+        sys.exit(-1)
+
+
+def filename_regex_extract(filename: str, type: str, filenames_prefix: str):
+    logger.info(f"extracting date from file name {filename}")
+    try:
+        pattern = f".*({filenames_prefix}-.*\.{type})"
         match = re.findall(pattern, filename)
         return match[0]
     except Exception as ex:
@@ -188,7 +199,7 @@ def extract_csv(key, schema, spark):
                   .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
                   .schema(schema) \
-                  .load(key)
+                  .load(f"./{key}")
         df.show(0)
     except Exception as ex:
         trigger_rule('CH incorrect file format')
@@ -214,7 +225,7 @@ def create_spark_df(sp, key, schema):
     return df
 
 
-def s3_keys(s3_client, bucket_id, prefix, exit_if_no_keys=True):
+def s3_keys(s3_client, bucket_id, prefix, filename_prefix, type, exit_if_no_keys=True):
     logger.info(f"looking for objects with prefix {prefix}")
     try:
         keys = []
@@ -230,7 +241,7 @@ def s3_keys(s3_client, bucket_id, prefix, exit_if_no_keys=True):
         logger.info(f"found {len(keys)} keys under prefix {prefix}")
         logger.info(f"key under set prefix {prefix}: {keys}")
 
-        return keys
+        return [filename_regex_extract(key, type, filename_prefix) for key in keys]
     except Exception as ex:
         logger.error(f"failed to list keys in bucket. {ex}")
         sys.exit(-1)
@@ -433,6 +444,28 @@ def trigger_rule(detail_type):
         sys.exit(-1)
 
 
+def download_file(source_bucket, prefix, object):
+    try:
+        client = boto3.client('s3')
+        logger.info(f"downloading file from {source_bucket}")
+        client.download_file(source_bucket, prefix+object, "./"+object)
+    except Exception as ex:
+        logger.error(f"Failed to download file. {ex}")
+        sys.exit(-1)
+
+
+def unzip_file(object):
+    try:
+        with zipfile.ZipFile(f"./{object}", 'r') as zip_ref:
+            zip_ref.extractall("./")
+    except Exception as ex:
+        logger.error(f"Failed to unzip file. {ex}")
+        sys.exit(-1)
+
+
+
+
+
 if __name__ == "__main__":
     args = all_args()
     logger = setup_logging(args['args']['log_path'])
@@ -441,17 +474,16 @@ if __name__ == "__main__":
     source_bucket = args['args']['source_bucket']
     destination_bucket = args['args']['destination_bucket']
     spark = spark_session()
-    keys = s3_keys(s3_client, source_bucket, args['args']['source_prefix'])
-    keys_csv = filter_files(keys, args['args']['filename'], 'csv')
+    keys = s3_keys(s3_client, source_bucket, args['args']['source_prefix'], args['args']['filename'], "zip")
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     new_key = get_new_key(keys, latest_file)
+    new_file = filename_regex_extract(new_key)
+    download_file(source_bucket, new_key, new_file)
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
-    new_key_full_s3_path = os.path.join("s3://"+source_bucket, new_key)
-    extraction_df = create_spark_df(spark, new_key_full_s3_path, schema_spark(columns))
+    extraction_df = create_spark_df(spark, new_file, schema_spark(columns))
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
-    existing_data = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], exit_if_no_keys=False)
-    parquet_files = filter_files(existing_data, "", 'parquet', exit_if_no_keys=False)
+    parquet_files = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], "*", "parquet", exit_if_no_keys=False)
     day = date_regex_extract(new_key)
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination, partitioning_column)
@@ -464,4 +496,4 @@ if __name__ == "__main__":
     recreate_hive_table(new_df, destination, db, tbl, spark, partitioning_column)
     tag_object(s3_client, destination_bucket, args['args']['destination_prefix'], day, db, tbl, partitioning_column)
     total_files_size = total_size(s3_client, destination_bucket, args['args']['destination_prefix'])
-    add_latest_file(new_key, total_files_size)
+    add_latest_file(new_file, total_files_size)
