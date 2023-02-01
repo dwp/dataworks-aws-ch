@@ -463,9 +463,6 @@ def unzip_file(object):
         sys.exit(-1)
 
 
-
-
-
 if __name__ == "__main__":
     args = all_args()
     logger = setup_logging(args['args']['log_path'])
@@ -478,13 +475,14 @@ if __name__ == "__main__":
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     new_key = get_new_key(keys, latest_file)
     new_file = filename_regex_extract(new_key, "zip", args['args']['filename'])
-    download_file(source_bucket, new_key, new_file)
+    download_file(source_bucket, args['args']['source_prefix'], new_file)
+    unzip_file(new_file)
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
-    extraction_df = create_spark_df(spark, new_file, schema_spark(columns))
+    extraction_df = create_spark_df(spark, new_file.replace(".zip", ".csv"), schema_spark(columns))
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
     parquet_files = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], "", "parquet", exit_if_no_keys=False)
-    day = date_regex_extract(new_key,"zip")
+    day = date_regex_extract(new_key, "zip")
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination, partitioning_column)
         new_df = get_new_df(extraction_df, existing_df, partitioning_column, day)
