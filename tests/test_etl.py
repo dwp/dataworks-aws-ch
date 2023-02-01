@@ -17,8 +17,6 @@ test_config_path = "tests/unit_test_conf.tpl"
 keys = ["BasicCompanyData-2018-01-01.zip", "BasicCompanyData-2019-01-02.zip",
         "BasicCompanyData-2019-01-03.zip", "BasicCompanyData-2019-01-04.zip", "notazip.txt"]
 
-keys_only_csv = keys[:-1]
-
 
 def config(config_file_path: str):
     conf = ConfigParser()

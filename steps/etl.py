@@ -241,7 +241,7 @@ def s3_keys(s3_client, bucket_id, prefix, filename_prefix, type, exit_if_no_keys
         logger.info(f"found {len(keys)} keys under prefix {prefix}")
         logger.info(f"key under set prefix {prefix}: {keys}")
 
-        return [filename_regex_extract(key, type, filename_prefix) for key in keys]
+        return [filename_regex_extract(key, type, filename_prefix) for key in filter_files(keys, filename_prefix,"zip")]
     except Exception as ex:
         logger.error(f"failed to list keys in bucket. {ex}")
         sys.exit(-1)
