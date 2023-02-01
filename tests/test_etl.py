@@ -101,7 +101,7 @@ def test_filter_files():
 
 
 def test_date_regex_extract():
-    assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.csv", "zip") == "2020-11-11", "filename unique part was not extracted"
+    assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.zip", "zip") == "2020-11-11", "filename unique part was not extracted"
 
 
 def test_get_latest_file(dynamo_fixture):
@@ -109,14 +109,14 @@ def test_get_latest_file(dynamo_fixture):
 
 
 def test_get_new_key():
-    keys = ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]
-    latest_file = "BasicCompanyData-2019-01-02.csv"
-    expected_key = "BasicCompanyData-2019-01-03.csv"
+    keys = ["BasicCompanyData-2019-01-01.zip", "BasicCompanyData-2019-01-02.zip", "BasicCompanyData-2019-01-03.zip"]
+    latest_file = "BasicCompanyData-2019-01-02.zip"
+    expected_key = "BasicCompanyData-2019-01-03.zip"
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
-    keys = ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv"]
-    latest_file = "BasicCompanyData-2019-01-02.csv"
-    expected_key = "BasicCompanyData-2019-01-03.csv"
+    keys = ["BasicCompanyData-2019-01-01.zip", "BasicCompanyData-2019-01-03.zip"]
+    latest_file = "BasicCompanyData-2019-01-02.zip"
+    expected_key = "BasicCompanyData-2019-01-03.zip"
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 
@@ -124,9 +124,9 @@ def test_get_new_key():
         def test_get_new_key_exit(self):
             with self.assertRaises(SystemExit) as cm:
                 keys = [os.path.join(args['args']['source_prefix'], j) for j in
-                        ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv",
-                         "BasicCompanyData-2019-01-04.csv"]]
-                latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
+                        ["BasicCompanyData-2019-01-01.zip", "BasicCompanyData-2019-01-03.zip",
+                         "BasicCompanyData-2019-01-04.zip"]]
+                latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.zip")
                 get_new_key(keys, latest_file)
 
             self.assertEqual(cm.exception.code, 1)
@@ -135,20 +135,20 @@ def test_get_new_key():
 
 
 def test_date_regex_extract():
-    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01.csv") == "2019-01-01", "date was not extracted correctly"
+    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01.zip") == "2019-01-01", "date was not extracted correctly"
 
 
 def test_extract_csv(spark_fixture):
     spark = spark_fixture
     cols = ast.literal_eval(args['args']['cols'])
-    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.csv", schema_spark(cols), spark)
+    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.zip", schema_spark(cols), spark)
     assert df.count() == 2, "read rows are too few or too many"
 
 
 def test_rename_cols(spark_fixture):
     spark = spark_fixture
     cols = ast.literal_eval(args['args']['cols'])
-    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.csv", schema_spark(cols), spark)
+    df = extract_csv("tests/files/BasicCompanyData-2019-01-01.zip", schema_spark(cols), spark)
     dfn = rename_cols(df)
     print(dfn.columns)
     assert all(["." not in col for col in dfn.columns]), ". were not removed"
@@ -157,7 +157,7 @@ def test_rename_cols(spark_fixture):
 
 def test_create_spark_df(spark_fixture):
     spark = spark_fixture
-    key = "tests/files/BasicCompanyData-2019-01-01.csv"
+    key = "tests/files/BasicCompanyData-2019-01-01.zip"
     cols = ast.literal_eval(args['args']['cols'])
     df = create_spark_df(spark, key, schema_spark(cols))
     assert df.count() == 2, "total rows are not equal to rows in sample files"
@@ -166,9 +166,9 @@ def test_create_spark_df(spark_fixture):
 
 def test_get_new_df(spark_fixture):
     spark = spark_fixture
-    key = "tests/files/BasicCompanyData-2019-01-01.csv"
-    new_key = "tests/files/BasicCompanyData-2019-01-02.csv"
-    new_df_key = "tests/files/new_df.csv"
+    key = "tests/files/BasicCompanyData-2019-01-01.zip"
+    new_key = "tests/files/BasicCompanyData-2019-01-02.zip"
+    new_df_key = "tests/files/new_df.zip"
     schema = schema_spark(ast.literal_eval(args['args']['cols']))
     existing_df = create_spark_df(spark, key, schema)
     extraction_df = create_spark_df(spark, new_key, schema)
@@ -194,8 +194,8 @@ def test_tag_object():
     dates_dont_include = ['2018-01-01', '2019-03-01']
     db = 'test_db'
     tbl = 'test_tbl'
-    keys = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.csv") for i in [date]+dates_dont_include]
-    keys_expected = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+date, "afile.csv")]
+    keys = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.zip") for i in [date]+dates_dont_include]
+    keys_expected = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+date, "afile.zip")]
     s3_client = boto3.client("s3")
     s3_client.create_bucket(Bucket=bucket,
                             CreateBucketConfiguration={"LocationConstraint": 'eu-west-2'})
@@ -225,4 +225,4 @@ def test_convert_to_gigabytes():
 
 def test_filename_regex_extract():
 
-    assert filename_regex_extract("a/b/BasicCompanyData-2019-01-03.csv", "csv", "BasicCompanyData") == "BasicCompanyData-2019-01-03.csv", "expected filename was not extracted"
+    assert filename_regex_extract("a/b/BasicCompanyData-2019-01-03.zip", "csv", "BasicCompanyData") == "BasicCompanyData-2019-01-03.zip", "expected filename was not extracted"
