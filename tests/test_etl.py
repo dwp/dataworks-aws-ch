@@ -93,7 +93,7 @@ def test_all_keys(s3_fixture):
 
 
 def test_filter_files():
-    diff = DeepDiff(filter_files(keys, args['args']['filename'], 'zip'), keys_only_csv,
+    diff = DeepDiff(filter_files(keys, args['args']['filename'], 'zip'), keys[:-1],
                     ignore_string_case=False)
     assert diff == {}, "zip files are have not all been identified or other file types are present"
 
