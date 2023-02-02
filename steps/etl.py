@@ -468,11 +468,13 @@ def unzip_file_in_loco(source_bucket, prefix, zip_file, csv_file):
 
         dev_client = boto3.client('s3')
         dev_resource = boto3.resource('s3')
-        bucket_dev = dev_resource.Bucket(source_bucket)
-        logger.info(f"unzipping in loco")
-        zip_obj = dev_resource.Object(bucket_name=bucket_dev, key=os.path.join(prefix, zip_file))
+        logger.info(f"getting object")
+
+        zip_obj = dev_resource.Object(bucket_name=source_bucket, key=os.path.join(prefix, zip_file))
+        logger.info(f"byte s")
         buffer = BytesIO(zip_obj.get()["Body"].read())
         z = zipfile.ZipFile(buffer)
+        logger.info(f"after buffer s")
 
         for filename in z.namelist():
             file_info = z.getinfo(filename)
