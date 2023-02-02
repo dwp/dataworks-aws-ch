@@ -14,7 +14,7 @@ from pyspark.sql import SparkSession, DataFrame
 import boto3
 import json
 from decimal import Decimal
-import zipfile
+import shutil
 
 def setup_logging(log_path=None):
     json_format = "{ \"timestamp\": \"%(asctime)s\", \"log_level\": \"%(levelname)s\", \"message\": \"%(message)s\"}"
@@ -461,16 +461,15 @@ def unzip_file(object, local_path, max_wait=180):
         while not os.path.exists(full_path) and time.time() - init_time < max_wait:
             time.sleep(3)
         logger.info(f"unzipping file {object}")
-        with zipfile.ZipFile(full_path, 'r') as zip_ref:
-            zip_ref.extractall(local_path)
+        shutil.unpack_archive(full_path)
+
     except Exception as ex:
         logger.error(f"Failed to unzip file. {ex}")
         sys.exit(-1)
 
 
-def upload_file(object, local_path, bucket, key, max_wait=180):
+def upload_file(s3, object, local_path, bucket, key, max_wait=180):
     try:
-        s3 = get_s3_client()
         full_path = os.path.join(local_path, object)
         while not os.path.exists(full_path) and time.time() - init_time < max_wait:
             time.sleep(3)
@@ -499,7 +498,7 @@ if __name__ == "__main__":
     download_file(source_bucket, args['args']['source_prefix'], new_file_zip, args['args']['local_path'])
     init_time = time.time()
     unzip_file(new_file_zip, args['args']['local_path'])
-    upload_file(new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
+    upload_file(s3_client, new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
     extraction_df = create_spark_df(spark, "s3://"+os.path.join(source_bucket, args['args']['source_prefix'], new_file_csv), schema_spark(columns))
