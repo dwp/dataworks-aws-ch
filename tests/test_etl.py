@@ -219,5 +219,4 @@ def test_convert_to_gigabytes():
     assert convert_to_gigabytes(bytes) == expected_gb, "wrong gigabytes conversion"
 
 def test_filename_regex_extract():
-
     assert filename_regex_extract("a/b/BasicCompanyData-2019-01-03.zip", "zip", "BasicCompanyData") == "BasicCompanyData-2019-01-03.zip", "expected filename was not extracted"

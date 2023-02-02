@@ -445,7 +445,7 @@ def trigger_rule(detail_type):
         sys.exit(-1)
 
 
-def download_file(source_bucket, prefix, object, local_path):
+def download_file(source_bucket, prefix, object, local_path, max_wait=180):
     try:
         client = boto3.client('s3')
         logger.info(f"downloading file {object} from {source_bucket} with prefix {prefix}")
@@ -455,20 +455,27 @@ def download_file(source_bucket, prefix, object, local_path):
         sys.exit(-1)
 
 
-def unzip_file(object, local_path, filename_csv):
+def unzip_file(object, local_path, filename_csv, max_wait=180):
     try:
+        full_path = os.path.join(local_path, object)
+        while not os.path.exists(full_path) and time.time() - init_time < max_wait:
+            time.sleep(3)
         logger.info(f"unzipping file {object}")
-        with zipfile.ZipFile(os.path.join(local_path, object), 'r') as zip_ref:
+        with zipfile.ZipFile(full_path, 'r') as zip_ref:
             zip_ref.extractall(os.path.join(local_path, filename_csv))
     except Exception as ex:
         logger.error(f"Failed to unzip file. {ex}")
         sys.exit(-1)
 
 
-def upload_file(object, local_path, bucket, key):
+def upload_file(object, local_path, bucket, key, max_wait=180):
     try:
         s3 = get_s3_client()
-        s3.upload_file(os.path.join(local_path, object), bucket, key)
+        full_path = os.path.join(local_path, object)
+        while not os.path.exists(full_path) and time.time() - init_time < max_wait:
+            time.sleep(3)
+        logger.info(f"uploading file {object}")
+        s3.upload_file(full_path, bucket, key)
 
     except Exception as ex:
         logger.error(f"Failed to upload file. {ex}")
@@ -490,13 +497,8 @@ if __name__ == "__main__":
     new_file_zip = filename_regex_extract(new_key, "zip", args['args']['filename'])
     new_file_csv = new_file_zip.replace(".zip", ".csv")
     download_file(source_bucket, args['args']['source_prefix'], new_file_zip, args['args']['local_path'])
-    max_wait = 180
     init_time = time.time()
-    while not os.path.exists(os.path.join(args['args']['local_path'], new_file_zip)) and time.time()-init_time < max_wait:
-        time.sleep(3)
     unzip_file(new_file_zip, args['args']['local_path'], new_file_csv)
-    while not os.path.exists(os.path.join(args['args']['local_path'], new_file_csv)) and time.time()-init_time < max_wait:
-        time.sleep(3)
     upload_file(new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
