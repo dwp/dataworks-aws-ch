@@ -199,7 +199,7 @@ def extract_csv(key, schema, spark):
                   .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
                   .schema(schema) \
-                  .load(f"./{key}")
+                  .load(key)
         df.show(0)
     except Exception as ex:
         trigger_rule('CH incorrect file format')
@@ -444,21 +444,21 @@ def trigger_rule(detail_type):
         sys.exit(-1)
 
 
-def download_file(source_bucket, prefix, object):
+def download_file(source_bucket, prefix, object, local_path):
     try:
         client = boto3.client('s3')
         logger.info(f"downloading file {object} from {source_bucket} with prefix {prefix}")
-        client.download_file(source_bucket, os.path.join(prefix,object), "./"+object)
+        client.download_file(source_bucket, os.path.join(prefix, object), os.path.join(local_path, object))
     except Exception as ex:
         logger.error(f"Failed to download file. {ex}")
         sys.exit(-1)
 
 
-def unzip_file(object):
+def unzip_file(object, local_path):
     try:
         logger.info(f"unzipping file {object}")
-        with zipfile.ZipFile(f"./{object}", 'r') as zip_ref:
-            zip_ref.extractall("./")
+        with zipfile.ZipFile(os.path.join(local_path, object), 'r') as zip_ref:
+            zip_ref.extractall(local_path)
     except Exception as ex:
         logger.error(f"Failed to unzip file. {ex}")
         sys.exit(-1)
@@ -476,11 +476,11 @@ if __name__ == "__main__":
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     new_key = get_new_key(keys, latest_file)
     new_file = filename_regex_extract(new_key, "zip", args['args']['filename'])
-    download_file(source_bucket, args['args']['source_prefix'], new_file)
+    download_file(source_bucket, args['args']['source_prefix'], new_file, args['args']['local_path'])
     unzip_file(new_file)
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
-    extraction_df = create_spark_df(spark, new_file.replace(".zip", ".csv"), schema_spark(columns))
+    extraction_df = create_spark_df(spark, os.path.join(args['args']['local_path'], new_file.replace(".zip", ".csv")), schema_spark(columns))
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
     parquet_files = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], "", "parquet", exit_if_no_keys=False)
     day = date_regex_extract(new_key, "zip")
