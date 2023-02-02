@@ -455,14 +455,14 @@ def download_file(source_bucket, prefix, object, local_path, max_wait=180):
         sys.exit(-1)
 
 
-def unzip_file(object, local_path, filename_csv, max_wait=180):
+def unzip_file(object, local_path, max_wait=180):
     try:
         full_path = os.path.join(local_path, object)
         while not os.path.exists(full_path) and time.time() - init_time < max_wait:
             time.sleep(3)
         logger.info(f"unzipping file {object}")
         with zipfile.ZipFile(full_path, 'r') as zip_ref:
-            zip_ref.extractall(os.path.join(local_path, filename_csv))
+            zip_ref.extractall(local_path)
     except Exception as ex:
         logger.error(f"Failed to unzip file. {ex}")
         sys.exit(-1)
@@ -498,7 +498,7 @@ if __name__ == "__main__":
     new_file_csv = new_file_zip.replace(".zip", ".csv")
     download_file(source_bucket, args['args']['source_prefix'], new_file_zip, args['args']['local_path'])
     init_time = time.time()
-    unzip_file(new_file_zip, args['args']['local_path'], new_file_csv)
+    unzip_file(new_file_zip, args['args']['local_path'])
     upload_file(new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
