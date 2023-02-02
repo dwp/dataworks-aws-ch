@@ -444,42 +444,87 @@ def trigger_rule(detail_type):
         logger.error(f"Failed to trigger rule. {ex}")
         sys.exit(-1)
 
+#
+# def download_file(source_bucket, prefix, object, local_path, max_wait=180):
+#     try:
+#         client = boto3.client('s3')
+#         logger.info(f"downloading file {object} from {source_bucket} with prefix {prefix}")
+#         client.download_file(source_bucket, os.path.join(prefix, object), os.path.join(local_path, object))
+#     except Exception as ex:
+#         logger.error(f"Failed to download file. {ex}")
+#         sys.exit(-1)
 
-def download_file(source_bucket, prefix, object, local_path, max_wait=180):
+import boto3
+import zipfile
+from datetime import *
+from io import BytesIO
+import json
+import re
+
+
+def unzip_file_in_loco(source_bucket, prefix, zip_file, csv_file):
     try:
-        client = boto3.client('s3')
-        logger.info(f"downloading file {object} from {source_bucket} with prefix {prefix}")
-        client.download_file(source_bucket, os.path.join(prefix, object), os.path.join(local_path, object))
+        logger.info(f"unzipping in loco")
+
+        dev_client = boto3.client('s3')
+        dev_resource = boto3.resource('s3')
+        bucket_dev = dev_resource.Bucket(source_bucket)
+        logger.info(f"unzipping in loco")
+        zip_obj = dev_resource.Object(bucket_name=bucket_dev, key=os.path.join(prefix, zip_file))
+        buffer = BytesIO(zip_obj.get()["Body"].read())
+        z = zipfile.ZipFile(buffer)
+
+        for filename in z.namelist():
+            file_info = z.getinfo(filename)
+
+            # Now copy the files to the 'unzipped' S3 folder
+
+            logger.info(f"Copying file {filename} to {source_bucket}/{prefix}/{filename}")
+
+            response = dev_client.put_object(
+
+                Body=z.open(filename).read(),
+
+                # might need to replace above line with the one
+                # below for windows files
+                #
+                # Body=z.open(filename).read().decode("iso-8859-1").encode(encoding='UTF-8'),
+
+                Bucket=source_bucket,
+
+                Key=os.path.join(prefix, csv_file)
+
+            )
+
     except Exception as ex:
-        logger.error(f"Failed to download file. {ex}")
+        logger.error(f"Failed to unzip in loco. {ex}")
         sys.exit(-1)
-
-
-def unzip_file(object, local_path, max_wait=180):
-    try:
-        full_path = os.path.join(local_path, object)
-        while not os.path.exists(full_path) and time.time() - init_time < max_wait:
-            time.sleep(3)
-        logger.info(f"unzipping file {object}")
-        shutil.unpack_archive(full_path)
-
-    except Exception as ex:
-        logger.error(f"Failed to unzip file. {ex}")
-        sys.exit(-1)
-
-
-def upload_file(s3, object, local_path, bucket, key, max_wait=180):
-    try:
-        full_path = os.path.join(local_path, object)
-        while not os.path.exists(full_path) and time.time() - init_time < max_wait:
-            time.sleep(3)
-        logger.info(f"uploading file {object}")
-        s3.upload_file(full_path, bucket, key)
-
-    except Exception as ex:
-        logger.error(f"Failed to upload file. {ex}")
-        sys.exit(-1)
-
+#
+# def unzip_file(object, local_path, max_wait=180):
+#     try:
+#         full_path = os.path.join(local_path, object)
+#         while not os.path.exists(full_path) and time.time() - init_time < max_wait:
+#             time.sleep(3)
+#         logger.info(f"unzipping file {object}")
+#         shutil.unpack_archive(full_path)
+#
+#     except Exception as ex:
+#         logger.error(f"Failed to unzip file. {ex}")
+#         sys.exit(-1)
+#
+#
+# def upload_file(s3, object, local_path, bucket, key, max_wait=180):
+#     try:
+#         full_path = os.path.join(local_path, object)
+#         while not os.path.exists(full_path) and time.time() - init_time < max_wait:
+#             time.sleep(3)
+#         logger.info(f"uploading file {object}")
+#         s3.upload_file(full_path, bucket, key)
+#
+#     except Exception as ex:
+#         logger.error(f"Failed to upload file. {ex}")
+#         sys.exit(-1)
+#
 
 
 if __name__ == "__main__":
@@ -495,10 +540,11 @@ if __name__ == "__main__":
     new_key = get_new_key(keys, latest_file)
     new_file_zip = filename_regex_extract(new_key, "zip", args['args']['filename'])
     new_file_csv = new_file_zip.replace(".zip", ".csv")
-    download_file(source_bucket, args['args']['source_prefix'], new_file_zip, args['args']['local_path'])
-    init_time = time.time()
-    unzip_file(new_file_zip, args['args']['local_path'])
-    upload_file(s3_client, new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
+    unzip_file_in_loco(source_bucket, args['args']['source_prefix'], new_file_zip, new_file_csv)
+    # download_file(source_bucket, args['args']['source_prefix'], new_file_zip, args['args']['local_path'])
+    # init_time = time.time()
+    # unzip_file(new_file_zip, args['args']['local_path'])
+    # upload_file(s3_client, new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
     extraction_df = create_spark_df(spark, "s3://"+os.path.join(source_bucket, args['args']['source_prefix'], new_file_csv), schema_spark(columns))

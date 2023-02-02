@@ -98,9 +98,9 @@ cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<CWAGEN
             "timezone": "UTC"
           },
           {
-            "file_path": "/var/log/dataworks-aws-ch/install-shutil.log",
+            "file_path": "/var/log/dataworks-aws-ch/install-zipfile.log",
             "log_group_name": "$${cwa_bootstrap_loggrp_name}",
-            "log_stream_name": "{instance_id}-install-shutil.log",
+            "log_stream_name": "{instance_id}-install-zipfile.log",
             "timezone": "UTC"
           },
           {
