@@ -477,7 +477,7 @@ if __name__ == "__main__":
     new_key = get_new_key(keys, latest_file)
     new_file = filename_regex_extract(new_key, "zip", args['args']['filename'])
     download_file(source_bucket, args['args']['source_prefix'], new_file, args['args']['local_path'])
-    unzip_file(new_file)
+    unzip_file(new_file, args['args']['local_path'])
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
     extraction_df = create_spark_df(spark, os.path.join(args['args']['local_path'], new_file.replace(".zip", ".csv")), schema_spark(columns))
