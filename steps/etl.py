@@ -199,7 +199,7 @@ def extract_csv(key, schema, spark):
                   .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
                   .schema(schema) \
-                  .load("s3://"+key)
+                  .load(key)
         df.show(0)
     except Exception as ex:
         trigger_rule('CH incorrect file format')
@@ -492,7 +492,7 @@ if __name__ == "__main__":
     upload_file(new_file, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'],new_file.replace(".zip", ".csv")))
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
-    extraction_df = create_spark_df(spark, os.path.join(source_bucket, args['args']['source_prefix'], new_file.replace(".zip", ".csv")), schema_spark(columns))
+    extraction_df = create_spark_df(spark, "s3://"+os.path.join(source_bucket, args['args']['source_prefix'], new_file.replace(".zip", ".csv")), schema_spark(columns))
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
     parquet_files = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], "", "parquet", exit_if_no_keys=False)
     day = date_regex_extract(new_key, "zip")
