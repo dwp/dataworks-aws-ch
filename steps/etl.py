@@ -458,7 +458,7 @@ def unzip_file(object, local_path):
     try:
         logger.info(f"unzipping file {object}")
         with zipfile.ZipFile(os.path.join(local_path, object), 'r') as zip_ref:
-            zip_ref.extractall(local_path)
+            zip_ref.extractall("./"+object.replace(".zip", ".csv"))
     except Exception as ex:
         logger.error(f"Failed to unzip file. {ex}")
         sys.exit(-1)

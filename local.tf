@@ -113,7 +113,7 @@ locals {
   proxy_sg                  = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
   emr_subnet_non_capacity_reserved_environments = data.terraform_remote_state.common.outputs.aws_ec2_non_capacity_reservation_region
   hive_metastore_location = "data/uc_ch"
-  local_path = "/opt/emr"
+  local_path = "/opt/emr/steps"
   ch_version = {
     development = "0.0.1"
     qa          = "0.0.1"
