@@ -199,7 +199,7 @@ def extract_csv(key, schema, spark):
                   .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
                   .schema(schema) \
-                  .load(key)
+                  .load("s3://"+key)
         df.show(0)
     except Exception as ex:
         trigger_rule('CH incorrect file format')
