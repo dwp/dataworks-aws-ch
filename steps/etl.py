@@ -1,4 +1,5 @@
 import re
+import time
 from functools import reduce
 from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
@@ -489,7 +490,13 @@ if __name__ == "__main__":
     new_file_zip = filename_regex_extract(new_key, "zip", args['args']['filename'])
     new_file_csv = new_file_zip.replace(".zip", ".csv")
     download_file(source_bucket, args['args']['source_prefix'], new_file_zip, args['args']['local_path'])
+    max_wait = 180
+    init_time = time.time()
+    while not os.path.exists(os.path.join(args['args']['local_path'], new_file_zip)) and time.time()-init_time < max_wait:
+        time.sleep(3)
     unzip_file(new_file_zip, args['args']['local_path'], new_file_csv)
+    while not os.path.exists(os.path.join(args['args']['local_path'], new_file_csv)) and time.time()-init_time < max_wait:
+        time.sleep(3)
     upload_file(new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
