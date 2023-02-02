@@ -454,11 +454,11 @@ def download_file(source_bucket, prefix, object, local_path):
         sys.exit(-1)
 
 
-def unzip_file(object, local_path):
+def unzip_file(object, local_path, filename_csv):
     try:
         logger.info(f"unzipping file {object}")
         with zipfile.ZipFile(os.path.join(local_path, object), 'r') as zip_ref:
-            zip_ref.extractall("./"+object.replace(".zip", ".csv"))
+            zip_ref.extractall(os.path.join(filename_csv,local_path))
     except Exception as ex:
         logger.error(f"Failed to unzip file. {ex}")
         sys.exit(-1)
@@ -489,7 +489,7 @@ if __name__ == "__main__":
     new_file_zip = filename_regex_extract(new_key, "zip", args['args']['filename'])
     new_file_csv = new_file_zip.replace(".zip", ".csv")
     download_file(source_bucket, args['args']['source_prefix'], new_file_zip, args['args']['local_path'])
-    unzip_file(new_file_zip, args['args']['local_path'])
+    unzip_file(new_file_zip, args['args']['local_path'], new_file_csv)
     upload_file(new_file_csv, args['args']['local_path'], source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
