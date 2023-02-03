@@ -1,5 +1,3 @@
-import re
-import time
 from functools import reduce
 from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
@@ -12,9 +10,11 @@ import sys
 from pyspark.sql.functions import lit
 from pyspark.sql import SparkSession, DataFrame
 import boto3
+import zipfile
+from io import BytesIO
 import json
+import re
 from decimal import Decimal
-import shutil
 
 def setup_logging(log_path=None):
     json_format = "{ \"timestamp\": \"%(asctime)s\", \"log_level\": \"%(levelname)s\", \"message\": \"%(message)s\"}"
@@ -444,35 +444,18 @@ def trigger_rule(detail_type):
         logger.error(f"Failed to trigger rule. {ex}")
         sys.exit(-1)
 
-#
-# def download_file(source_bucket, prefix, object, local_path, max_wait=180):
-#     try:
-#         client = boto3.client('s3')
-#         logger.info(f"downloading file {object} from {source_bucket} with prefix {prefix}")
-#         client.download_file(source_bucket, os.path.join(prefix, object), os.path.join(local_path, object))
-#     except Exception as ex:
-#         logger.error(f"Failed to download file. {ex}")
-#         sys.exit(-1)
-
-import boto3
-import zipfile
-from datetime import *
-from io import BytesIO
-import json
-import re
-
 
 def unzip_file_in_loco(source_bucket, prefix, zip_file, csv_file):
     try:
-        logger.info(f"unzipping in loco")
+        logger.info(f"unzipping in loco in {source_bucket} with prefix {prefix}")
         dev_client = boto3.client('s3')
         dev_resource = boto3.resource('s3')
         zip_obj = dev_resource.Object(bucket_name=source_bucket, key=os.path.join(prefix, zip_file))
         buffer = BytesIO(zip_obj.get()["Body"].read())
         z = zipfile.ZipFile(buffer)
+        logger.info(f"extracting file {csv_file}")
         for filename in z.namelist():
             file_info = z.getinfo(filename)
-            logger.info(f"Copying file {filename} to {source_bucket}/{prefix}/{filename}")
             response = dev_client.put_object(
                 Body=z.open(filename).read(),
                 Bucket=source_bucket,
