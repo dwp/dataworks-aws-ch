@@ -506,7 +506,7 @@ if __name__ == "__main__":
     else:
         new_df = add_partitioning_column(extraction_df, day, partitioning_column)
     write_parquet(new_df, destination, partitioning_column)
-    delete_csv_file(destination_bucket, os.path.join(args['args']['destination_prefix'], new_file_csv))
+    delete_csv_file(source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(new_df, destination, db, tbl, spark, partitioning_column)
