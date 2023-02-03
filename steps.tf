@@ -9,7 +9,6 @@ resource "aws_s3_bucket_object" "steps_conf" {
       publish_bucket      = local.publish_bucket.id
       stage_bucket        = local.stage_bucket.id
       column_names        = local.column_names
-      local_path          = local.local_path
     }
   )
 }
@@ -24,7 +23,6 @@ resource "aws_s3_bucket_object" "e2e_conf" {
       partitioning_column = local.partitioning_column
       stage_bucket        = local.stage_bucket.id
       column_names        = local.column_names
-      local_path          = local.local_path
     }
   )
 }
