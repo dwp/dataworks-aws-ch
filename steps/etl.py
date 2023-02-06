@@ -1,4 +1,3 @@
-import re
 from functools import reduce
 from boto3.dynamodb.conditions import Key
 from configparser import ConfigParser
@@ -11,9 +10,11 @@ import sys
 from pyspark.sql.functions import lit
 from pyspark.sql import SparkSession, DataFrame
 import boto3
+import zipfile
+from io import BytesIO
 import json
+import re
 from decimal import Decimal
-
 
 def setup_logging(log_path=None):
     json_format = "{ \"timestamp\": \"%(asctime)s\", \"log_level\": \"%(levelname)s\", \"message\": \"%(message)s\"}"
@@ -65,10 +66,21 @@ def get_latest_file(table, hash_key, hash_id):
         sys.exit(-1)
 
 
-def date_regex_extract(filename: str):
+def date_regex_extract(filename: str, type: str):
     logger.info(f"extracting date from file name {filename}")
     try:
-        pattern = ".*-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\.csv"
+        pattern = ".*-([0-9]{4}-[0-9]{2}-[0-9]{2}).*\."+type
+        match = re.findall(pattern, filename)
+        return match[0]
+    except Exception as ex:
+        logger.error(f"failed to extract date from file name {filename}. {ex}")
+        sys.exit(-1)
+
+
+def filename_regex_extract(filename: str, type: str, filenames_prefix: str):
+    logger.info(f"extracting date from file name {filename}")
+    try:
+        pattern = f".*({filenames_prefix}-.*\.{type})"
         match = re.findall(pattern, filename)
         return match[0]
     except Exception as ex:
@@ -112,7 +124,7 @@ def get_new_key(keys, filename):
             exit(0)
         elif idx == l-1:
             new_file = keys[-1]
-            logger.info("found one new file after last processing")
+            logger.info(f"found one new file after last processing: {new_file}")
             return new_file
         elif idx < l-1:
             logger.error("multiple files found since last import. exiting...")
@@ -214,7 +226,7 @@ def create_spark_df(sp, key, schema):
     return df
 
 
-def s3_keys(s3_client, bucket_id, prefix, exit_if_no_keys=True):
+def s3_keys(s3_client, bucket_id, prefix, filename_prefix, type, exit_if_no_keys=True):
     logger.info(f"looking for objects with prefix {prefix}")
     try:
         keys = []
@@ -230,7 +242,7 @@ def s3_keys(s3_client, bucket_id, prefix, exit_if_no_keys=True):
         logger.info(f"found {len(keys)} keys under prefix {prefix}")
         logger.info(f"key under set prefix {prefix}: {keys}")
 
-        return keys
+        return [filename_regex_extract(key, type, filename_prefix) for key in filter_files(keys, filename_prefix, type, exit_if_no_keys)]
     except Exception as ex:
         logger.error(f"failed to list keys in bucket. {ex}")
         sys.exit(-1)
@@ -433,6 +445,41 @@ def trigger_rule(detail_type):
         sys.exit(-1)
 
 
+def unzip_file_in_loco(source_bucket, prefix, zip_file, csv_file):
+    try:
+        logger.info(f"unzipping in loco in {source_bucket} with prefix {prefix}")
+        dev_client = boto3.client('s3')
+        dev_resource = boto3.resource('s3')
+        zip_obj = dev_resource.Object(bucket_name=source_bucket, key=os.path.join(prefix, zip_file))
+        buffer = BytesIO(zip_obj.get()["Body"].read())
+        z = zipfile.ZipFile(buffer)
+        logger.info(f"extracting file {csv_file}")
+        for filename in z.namelist():
+            file_info = z.getinfo(filename)
+            response = dev_client.put_object(
+                Body=z.open(filename).read(),
+                Bucket=source_bucket,
+                Key=os.path.join(prefix, csv_file)
+
+            )
+
+    except Exception as ex:
+        logger.error(f"Failed to unzip in loco. {ex}")
+        sys.exit(-1)
+
+
+def delete_csv_file(bucket, key):
+    try:
+        logger.info(f"deleting {key} from {bucket}")
+        s3 = boto3.resource('s3')
+        s3.Object(bucket, key).delete()
+
+    except Exception as ex:
+        logger.error(f"Failed to delete file. {ex}")
+        sys.exit(-1)
+
+
+
 if __name__ == "__main__":
     args = all_args()
     logger = setup_logging(args['args']['log_path'])
@@ -441,27 +488,28 @@ if __name__ == "__main__":
     source_bucket = args['args']['source_bucket']
     destination_bucket = args['args']['destination_bucket']
     spark = spark_session()
-    keys = s3_keys(s3_client, source_bucket, args['args']['source_prefix'])
-    keys_csv = filter_files(keys, args['args']['filename'], 'csv')
+    keys = s3_keys(s3_client, source_bucket, args['args']['source_prefix'], args['args']['filename'], "zip")
     latest_file = get_latest_file(table, args['audit-table']['hash_key'], args['audit-table']['hash_id'])
     new_key = get_new_key(keys, latest_file)
+    new_file_zip = filename_regex_extract(new_key, "zip", args['args']['filename'])
+    new_file_csv = new_file_zip.replace(".zip", ".csv")
+    unzip_file_in_loco(source_bucket, args['args']['source_prefix'], new_file_zip, new_file_csv)
     columns = ast.literal_eval(args['args']['cols'])
     partitioning_column = args['args']['partitioning_column']
-    new_key_full_s3_path = os.path.join("s3://"+source_bucket, new_key)
-    extraction_df = create_spark_df(spark, new_key_full_s3_path, schema_spark(columns))
+    extraction_df = create_spark_df(spark, "s3://"+os.path.join(source_bucket, args['args']['source_prefix'], new_file_csv), schema_spark(columns))
     destination = os.path.join("s3://"+destination_bucket, args['args']['destination_prefix'])
-    existing_data = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], exit_if_no_keys=False)
-    parquet_files = filter_files(existing_data, "", 'parquet', exit_if_no_keys=False)
-    day = date_regex_extract(new_key)
+    parquet_files = s3_keys(s3_client, destination_bucket, args['args']['destination_prefix'], "", "parquet", exit_if_no_keys=False)
+    day = date_regex_extract(new_key, "zip")
     if not parquet_files == []:
         existing_df = get_existing_df(spark, destination, partitioning_column)
         new_df = get_new_df(extraction_df, existing_df, partitioning_column, day)
     else:
         new_df = add_partitioning_column(extraction_df, day, partitioning_column)
     write_parquet(new_df, destination, partitioning_column)
+    delete_csv_file(source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(new_df, destination, db, tbl, spark, partitioning_column)
     tag_object(s3_client, destination_bucket, args['args']['destination_prefix'], day, db, tbl, partitioning_column)
     total_files_size = total_size(s3_client, destination_bucket, args['args']['destination_prefix'])
-    add_latest_file(new_key, total_files_size)
+    add_latest_file(new_file_zip, total_files_size)

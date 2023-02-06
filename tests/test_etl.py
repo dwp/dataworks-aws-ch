@@ -14,10 +14,8 @@ from pyspark.sql.types import StructField, StringType, StructType
 
 test_config_path = "tests/unit_test_conf.tpl"
 
-keys = ["BasicCompanyData-2018-01-01.csv", "BasicCompanyData-2019-01-02.csv",
-        "BasicCompanyData-2019-01-03.csv", "BasicCompanyData-2019-01-04.csv", "notacsv.txt"]
-
-keys_only_csv = keys[:-1]
+keys = ["BasicCompanyData-2018-01-01.zip", "BasicCompanyData-2019-01-02.zip",
+        "BasicCompanyData-2019-01-03.zip", "BasicCompanyData-2019-01-04.zip", "notazip.txt"]
 
 
 def config(config_file_path: str):
@@ -87,21 +85,21 @@ def dynamo_fixture():
 
 
 def test_all_keys(s3_fixture):
-    expected = [os.path.join(args['args']['source_prefix'], j) for j in keys]
+    expected = keys[:-1]
     s3_client = s3_fixture
-    diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix']),
+    diff = DeepDiff(s3_keys(s3_client, args['args']['source_bucket'], args['args']['source_prefix'], "BasicCompanyData", "zip"),
                     expected, ignore_string_case=False)
     assert diff == {}, "objects uploaded and objects returned differ"
 
 
 def test_filter_files():
-    diff = DeepDiff(filter_files(keys, args['args']['filename'], 'csv'), keys_only_csv,
+    diff = DeepDiff(filter_files(keys, args['args']['filename'], 'zip'), keys[:-1],
                     ignore_string_case=False)
-    assert diff == {}, "csv files are have not all been identified or other file types are present"
+    assert diff == {}, "zip files are have not all been identified or other file types are present"
 
 
 def test_date_regex_extract():
-    assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.csv", args['args']['filename']) == "2020-11-11", "filename unique part was not extracted"
+    assert date_regex_extract("e2e-ch/companies/BasicCompanyData-2020-11-11.zip", "zip") == "2020-11-11", "filename unique part was not extracted"
 
 
 def test_get_latest_file(dynamo_fixture):
@@ -109,14 +107,14 @@ def test_get_latest_file(dynamo_fixture):
 
 
 def test_get_new_key():
-    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-02.csv", "BasicCompanyData-2019-01-03.csv"]]
-    latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
-    expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
+    keys = ["BasicCompanyData-2019-01-01.zip", "BasicCompanyData-2019-01-02.zip", "BasicCompanyData-2019-01-03.zip"]
+    latest_file = "BasicCompanyData-2019-01-02.zip"
+    expected_key = "BasicCompanyData-2019-01-03.zip"
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
-    keys = [os.path.join(args['args']['source_prefix'], j) for j in ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv"]]
-    latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
-    expected_key = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-03.csv")
+    keys = ["BasicCompanyData-2019-01-01.zip", "BasicCompanyData-2019-01-03.zip"]
+    latest_file = "BasicCompanyData-2019-01-02.zip"
+    expected_key = "BasicCompanyData-2019-01-03.zip"
     diff = DeepDiff(get_new_key(keys, latest_file), expected_key, ignore_string_case=False)
     assert diff == {}, "keys after latest imported files were not filtered"
 
@@ -124,18 +122,15 @@ def test_get_new_key():
         def test_get_new_key_exit(self):
             with self.assertRaises(SystemExit) as cm:
                 keys = [os.path.join(args['args']['source_prefix'], j) for j in
-                        ["BasicCompanyData-2019-01-01.csv", "BasicCompanyData-2019-01-03.csv",
-                         "BasicCompanyData-2019-01-04.csv"]]
-                latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.csv")
+                        ["BasicCompanyData-2019-01-01.zip", "BasicCompanyData-2019-01-03.zip",
+                         "BasicCompanyData-2019-01-04.zip"]]
+                latest_file = os.path.join(args['args']['source_prefix'], "BasicCompanyData-2019-01-02.zip")
                 get_new_key(keys, latest_file)
 
             self.assertEqual(cm.exception.code, 1)
     t = TestGetNewKey()
     t.test_get_new_key_exit()
 
-
-def test_date_regex_extract():
-    assert date_regex_extract("tests/files/BasicCompanyData-2019-01-01.csv") == "2019-01-01", "date was not extracted correctly"
 
 
 def test_extract_csv(spark_fixture):
@@ -194,8 +189,8 @@ def test_tag_object():
     dates_dont_include = ['2018-01-01', '2019-03-01']
     db = 'test_db'
     tbl = 'test_tbl'
-    keys = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.csv") for i in [date]+dates_dont_include]
-    keys_expected = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+date, "afile.csv")]
+    keys = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+i, "afile.zip") for i in [date]+dates_dont_include]
+    keys_expected = [os.path.join(prefix, f"{args['args']['partitioning_column']}="+date, "afile.zip")]
     s3_client = boto3.client("s3")
     s3_client.create_bucket(Bucket=bucket,
                             CreateBucketConfiguration={"LocationConstraint": 'eu-west-2'})
@@ -222,3 +217,6 @@ def test_convert_to_gigabytes():
     bytes = 34938203484
     expected_gb = 32.5387
     assert convert_to_gigabytes(bytes) == expected_gb, "wrong gigabytes conversion"
+
+def test_filename_regex_extract():
+    assert filename_regex_extract("a/b/BasicCompanyData-2019-01-03.zip", "zip", "BasicCompanyData") == "BasicCompanyData-2019-01-03.zip", "expected filename was not extracted"

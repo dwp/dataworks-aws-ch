@@ -32,6 +32,7 @@
     sudo -E $PIP install boto3==1.23.1 >> /var/log/dataworks-aws-ch/install-boto3.log 2>&1
     #shellcheck disable=SC2024
     sudo -E $PIP install requests >> /var/log/dataworks-aws-ch/install-requests.log 2>&1
+    sudo -E $PIP install zipfile >> /var/log/dataworks-aws-ch/install-zipfile.log 2>&1
 
     #shellcheck disable=SC2024
     {
