@@ -298,7 +298,7 @@ def write_parquet(df, s3_destination, partitioning_column):
         df.write \
           .mode('Overwrite') \
           .partitionBy(partitioning_column) \
-          .parquet(s3_destination)
+          .parquet(ignoreNullFields=True, path=s3_destination)
     except Exception as ex:
         logger.error(f"failed to write the transformed dataframe. {ex}")
         sys.exit(-1)
