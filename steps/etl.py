@@ -195,12 +195,12 @@ def extract_csv(key, schema, spark):
                   .option("schema", schema) \
                   .option("mode", "PERMISSIVE") \
                   .option("multiLine", True) \
-                  .option("emptyValue", "Na") \
-                  .option("nullValue", "Na") \
+                  .option("emptyValue", "NULL") \
+                  .option("nullValue", "NULL") \
                   .option("ignoreTrailingWhiteSpace", True) \
                   .option("ignoreLeadingWhiteSpace", True) \
-                  .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
+                  .option("columnNameOfCorruptRecord", "corrupt_values") \
                   .schema(schema) \
                   .load(key)
         df.show(2)
