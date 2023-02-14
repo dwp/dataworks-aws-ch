@@ -189,18 +189,21 @@ def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
 def extract_csv(key, schema, spark):
     logger.info(f"reading {key}")
     try:
+
         df = spark.read.format("csv") \
                   .option("header", True) \
                   .option("schema", schema) \
-                  .option("multiline", True) \
                   .option("mode", "PERMISSIVE") \
+                  .option("multiLine", True) \
+                  .option("emptyValue", "Na") \
+                  .option("nullValue", "Na") \
                   .option("ignoreTrailingWhiteSpace", True) \
                   .option("ignoreLeadingWhiteSpace", True) \
                   .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
                   .schema(schema) \
                   .load(key)
-        df.show(0)
+        df.show(2)
     except Exception as ex:
         trigger_rule('CH incorrect file format')
         logger.error(f"Failed to extract csv. {ex}")
