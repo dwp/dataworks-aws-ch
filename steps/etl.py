@@ -197,8 +197,6 @@ def extract_csv(key, schema, spark):
                   .option("quote", "\"") \
                   .option("escape", "\"") \
                   .option("multiLine", True) \
-                  .option("emptyValue", "NULL") \
-                  .option("nullValue", "NULL") \
                   .option("ignoreTrailingWhiteSpace", True) \
                   .option("ignoreLeadingWhiteSpace", True) \
                   .option("enforceSchema", False) \
@@ -289,7 +287,6 @@ def spark_session():
 
         spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
         spark.conf.set("spark.sql.csv.parser.columnPruning.enabled", False)
-        spark.conf.set("spark.sql.columnNameOfCorruptRecord", "corrupt_values")
 
     except Exception as ex:
         logger.error(f"failed to create spark session. {ex}")
