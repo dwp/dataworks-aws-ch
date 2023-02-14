@@ -189,19 +189,21 @@ def tag_object(s3_client, bucket, prefix: str, date: list, db, tbl, col):
 def extract_csv(key, schema, spark):
     logger.info(f"reading {key}")
     try:
+
         df = spark.read.format("csv") \
                   .option("header", True) \
                   .option("schema", schema) \
-                  .option("multiline", True) \
                   .option("mode", "FAILFAST") \
+                  .option("quote", "\"") \
+                  .option("escape", "\"") \
+                  .option("multiLine", True) \
                   .option("ignoreTrailingWhiteSpace", True) \
                   .option("ignoreLeadingWhiteSpace", True) \
-                  .option("header", True) \
-                  .option("maxCharsPerColumn", 300) \
                   .option("enforceSchema", False) \
                   .schema(schema) \
                   .load(key)
-        df.show(0)
+        df.cache()
+        df.count()
     except Exception as ex:
         trigger_rule('CH incorrect file format')
         logger.error(f"Failed to extract csv. {ex}")
@@ -468,17 +470,6 @@ def unzip_file_in_loco(source_bucket, prefix, zip_file, csv_file):
         sys.exit(-1)
 
 
-def delete_csv_file(bucket, key):
-    try:
-        logger.info(f"deleting {key} from {bucket}")
-        s3 = boto3.resource('s3')
-        s3.Object(bucket, key).delete()
-
-    except Exception as ex:
-        logger.error(f"Failed to delete file. {ex}")
-        sys.exit(-1)
-
-
 
 if __name__ == "__main__":
     args = all_args()
@@ -506,7 +497,6 @@ if __name__ == "__main__":
     else:
         new_df = add_partitioning_column(extraction_df, day, partitioning_column)
     write_parquet(new_df, destination, partitioning_column)
-    delete_csv_file(source_bucket, os.path.join(args['args']['source_prefix'], new_file_csv))
     db = args['args']['db_name']
     tbl = args['args']['table_name']
     recreate_hive_table(new_df, destination, db, tbl, spark, partitioning_column)
