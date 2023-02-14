@@ -193,17 +193,16 @@ def extract_csv(key, schema, spark):
         df = spark.read.format("csv") \
                   .option("header", True) \
                   .option("schema", schema) \
-                  .option("mode", "PERMISSIVE") \
+                  .option("mode", "DROPMALFORMED") \
                   .option("multiLine", True) \
                   .option("emptyValue", "NULL") \
                   .option("nullValue", "NULL") \
                   .option("ignoreTrailingWhiteSpace", True) \
                   .option("ignoreLeadingWhiteSpace", True) \
                   .option("enforceSchema", False) \
-                  .option("columnNameOfCorruptRecord", "corrupt_values") \
                   .schema(schema) \
                   .load(key)
-        df.show(2)
+        df.collect()
     except Exception as ex:
         trigger_rule('CH incorrect file format')
         logger.error(f"Failed to extract csv. {ex}")
