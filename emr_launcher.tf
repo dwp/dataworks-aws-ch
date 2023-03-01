@@ -45,8 +45,20 @@ resource "aws_cloudwatch_event_rule" "every_month" {
 
 resource "aws_cloudwatch_event_target" "every_month" {
     rule = aws_cloudwatch_event_rule.every_month.name
-    target_id = "every_month"
     arn = aws_lambda_function.ch_emr_launcher.arn
+    target_id = "lambdaCHtriggerTarget"
+    input = <<JSON
+    {
+        "s3_overrides": None,
+        "overrides": {
+            "Name": "dataworks-aws-ch",
+            "Instances": {"KeepJobFlowAliveWhenNoSteps": True},
+            "Steps": [],
+        },
+        "extend": None,
+        "additional_step_args": None,
+    }
+    JSON
 }
 
 
