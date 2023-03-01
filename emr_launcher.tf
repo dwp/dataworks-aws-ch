@@ -49,14 +49,14 @@ resource "aws_cloudwatch_event_target" "every_month" {
     target_id = "lambdaCHtriggerTarget"
     input = <<JSON
     {
-        "s3_overrides": None,
+        "s3_overrides": "None",
         "overrides": {
             "Name": "dataworks-aws-ch",
-            "Instances": {"KeepJobFlowAliveWhenNoSteps": True},
+            "Instances": {"KeepJobFlowAliveWhenNoSteps": "True"},
             "Steps": [],
         },
-        "extend": None,
-        "additional_step_args": None,
+        "extend": "None",
+        "additional_step_args": "None",
     }
     JSON
 }
