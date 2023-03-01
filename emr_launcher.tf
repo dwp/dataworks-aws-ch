@@ -41,7 +41,7 @@ resource "aws_lambda_permission" "ch_emr_launcher_subscription" {
 resource "aws_cloudwatch_event_rule" "every_month" {
     name = "every-month"
     description = "Fires every month"
-    schedule_expression = "cron(38 * * * ? *)"
+    schedule_expression = "cron(42 * * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "every_month" {
