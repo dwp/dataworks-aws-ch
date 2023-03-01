@@ -52,7 +52,6 @@ resource "aws_cloudwatch_event_target" "every_month" {
         "s3_overrides": "None",
         "overrides": {
             "Name": "dataworks-aws-ch",
-            "Instances": {"KeepJobFlowAliveWhenNoSteps": "True"},
             "Steps": "[]",
         },
         "extend": "None",
