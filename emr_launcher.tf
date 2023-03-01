@@ -52,8 +52,7 @@ resource "aws_cloudwatch_event_target" "every_month" {
         "s3_overrides": "None",
         "overrides": {
             "Name": "dataworks-aws-ch",
-            "Steps": "[]",
-        },
+            "Steps": "[]"},
         "extend": "None",
         "additional_step_args": "None",
     }
