@@ -40,7 +40,7 @@ resource "aws_lambda_function" "ch_emr_launcher" {
 resource "aws_cloudwatch_event_rule" "every_month" {
     name = "every-month"
     description = "Fires every month"
-    schedule_expression = "cron(39 * * * ? *)"
+    schedule_expression = "cron(48 * * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "every_month" {
@@ -49,9 +49,9 @@ resource "aws_cloudwatch_event_target" "every_month" {
     target_id = "lambdaCHtriggerTarget"
     input = <<JSON
     {
-        "s3_overrides": "None",
-        "extend": "None",
-        "additional_step_args": "None"
+        "s3_overrides": null,
+        "extend": null,
+        "additional_step_args": null
     }
     JSON
 }
