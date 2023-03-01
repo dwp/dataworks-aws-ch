@@ -35,3 +35,25 @@ resource "aws_lambda_permission" "ch_emr_launcher_subscription" {
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.trigger_ch_sns.arn
 }
+
+
+
+resource "aws_cloudwatch_event_rule" "every_month" {
+    name = "every-month"
+    description = "Fires every month"
+    schedule_expression = "cron(38 * * * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "every_month" {
+    rule = aws_cloudwatch_event_rule.every_month.name
+    target_id = "every_month"
+    arn = aws_lambda_function.ch_emr_launcher.arn
+}
+
+resource "aws_lambda_permission" "every_month" {
+    statement_id = "AllowExecutionFromCloudWatch"
+    action = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.ch_emr_launcher.function_name
+    principal = "events.amazonaws.com"
+    source_arn = aws_cloudwatch_event_rule.every_month.arn
+}
