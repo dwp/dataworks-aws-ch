@@ -50,11 +50,8 @@ resource "aws_cloudwatch_event_target" "every_month" {
     input = <<JSON
     {
         "s3_overrides": "None",
-        "overrides": {
-            "Name": "dataworks-aws-ch",
-            "Steps": "[]"},
         "extend": "None",
-        "additional_step_args": "None",
+        "additional_step_args": "None"
     }
     JSON
 }
