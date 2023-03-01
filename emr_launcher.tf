@@ -40,7 +40,7 @@ resource "aws_lambda_function" "ch_emr_launcher" {
 resource "aws_cloudwatch_event_rule" "every_month" {
     name = "every-month"
     description = "Fires every month"
-    schedule_expression = "cron(52 * * * ? *)"
+    schedule_expression = "cron(10 * * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "every_month" {
@@ -49,14 +49,11 @@ resource "aws_cloudwatch_event_target" "every_month" {
     arn = aws_lambda_function.ch_emr_launcher.arn
 }
 
-data "aws_caller_identity" "current" {
-}
 
 resource "aws_lambda_permission" "every_month" {
     statement_id = "AllowExecutionFromCloudWatch"
     action = "lambda:InvokeFunction"
     function_name = aws_lambda_function.ch_emr_launcher.function_name
     principal = "events.amazonaws.com"
-    source_account = "${data.aws_caller_identity.current.account_id}"
     source_arn = aws_cloudwatch_event_rule.every_month.arn
 }
