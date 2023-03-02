@@ -1,14 +1,12 @@
 resource "aws_cloudwatch_event_rule" "every_month" {
-    count = local.environment == "development" ? 1 : 0
+    count = local.environment == "production" ? 1 : 0
     name = "every-month"
     description = "Fires every month"
-    schedule_expression = "cron(9 11 2 * ? *)"
-
-//    schedule_expression = "cron(30 8 5 * ? *)"
+    schedule_expression = "cron(30 8 5 * ? *)"
 }
 
-resource "aws_cloudwatch_event_target" "every_month" {
-    count = local.environment == "development" ? 1 : 0
+resource "aws_cloudwatch_event_target" "ch_emr_launcher_with_default_steps" {
+    count = local.environment == "production" ? 1 : 0
     rule = aws_cloudwatch_event_rule.every_month[0].name
     arn = aws_lambda_function.ch_emr_launcher.arn
     target_id = "lambdaCHtriggerTarget"
@@ -21,9 +19,9 @@ resource "aws_cloudwatch_event_target" "every_month" {
     JSON
 }
 
-resource "aws_lambda_permission" "every_month" {
-    count = local.environment == "development" ? 1 : 0
-    statement_id = "AllowExecutionFromCloudWatch"
+resource "aws_lambda_permission" "ch_emr_launcher_execution" {
+    count = local.environment == "production" ? 1 : 0
+    statement_id = "AllowExecutionFromScheduleExpression"
     action = "lambda:InvokeFunction"
     function_name = aws_lambda_function.ch_emr_launcher.function_name
     principal = "events.amazonaws.com"
