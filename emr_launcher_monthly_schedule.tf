@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_event_rule" "every_month" {
     count = local.environment == "production" ? 1 : 0
-    name = "every-month"
-    description = "Fires every month"
+    name = "every-month-ch-emr-trigger"
+    description = "Fires every fifth of the month at 8.30"
     schedule_expression = "cron(30 8 5 * ? *)"
 }
 
