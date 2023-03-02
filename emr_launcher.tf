@@ -32,7 +32,7 @@ resource "aws_cloudwatch_event_rule" "every_month" {
 }
 
 resource "aws_cloudwatch_event_target" "every_month" {
-    rule = aws_cloudwatch_event_rule.every_month.name
+    rule = aws_cloudwatch_event_rule.every_month[0].name
     arn = aws_lambda_function.ch_emr_launcher.arn
     target_id = "lambdaCHtriggerTarget"
     input = <<JSON
@@ -49,5 +49,5 @@ resource "aws_lambda_permission" "every_month" {
     action = "lambda:InvokeFunction"
     function_name = aws_lambda_function.ch_emr_launcher.function_name
     principal = "events.amazonaws.com"
-    source_arn = aws_cloudwatch_event_rule.every_month.arn
+    source_arn = aws_cloudwatch_event_rule.every_month[0].arn
 }
