@@ -21,17 +21,3 @@ resource "aws_lambda_function" "ch_emr_launcher" {
     }
   }
 }
-
-resource "aws_sns_topic_subscription" "trigger_ch" {
-  topic_arn = aws_sns_topic.trigger_ch_sns.arn
-  protocol  = "lambda"
-  endpoint  = aws_lambda_function.ch_emr_launcher.arn
-}
-
-resource "aws_lambda_permission" "ch_emr_launcher_subscription" {
-  statement_id  = "TriggerCHProcess"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.ch_emr_launcher.function_name
-  principal     = "sns.amazonaws.com"
-  source_arn    = aws_sns_topic.trigger_ch_sns.arn
-}

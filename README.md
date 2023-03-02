@@ -20,3 +20,8 @@ In addition, you may want to do the following:
     1. Add/remove jobs in `./ci/jobs` as required 
     1. Create CI pipeline:  
 `aviator`
+
+
+## Automated run
+
+This cluster runs every month with its default step through a [time-based CloudWatch rule](https://github.com/dwp/dataworks-aws-ch/blob/master/emr_launcher_monthly_schedule.tf) that executes ch_emr_launcher lambda .
