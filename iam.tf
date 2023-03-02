@@ -27,35 +27,6 @@ data "aws_iam_policy_document" "ec2_assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "publish_to_ch_trigger_topic" {
-  statement {
-    sid     = "TriggerchSNS"
-    actions = ["SNS:Publish"]
-    effect  = "Allow"
-
-    principals {
-      identifiers = ["events.amazonaws.com"]
-      type        = "Service"
-    }
-    resources = [aws_sns_topic.trigger_ch_sns.arn]
-  }
-}
-
-
-data "aws_iam_policy_document" "publish_to_ch_trigger" {
-  statement {
-    sid    = "AllowAccessToSNSLauncherTopic"
-    effect = "Allow"
-
-    actions = [
-      "sns:Publish",
-    ]
-
-    resources = [
-      aws_sns_topic.trigger_ch_sns.arn
-    ]
-  }
-}
 
 data "aws_iam_policy_document" "get_ch_cert" {
   statement {

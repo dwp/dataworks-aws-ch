@@ -22,25 +22,10 @@ resource "aws_lambda_function" "ch_emr_launcher" {
   }
 }
 
-//resource "aws_sns_topic_subscription" "trigger_ch" {
-//  topic_arn = aws_sns_topic.trigger_ch_sns.arn
-//  protocol  = "lambda"
-//  endpoint  = aws_lambda_function.ch_emr_launcher.arn
-//}
-//
-//resource "aws_lambda_permission" "ch_emr_launcher_subscription" {
-//  statement_id  = "TriggerCHProcess"
-//  action        = "lambda:InvokeFunction"
-//  function_name = aws_lambda_function.ch_emr_launcher.function_name
-//  principal     = "sns.amazonaws.com"
-//  source_arn    = aws_sns_topic.trigger_ch_sns.arn
-//}
-//
-
 resource "aws_cloudwatch_event_rule" "every_month" {
     name = "every-month"
     description = "Fires every month"
-    schedule_expression = "cron(30 9 2 3 ? *)"
+    schedule_expression = "cron(30 8 5 * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "every_month" {
@@ -55,7 +40,6 @@ resource "aws_cloudwatch_event_target" "every_month" {
     }
     JSON
 }
-
 
 resource "aws_lambda_permission" "every_month" {
     statement_id = "AllowExecutionFromCloudWatch"
