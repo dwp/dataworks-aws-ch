@@ -4,8 +4,6 @@
 **/*.tfvars
 **/*.tfstate
 **/*.tfstate*
-**/*.terraform.lock.hcl
-**/.terraform.lock.hcl
 metastore_db
 spark-warehouse
 tests/files/data
