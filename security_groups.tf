@@ -3,7 +3,6 @@ resource "aws_security_group" "ch_master" {
   description            = "Contains rules for CH master nodes; most rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
   vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
-  tags                   = local.common_tags
 }
 
 resource "aws_security_group" "ch_slave" {
@@ -11,7 +10,6 @@ resource "aws_security_group" "ch_slave" {
   description            = "Contains rules for CH slave nodes; most rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
   vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
-  tags                   = local.common_tags
 }
 
 resource "aws_security_group" "ch_common" {
@@ -19,7 +17,6 @@ resource "aws_security_group" "ch_common" {
   description            = "Contains rules for both CH master and CH slave nodes"
   revoke_rules_on_delete = true
   vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
-  tags                   = local.common_tags
 }
 
 resource "aws_security_group" "ch_emr_service" {
@@ -27,7 +24,6 @@ resource "aws_security_group" "ch_emr_service" {
   description            = "Contains rules for EMR service when managing the CH cluster; rules are injected by EMR, not managed by TF"
   revoke_rules_on_delete = true
   vpc_id                 = data.terraform_remote_state.internal_compute.outputs.vpc.vpc.vpc.id
-  tags                   = local.common_tags
 }
 
 
