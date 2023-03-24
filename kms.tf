@@ -4,12 +4,9 @@ resource "aws_kms_key" "ch_ebs_cmk" {
   is_enabled              = true
   enable_key_rotation     = true
   policy                  = data.aws_iam_policy_document.ch_ebs_cmk.json
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "ch_ebs_kms_key"
-    }
-  )
+  tags = {
+    Name = "ch_ebs_kms_key"
+  }
 }
 
 resource "aws_kms_alias" "ch_ebs_cmk" {
