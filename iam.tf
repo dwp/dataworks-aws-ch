@@ -6,12 +6,9 @@ resource "aws_iam_instance_profile" "ch_instance_profile" {
 resource "aws_iam_role" "ch_role_for_instance_profile" {
   name               = "ch_role_for_instance_profile"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
-  tags = merge(
-    local.common_tags,
-    {
-      "Name" = "ch_role_for_instance_profile"
-    },
-  )
+  tags = {
+    "Name" = "ch_role_for_instance_profile"
+  }
 }
 
 data "aws_iam_policy_document" "ec2_assume_role" {
@@ -55,12 +52,9 @@ resource "aws_iam_role_policy_attachment" "get_ch_cert" {
 resource "aws_iam_role" "ch_emr_service" {
   name               = "ch_emr_service"
   assume_role_policy = data.aws_iam_policy_document.emr_assume_role.json
-  tags = merge(
-    local.common_tags,
-    {
-      "Name" = "ch_service_role"
-    },
-  )
+  tags = {
+    "Name" = "ch_service_role"
+  }
 }
 
 data "aws_iam_policy_document" "emr_assume_role" {

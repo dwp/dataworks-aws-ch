@@ -36,14 +36,11 @@ resource "aws_cloudwatch_metric_alarm" "ch_failed_with_errors" {
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.ch_terminated_with_errors_rule.name
   }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "ch_failed_with_errors",
-      notification_type = "Error"
-      severity          = "Critical"
-    },
-  )
+  tags = {
+    Name              = "ch_failed_with_errors",
+    notification_type = "Error"
+    severity          = "Critical"
+  }
 }
 
 
@@ -89,14 +86,11 @@ resource "aws_cloudwatch_metric_alarm" "ch_success" {
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.ch_success.name
   }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "ch_completed_all_steps",
-      notification_type = "Information",
-      severity          = "Critical"
-    },
-  )
+  tags = {
+    Name              = "ch_completed_all_steps",
+    notification_type = "Information",
+    severity          = "Critical"
+  }
 }
 
 
@@ -131,14 +125,11 @@ resource "aws_cloudwatch_metric_alarm" "ch_started" {
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.ch_started.name
   }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "ch_started",
-      notification_type = "Information",
-      severity          = "Critical"
-    },
-  )
+  tags = {
+    Name              = "ch_started",
+    notification_type = "Information",
+    severity          = "Critical"
+  }
 }
 
 resource "aws_cloudwatch_event_rule" "ch_step_error_rule" {
@@ -182,14 +173,11 @@ resource "aws_cloudwatch_metric_alarm" "ch_step_error" {
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.ch_step_error_rule[count.index].name
   }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "ch_step_failed",
-      notification_type = "Error"
-      severity          = "Critical"
-    },
-  )
+  tags = {
+    Name              = "ch_step_failed",
+    notification_type = "Error"
+    severity          = "Critical"
+  }
 }
 
 
@@ -228,14 +216,11 @@ resource "aws_cloudwatch_metric_alarm" "file_landed" {
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.file_landed.name
   }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "ch_file_created_on_published_bucket",
-      notification_type = "Information",
-      severity          = "Critical"
-    },
-  )
+  tags = {
+    Name              = "ch_file_created_on_published_bucket",
+    notification_type = "Information",
+    severity          = "Critical"
+  }
 }
 
 
@@ -254,14 +239,11 @@ resource "aws_cloudwatch_metric_alarm" "file_format_check_failed" {
   dimensions = {
     RuleName = aws_cloudwatch_event_rule.file_format_check_rule.name
   }
-  tags = merge(
-    local.common_tags,
-    {
-      Name              = "CH_file_format_check_failed",
-      notification_type = "Error",
-      severity          = "Critical"
-    },
-  )
+  tags = {
+    Name              = "CH_file_format_check_failed",
+    notification_type = "Error",
+    severity          = "Critical"
+  }
 }
 
 resource "aws_cloudwatch_event_rule" "file_format_check_rule" {
