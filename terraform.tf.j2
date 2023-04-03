@@ -185,6 +185,8 @@ provider "aws" {
   }
 }
 
+data "aws_default_tags" "provider_tags" {}
+
 data "aws_region" "current" {
 }
 
