@@ -133,7 +133,7 @@ resource "aws_cloudwatch_metric_alarm" "ch_started" {
 }
 
 resource "aws_cloudwatch_event_rule" "ch_step_error_rule" {
-  count = length(local.steps)
+  count         = length(local.steps)
   name          = format("%s_%s_%s", "ch_step", element(local.steps, count.index), "failed_rule")
   description   = "Sends failed message to slack when ch cluster step fails"
   event_pattern = <<EOF

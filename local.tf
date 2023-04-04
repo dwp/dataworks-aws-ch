@@ -46,7 +46,7 @@ locals {
     "secretsmanager",
     "ssm",
     "ssmmessages",
-    "sts"]
+  "sts"]
   no_proxy = "169.254.169.254,${join(",", formatlist("%s.%s", local.endpoint_services, local.amazon_region_domain))}"
   hive_metastore_backend = {
     development = "aurora"
@@ -92,27 +92,27 @@ locals {
     production  = "CONTINUE"
   }
 
-  hash_key                  = "Correlation_Id"
-  range_key                 = "DataProduct"
-  companies_s3_prefix       = "data/uc_ch/companies"
-  rds_cluster               = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster
-  cw_agent_namespace        = "/app/dataworks-aws-ch"
-  cw_agent_log_group_name   = "/app/dataworks-aws-ch"
-  bootstrap_log_group_name  = "/app/dataworks-aws-ch/bootstrap_actions"
-  steps_log_group_name      = "/app/dataworks-aws-ch/step_logs"
-  yarn_spark_log_group_name = "/app/dataworks-aws-ch/yarn-spark_logs"
-  e2e_log_group_name        = "/app/dataworks-aws-ch/e2e_logs"
-  partitioning_column       = "date_sent"
-  ch_writer                 = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer
-  s3_log_prefix             = "emr/dataworks-aws-ch"
-  stage_bucket              = data.terraform_remote_state.common.outputs.data_ingress_stage_bucket
-  config_bucket             = data.terraform_remote_state.common.outputs.config_bucket
-  full_proxy                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url
-  proxy_host                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
-  proxy_port                = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
-  proxy_sg                  = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
+  hash_key                                      = "Correlation_Id"
+  range_key                                     = "DataProduct"
+  companies_s3_prefix                           = "data/uc_ch/companies"
+  rds_cluster                                   = data.terraform_remote_state.internal_compute.outputs.hive_metastore_v2.rds_cluster
+  cw_agent_namespace                            = "/app/dataworks-aws-ch"
+  cw_agent_log_group_name                       = "/app/dataworks-aws-ch"
+  bootstrap_log_group_name                      = "/app/dataworks-aws-ch/bootstrap_actions"
+  steps_log_group_name                          = "/app/dataworks-aws-ch/step_logs"
+  yarn_spark_log_group_name                     = "/app/dataworks-aws-ch/yarn-spark_logs"
+  e2e_log_group_name                            = "/app/dataworks-aws-ch/e2e_logs"
+  partitioning_column                           = "date_sent"
+  ch_writer                                     = data.terraform_remote_state.internal_compute.outputs.metadata_store_users.ch_writer
+  s3_log_prefix                                 = "emr/dataworks-aws-ch"
+  stage_bucket                                  = data.terraform_remote_state.common.outputs.data_ingress_stage_bucket
+  config_bucket                                 = data.terraform_remote_state.common.outputs.config_bucket
+  full_proxy                                    = data.terraform_remote_state.internal_compute.outputs.internet_proxy.url
+  proxy_host                                    = data.terraform_remote_state.internal_compute.outputs.internet_proxy.host
+  proxy_port                                    = data.terraform_remote_state.internal_compute.outputs.internet_proxy.port
+  proxy_sg                                      = data.terraform_remote_state.internal_compute.outputs.internet_proxy.sg
   emr_subnet_non_capacity_reserved_environments = data.terraform_remote_state.common.outputs.aws_ec2_non_capacity_reservation_region
-  hive_metastore_location = "data/uc_ch"
+  hive_metastore_location                       = "data/uc_ch"
   ch_version = {
     development = "0.0.1"
     qa          = "0.0.1"
@@ -120,10 +120,10 @@ locals {
     preprod     = "0.0.1"
     production  = "0.0.1"
   }
-  metrics_namespace                = "app/dataworks-aws-ch/"
-  ch_s3_prefix                     = "component/dataworks-aws-ch"
-  publish_bucket                   = data.terraform_remote_state.common.outputs.published_bucket
-  logstore_bucket                  = data.terraform_remote_state.security-tools.outputs.logstore_bucket
+  metrics_namespace = "app/dataworks-aws-ch/"
+  ch_s3_prefix      = "component/dataworks-aws-ch"
+  publish_bucket    = data.terraform_remote_state.common.outputs.published_bucket
+  logstore_bucket   = data.terraform_remote_state.security-tools.outputs.logstore_bucket
 
   emr_engine_version = {
     development = "5.7.mysql_aurora.2.10.2"
@@ -265,7 +265,7 @@ locals {
   spark_kyro_buffer         = var.spark_kyro_buffer[local.environment]
 
 
-  column_names                     = <<EOF
+  column_names = <<EOF
   {"CompanyName":"string","CompanyNumber":"string","RegAddress.CareOf":"string","RegAddress.POBox":"string","RegAddress.AddressLine1":"string", "RegAddress.AddressLine2":"string","RegAddress.PostTown":"string","RegAddress.County":"string","RegAddress.Country":"string","RegAddress.PostCode":"string","CompanyCategory":"string","CompanyStatus":"string","CountryOfOrigin":"string","DissolutionDate":"string","IncorporationDate":"string","Accounts.AccountRefDay":"string","Accounts.AccountRefMonth":"string","Accounts.NextDueDate":"string","Accounts.LastMadeUpDate":"string","Accounts.AccountCategory":"string","Returns.NextDueDate":"string","Returns.LastMadeUpDate":"string","Mortgages.NumMortCharges":"string","Mortgages.NumMortOutstanding":"string","Mortgages.NumMortPartSatisfied":"string","Mortgages.NumMortSatisfied":"string","SICCode.SicText_1":"string","SICCode.SicText_2":"string","SICCode.SicText_3":"string","SICCode.SicText_4":"string","LimitedPartnerships.NumGenPartners":"string","LimitedPartnerships.NumLimPartners":"string","URI":"string","PreviousName_1.CONDATE":"string", "PreviousName_1.CompanyName":"string", "PreviousName_2.CONDATE":"string", "PreviousName_2.CompanyName":"string","PreviousName_3.CONDATE":"string", "PreviousName_3.CompanyName":"string","PreviousName_4.CONDATE":"string", "PreviousName_4.CompanyName":"string","PreviousName_5.CONDATE":"string", "PreviousName_5.CompanyName":"string","PreviousName_6.CONDATE":"string", "PreviousName_6.CompanyName":"string","PreviousName_7.CONDATE":"string", "PreviousName_7.CompanyName":"string","PreviousName_8.CONDATE":"string", "PreviousName_8.CompanyName":"string","PreviousName_9.CONDATE":"string", "PreviousName_9.CompanyName":"string","PreviousName_10.CONDATE":"string", "PreviousName_10.CompanyName":"string","ConfStmtNextDueDate":"string", "ConfStmtLastMadeUpDate":"string"}
   EOF
 }

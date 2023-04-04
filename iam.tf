@@ -801,19 +801,19 @@ data "aws_iam_policy_document" "ch_ssm" {
   statement {
     effect = "Allow"
     actions = [
-                "cloudwatch:PutMetricData"
+      "cloudwatch:PutMetricData"
     ]
     resources = ["*"]
   }
-    statement {
+  statement {
     effect = "Allow"
     actions = [
       "ds:CreateComputer",
       "ds:DescribeDirectories"
-                                ]
+    ]
     resources = ["*"]
   }
-    statement {
+  statement {
     effect = "Allow"
     actions = [
       "logs:CreateLogGroup",
@@ -824,9 +824,9 @@ data "aws_iam_policy_document" "ch_ssm" {
     ]
     resources = ["*"]
   }
-    statement {
-    effect = "Allow"
-    actions = ["ec2:DescribeInstanceStatus"]
+  statement {
+    effect    = "Allow"
+    actions   = ["ec2:DescribeInstanceStatus"]
     resources = ["*"]
   }
 

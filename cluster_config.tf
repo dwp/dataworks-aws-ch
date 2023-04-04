@@ -3,14 +3,18 @@ resource "aws_s3_bucket_object" "cluster" {
   key    = "emr/dataworks-aws-ch/cluster.yaml"
   content = templatefile("${path.module}/cluster_config/cluster.yaml.tpl",
     {
-      s3_log_bucket          = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
-      s3_log_prefix          = local.s3_log_prefix
-      ami_id                 = var.emr_ami_id
-      service_role           = aws_iam_role.ch_emr_service.arn
-      instance_profile       = aws_iam_instance_profile.ch_instance_profile.arn
-      security_configuration = aws_emr_security_configuration.ebs_emrfs_em.id
-      emr_release            = var.emr_release[local.environment]
-      environment            = local.environment
+      s3_log_bucket              = data.terraform_remote_state.security-tools.outputs.logstore_bucket.id
+      s3_log_prefix              = local.s3_log_prefix
+      ami_id                     = var.emr_ami_id
+      service_role               = aws_iam_role.ch_emr_service.arn
+      instance_profile           = aws_iam_instance_profile.ch_instance_profile.arn
+      security_configuration     = aws_emr_security_configuration.ebs_emrfs_em.id
+      emr_release                = var.emr_release[local.environment]
+      dwx_environment_tag_value  = local.environment
+      application_tag_value      = data.aws_default_tags.provider_tags.tags.Application
+      function_tag_value         = data.aws_default_tags.provider_tags.tags.Function
+      business_project_tag_value = data.aws_default_tags.provider_tags.tags.Business-Project
+      environment_tag_value      = data.aws_default_tags.provider_tags.tags.Environment
     }
   )
 }
@@ -20,16 +24,16 @@ resource "aws_s3_bucket_object" "instances" {
   key    = "emr/dataworks-aws-ch/instances.yaml"
   content = templatefile("${path.module}/cluster_config/instances.yaml.tpl",
     {
-      keep_cluster_alive = local.keep_cluster_alive[local.environment]
-      add_master_sg      = aws_security_group.ch_common.id
-      add_slave_sg       = aws_security_group.ch_common.id
-      subnet_id = data.terraform_remote_state.internal_compute.outputs.ch_subnet.subnets[index(data.terraform_remote_state.internal_compute.outputs.ch_subnet.subnets.*.availability_zone, local.emr_subnet_non_capacity_reserved_environments)].id
-      master_sg                           = aws_security_group.ch_master.id
-      slave_sg                            = aws_security_group.ch_slave.id
-      service_access_sg                   = aws_security_group.ch_emr_service.id
-      instance_type_core_one              = var.emr_instance_type_core[local.environment]
-      instance_type_master                = var.emr_instance_type_master[local.environment]
-      core_instance_count                 = var.emr_core_instance_count[local.environment]
+      keep_cluster_alive     = local.keep_cluster_alive[local.environment]
+      add_master_sg          = aws_security_group.ch_common.id
+      add_slave_sg           = aws_security_group.ch_common.id
+      subnet_id              = data.terraform_remote_state.internal_compute.outputs.ch_subnet.subnets[index(data.terraform_remote_state.internal_compute.outputs.ch_subnet.subnets.*.availability_zone, local.emr_subnet_non_capacity_reserved_environments)].id
+      master_sg              = aws_security_group.ch_master.id
+      slave_sg               = aws_security_group.ch_slave.id
+      service_access_sg      = aws_security_group.ch_emr_service.id
+      instance_type_core_one = var.emr_instance_type_core[local.environment]
+      instance_type_master   = var.emr_instance_type_master[local.environment]
+      core_instance_count    = var.emr_core_instance_count[local.environment]
     }
   )
 }
