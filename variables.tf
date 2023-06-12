@@ -82,3 +82,15 @@ variable "emr_launcher_zip" {
     version   = "1.0.41"
   }
 }
+
+variable "tanium_port_1" {
+  description = "tanium port 1"
+  type        = string
+  default     = "16563"
+}
+
+variable "tanium_port_2" {
+  description = "tanium port 2"
+  type        = string
+  default     = "16555"
+}
