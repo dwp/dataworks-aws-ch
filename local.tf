@@ -268,4 +268,88 @@ locals {
   column_names = <<EOF
   {"CompanyName":"string","CompanyNumber":"string","RegAddress.CareOf":"string","RegAddress.POBox":"string","RegAddress.AddressLine1":"string", "RegAddress.AddressLine2":"string","RegAddress.PostTown":"string","RegAddress.County":"string","RegAddress.Country":"string","RegAddress.PostCode":"string","CompanyCategory":"string","CompanyStatus":"string","CountryOfOrigin":"string","DissolutionDate":"string","IncorporationDate":"string","Accounts.AccountRefDay":"string","Accounts.AccountRefMonth":"string","Accounts.NextDueDate":"string","Accounts.LastMadeUpDate":"string","Accounts.AccountCategory":"string","Returns.NextDueDate":"string","Returns.LastMadeUpDate":"string","Mortgages.NumMortCharges":"string","Mortgages.NumMortOutstanding":"string","Mortgages.NumMortPartSatisfied":"string","Mortgages.NumMortSatisfied":"string","SICCode.SicText_1":"string","SICCode.SicText_2":"string","SICCode.SicText_3":"string","SICCode.SicText_4":"string","LimitedPartnerships.NumGenPartners":"string","LimitedPartnerships.NumLimPartners":"string","URI":"string","PreviousName_1.CONDATE":"string", "PreviousName_1.CompanyName":"string", "PreviousName_2.CONDATE":"string", "PreviousName_2.CompanyName":"string","PreviousName_3.CONDATE":"string", "PreviousName_3.CompanyName":"string","PreviousName_4.CONDATE":"string", "PreviousName_4.CompanyName":"string","PreviousName_5.CONDATE":"string", "PreviousName_5.CompanyName":"string","PreviousName_6.CONDATE":"string", "PreviousName_6.CompanyName":"string","PreviousName_7.CONDATE":"string", "PreviousName_7.CompanyName":"string","PreviousName_8.CONDATE":"string", "PreviousName_8.CompanyName":"string","PreviousName_9.CONDATE":"string", "PreviousName_9.CompanyName":"string","PreviousName_10.CONDATE":"string", "PreviousName_10.CompanyName":"string","ConfStmtNextDueDate":"string", "ConfStmtLastMadeUpDate":"string"}
   EOF
+
+  tenable_install = {
+    development    = "true"
+    qa             = "true"
+    integration    = "true"
+    preprod        = "true"
+    production     = "true"
+    management-dev = "true"
+    management     = "true"
+  }
+
+  trend_install = {
+    development    = "true"
+    qa             = "true"
+    integration    = "true"
+    preprod        = "true"
+    production     = "true"
+    management-dev = "true"
+    management     = "true"
+  }
+
+  tanium_install = {
+    development    = "false"
+    qa             = "false"
+    integration    = "false"
+    preprod        = "false"
+    production     = "false"
+    management-dev = "false"
+    management     = "false"
+  }
+
+
+  ## Tanium config
+  ## Tanium Servers
+  tanium1 = jsondecode(data.aws_secretsmanager_secret_version.terraform_secrets.secret_binary).tanium[local.environment].server_1
+  tanium2 = jsondecode(data.aws_secretsmanager_secret_version.terraform_secrets.secret_binary).tanium[local.environment].server_2
+
+  ## Tanium Env Config
+  tanium_env = {
+    development    = "pre-prod"
+    qa             = "prod"
+    integration    = "prod"
+    preprod        = "prod"
+    production     = "prod"
+    management-dev = "pre-prod"
+    management     = "prod"
+  }
+
+  ## Tanium prefix list for TGW for Security Group rules
+  tanium_prefix = {
+    development    = [data.aws_ec2_managed_prefix_list.list.id]
+    qa             = [data.aws_ec2_managed_prefix_list.list.id]
+    integration    = [data.aws_ec2_managed_prefix_list.list.id]
+    preprod        = [data.aws_ec2_managed_prefix_list.list.id]
+    production     = [data.aws_ec2_managed_prefix_list.list.id]
+    management-dev = [data.aws_ec2_managed_prefix_list.list.id]
+    management     = [data.aws_ec2_managed_prefix_list.list.id]
+  }
+
+  tanium_log_level = {
+    development    = "41"
+    qa             = "41"
+    integration    = "41"
+    preprod        = "41"
+    production     = "41"
+    management-dev = "41"
+    management     = "41"
+  }
+
+  ## Trend config
+  tenant   = jsondecode(data.aws_secretsmanager_secret_version.terraform_secrets.secret_binary).trend.tenant
+  tenantid = jsondecode(data.aws_secretsmanager_secret_version.terraform_secrets.secret_binary).trend.tenantid
+  token    = jsondecode(data.aws_secretsmanager_secret_version.terraform_secrets.secret_binary).trend.token
+
+  policy_id = {
+    development    = "69"
+    qa             = "69"
+    integration    = "69"
+    preprod        = "69"
+    production     = "69"
+    management-dev = "69"
+    management     = "69"
+  }
+  
 }
