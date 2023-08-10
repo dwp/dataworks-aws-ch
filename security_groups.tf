@@ -98,43 +98,43 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
 }
 
 resource "aws_security_group_rule" "ch_host_outbound_tanium_1" {
-  description       = "CH host outbound port 1 to Tanium"
-  type              = "egress"
-  from_port         = var.tanium_port_1
-  to_port           = var.tanium_port_1
-  protocol          = "tcp"
-  prefix_list_ids   = local.tanium_prefix[local.environment]
-  security_group_id = aws_security_group.ch_common.id
+  description              = "CH host outbound port 1 to Tanium"
+  type                     = "egress"
+  from_port                = var.tanium_port_1
+  to_port                  = var.tanium_port_1
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ch_common.id
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.tanium_service_endpoint.sg
 }
 
 resource "aws_security_group_rule" "ch_host_outbound_tanium_2" {
-  description       = "CH host outbound port 2 to Tanium"
-  type              = "egress"
-  from_port         = var.tanium_port_2
-  to_port           = var.tanium_port_2
-  protocol          = "tcp"
-  prefix_list_ids   = local.tanium_prefix[local.environment]
-  security_group_id = aws_security_group.ch_common.id
+  description              = "CH host outbound port 2 to Tanium"
+  type                     = "egress"
+  from_port                = var.tanium_port_2
+  to_port                  = var.tanium_port_2
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ch_common.id
+  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.tanium_service_endpoint.sg
 }
 
 resource "aws_security_group_rule" "ch_host_inbound_tanium_1" {
-  description       = "CH host inbound port 1 from Tanium"
-  type              = "ingress"
-  from_port         = var.tanium_port_1
-  to_port           = var.tanium_port_1
-  protocol          = "tcp"
-  prefix_list_ids   = local.tanium_prefix[local.environment]
-  security_group_id = aws_security_group.ch_common.id
+  description              = "CH host inbound port 1 from Tanium"
+  type                     = "ingress"
+  from_port                = var.tanium_port_1
+  to_port                  = var.tanium_port_1
+  protocol                 = "tcp"
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.tanium_service_endpoint.sg
+  source_security_group_id = aws_security_group.ch_common.id
 }
 
 resource "aws_security_group_rule" "ch_host_inbound_tanium_2" {
-  description       = "CH host inbound port 2 from Tanium"
-  type              = "ingress"
-  from_port         = var.tanium_port_2
-  to_port           = var.tanium_port_2
-  protocol          = "tcp"
-  prefix_list_ids   = local.tanium_prefix[local.environment]
-  security_group_id = aws_security_group.ch_common.id
+  description              = "CH host inbound port 2 from Tanium"
+  type                     = "ingress"
+  from_port                = var.tanium_port_2
+  to_port                  = var.tanium_port_2
+  protocol                 = "tcp"
+  security_group_id        = data.terraform_remote_state.internal_compute.outputs.tanium_service_endpoint.sg
+  source_security_group_id = aws_security_group.ch_common.id
 }
 
 resource "aws_security_group_rule" "egress_ch_to_dks" {
