@@ -140,5 +140,4 @@
         echo "Flag set to skip Tanium installation"
     fi
 
-
 )   >> /var/log/dataworks-aws-ch/config_hcs.log 2>&1
