@@ -55,11 +55,12 @@ resources:
   - name: dataworks-behavioural-framework
     type: git
     source:
-      branch: master
-      uri: https://github.com/dwp/dataworks-behavioural-framework.git
-      access_token: ((dataworks-secrets.concourse_github_pat))
+      branch: main
+      uri: https://gitlab.com/dwp/dataworks/aws/deployments/layer1/dataworks-behavioural-framework.git
+      password: ((dataworks-secrets.concourse_gitlab_pat))
+      username: ((dataworks.concourse_gitlab_username))
+    webhook_token: ((dataworks.concourse_gitlab_webhook_token))
     check_every: 5m
-    webhook_token: ((dataworks.concourse_github_webhook_token))
 
   - name: meta-development
     type: meta
