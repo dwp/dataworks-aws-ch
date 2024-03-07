@@ -270,13 +270,13 @@ locals {
   EOF
 
   tenable_install = {
-    development    = "true"
-    qa             = "true"
-    integration    = "true"
-    preprod        = "true"
-    production     = "true"
-    management-dev = "true"
-    management     = "true"
+    development    = "false"
+    qa             = "false"
+    integration    = "false"
+    preprod        = "false"
+    production     = "false"
+    management-dev = "false"
+    management     = "false"
   }
 
   trend_install = {
