@@ -1,5 +1,5 @@
 jobs:
-  - name: qa
+  - name: qa-decom
     max_in_flight: 1
     plan:
       - get: dataworks-aws-ch

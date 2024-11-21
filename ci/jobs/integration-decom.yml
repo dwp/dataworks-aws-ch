@@ -1,5 +1,5 @@
 jobs:
-  - name: integration
+  - name: integration-decom
     max_in_flight: 1
     plan:
       - get: dataworks-aws-ch

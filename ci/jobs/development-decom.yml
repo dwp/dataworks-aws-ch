@@ -1,5 +1,5 @@
 jobs:
-  - name: development
+  - name: development-decom
     max_in_flight: 1
     plan:
       - get: dataworks-aws-ch
@@ -10,6 +10,6 @@ jobs:
         trigger: false
       - .: (( inject meta.plan.terraform-bootstrap ))
       - .: (( inject meta.plan.terraform-apply-destroy ))
-      params:
-        TF_WORKSPACE: 'default'
-        AWS_ACC: ((aws_account.development))
+        params:
+          TF_WORKSPACE: 'default'
+          AWS_ACC: ((aws_account.development))
