@@ -1,0 +1,14 @@
+jobs:
+  - name: production-decom
+    max_in_flight: 1
+    plan:
+      - get: dataworks-aws-ch
+        trigger: false
+      - get: al2-emr-ami
+        trigger: false
+      - get: emr-launcher-release
+        trigger: false
+      - .: (( inject meta.plan.terraform-bootstrap ))
+      - .: (( inject meta.plan.terraform-apply-destroy ))
+        params:
+          TF_WORKSPACE: 'production'

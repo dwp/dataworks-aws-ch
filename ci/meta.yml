@@ -70,6 +70,34 @@ meta:
           - name: al2-emr-ami
           - name: emr-launcher-release
 
+    terraform-apply-destroy:
+      task: terraform-apply
+      .: (( inject meta.plan.terraform-common-config ))
+      config:
+        params:
+          TF_INPUT: false
+          TF_CLI_ARGS_apply: -lock-timeout=300s
+        run:
+          path: sh
+          args:
+            - -exc
+            - |
+              if [ -f ../previous_success/exit-if-succeeded.sh ]; then
+                source ../previous_success/exit-if-succeeded.sh
+              fi
+              export TF_VAR_emr_ami_id=$(cat ../al2-emr-ami/id)
+              cp ../terraform-bootstrap/terraform.tf .
+              terraform workspace show
+              terraform init
+              terraform plan --destroy -out terraform.plan
+              terraform apply --destroy -auto-approve terraform.plan
+          dir: dataworks-aws-ch
+        inputs:
+          - name: dataworks-aws-ch
+          - name: terraform-bootstrap
+          - name: al2-emr-ami
+          - name: emr-launcher-release
+
     terraform-plan:
       task: terraform-plan
       .: (( inject meta.plan.terraform-common-config ))
@@ -86,7 +114,7 @@ meta:
               cp ../terraform-bootstrap/terraform.tf .
               terraform workspace show
               terraform init
-              terraform plan $DETAILED_EXITCODE
+              terraform plan --destroy $DETAILED_EXITCODE
           dir: dataworks-aws-ch
         inputs:
           - name: dataworks-aws-ch

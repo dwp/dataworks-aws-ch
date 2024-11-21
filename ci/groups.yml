@@ -6,6 +6,13 @@ groups:
       - integration
       - preprod
       - production
+  - name: decom
+    jobs:
+      - development-decom
+      - qa-decom
+      - integration-decom
+      - preprod-decom
+      - production-decom
   - name: pull-request
     jobs:
       - dataworks-aws-ch-pr
