@@ -1,3 +1,5 @@
+# This repo is now deprecated and archived
+
 # dataworks-aws-ch
 
 ## EMR template based repository
